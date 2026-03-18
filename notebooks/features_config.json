@@ -1,0 +1,38 @@
+{
+  "NUMERIC_FEATURES": [
+    "surface_area",
+    "bedrooms",
+    "bathrooms",
+    "dist_mer",
+    "dist_centre",
+    "dist_aeroport",
+    "dist_parc",
+    "dist_ucad",
+    "dist_vdn",
+    "rooms_total",
+    "is_premium",
+    "surface_per_room",
+    "log_surface",
+    "log_dist_mer",
+    "bath_bed_ratio",
+    "city_mean_price",
+    "city_median_price",
+    "city_count",
+    "has_piscine",
+    "has_standing",
+    "has_meuble",
+    "has_parking",
+    "has_ascenseur",
+    "has_gardiennage",
+    "has_balcon",
+    "has_vue_mer",
+    "has_groupe_elec",
+    "has_climatise"
+  ],
+  "CATEGORICAL_FEATURES": [
+    "property_type",
+    "source"
+  ],
+  "TARGET": "price",
+  "LOG_TARGET": "log_price"
+}
