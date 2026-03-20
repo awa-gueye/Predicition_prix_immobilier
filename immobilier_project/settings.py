@@ -5,6 +5,7 @@ Django settings for immobilier_project project.
 from pathlib import Path
 from urllib.parse import urlparse
 from decouple import config
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -12,6 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("SECRET_KEY", default="django-insecure-changez-moi")
 DEBUG = config("DEBUG", default=True, cast=bool)
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1").split(",")
+
 
 # ── Applications ──────────────────────────────────────────────────────────────
 INSTALLED_APPS = [
@@ -36,6 +38,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django_plotly_dash.middleware.BaseMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -136,3 +139,32 @@ CHANNEL_LAYERS = {
 }
 
 LOGIN_URL = '/immo/login/'
+
+##--------------
+
+# ── Base de données (Neon PostgreSQL via DATABASE_URL) ────────────────────────
+DATABASE_URL = config('DATABASE_URL')
+
+DATABASES = {
+    'default': dj_database_url.parse(
+        DATABASE_URL,
+        conn_max_age=600,
+        ssl_require=True,
+    )
+}
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
+# ── Sécurité HTTPS ────────────────────────────────────────────────────────────
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT      = True
+SESSION_COOKIE_SECURE    = True
+CSRF_COOKIE_SECURE       = True
+
+# CSRF pour le domaine Render
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.onrender.com',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
