@@ -1,0 +1,25 @@
+{
+  "best_model": "Random Forest",
+  "search_method": "GridSearchCV",
+  "metrics": {
+    "R2": 0.3654,
+    "MAE": 51752241.83,
+    "RMSE": 98189361.33,
+    "MAPE (%)": 149.46,
+    "pct_20": 23.7,
+    "pct_30": 34.8
+  },
+  "best_params": {
+    "model__max_depth": "20",
+    "model__max_features": "sqrt",
+    "model__min_samples_leaf": "1",
+    "model__min_samples_split": "10",
+    "model__n_estimators": "500"
+  },
+  "benchmark": {
+    "Abidoye_Lagos_2018_MAPE": 15.94,
+    "Ouchlif_Maroc_2025_R2": 0.926,
+    "Notre_MAPE": 149.46,
+    "Notre_R2": 0.3654
+  }
+}
