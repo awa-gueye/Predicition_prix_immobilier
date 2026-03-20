@@ -66,6 +66,15 @@
             </select>
           </div>
 
+          <div class="form-group">
+            <label class="form-label">Type de transaction *</label>
+            <select name="transaction" class="form-control form-select" required>
+              {% for val, label in transactions %}
+              <option value="{{ val }}" {% if form.transaction == val %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Superficie (m²)</label>
@@ -109,9 +118,17 @@
           {% elif result.predicted_price >= 1000000 %}
             {{ result.predicted_price|floatformat:0 }} FCFA
           {% else %}
-            {{ result.predicted_price }} FCFA
+            {{ result.predicted_price|floatformat:0 }} FCFA
+          {% endif %}
+          {% if result.unit %}
+            <span style="font-size:1rem;color:rgba(240,237,232,.55);font-family:'Inter',sans-serif">{{ result.unit }}</span>
           {% endif %}
         </div>
+        {% if result.transaction == 'location' %}
+        <div style="margin-top:.4rem;font-size:.78rem;color:rgba(240,237,232,.4)">
+          <i class="fas fa-info-circle"></i> Prix mensuel estimé
+        </div>
+        {% endif %}
         <div class="result-range">
           <i class="fas fa-arrows-alt-h"></i>
           Fourchette :
@@ -135,6 +152,7 @@
             <tbody>
               {% if form.city %}<tr><td class="text-muted text-sm">Localité</td><td class="fw-600">{{ form.city }}</td></tr>{% endif %}
               {% if form.property_type %}<tr><td class="text-muted text-sm">Type</td><td class="fw-600">{{ form.property_type }}</td></tr>{% endif %}
+              {% if form.transaction %}<tr><td class="text-muted text-sm">Transaction</td><td class="fw-600">{% if form.transaction == 'location' %}Location mensuelle{% else %}Achat / Vente{% endif %}</td></tr>{% endif %}
               {% if form.surface_area %}<tr><td class="text-muted text-sm">Superficie</td><td class="fw-600">{{ form.surface_area }} m²</td></tr>{% endif %}
               {% if form.bedrooms %}<tr><td class="text-muted text-sm">Chambres</td><td class="fw-600">{{ form.bedrooms }}</td></tr>{% endif %}
               {% if form.bathrooms %}<tr><td class="text-muted text-sm">Salles de bain</td><td class="fw-600">{{ form.bathrooms }}</td></tr>{% endif %}

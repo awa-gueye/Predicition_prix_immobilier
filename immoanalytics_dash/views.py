@@ -188,51 +188,227 @@ def _demo_geo():
 @login_required(login_url='/immo/login/')
 def estimation_page(request):
     cities = _get_cities()
-    types  = ['Villa','Appartement','Terrain','Duplex','Studio','Maison','Local commercial']
+    types  = [
+        'Villa','Appartement','Terrain','Duplex','Studio',
+        'Maison','Chambre','Local commercial','Bureau',
+    ]
+    transactions = [
+        ('vente',    'Achat / Vente'),
+        ('location', 'Location mensuelle'),
+    ]
     result = error = None; form = {}
     if request.method == 'POST':
         form = {k: request.POST.get(k,'') for k in
-                ['city','property_type','surface_area','bedrooms','bathrooms']}
+                ['city','property_type','surface_area','bedrooms','bathrooms','transaction']}
         try:
-            sa = float(form['surface_area']) if form['surface_area'] else None
-            bd = int(form['bedrooms'])       if form['bedrooms']     else 0
-            bh = int(form['bathrooms'])      if form['bathrooms']    else 0
-            result = _estimate(form['city'], form['property_type'], sa, bd, bh)
+            sa  = float(form['surface_area']) if form['surface_area'] else None
+            bd  = int(form['bedrooms'])        if form['bedrooms']     else 0
+            bh  = int(form['bathrooms'])       if form['bathrooms']    else 0
+            txn = form.get('transaction','vente') or 'vente'
+            result = _estimate(form['city'], form['property_type'], sa, bd, bh,
+                                transaction=txn)
         except Exception as e:
             error = str(e)
     return render(request, 'immoanalytics/estimation.html',
-                  _ctx(request, {'cities':cities,'types':types,
-                                 'result':result,'error':error,'form':form}))
+                  _ctx(request, {
+                      'cities': cities, 'types': types,
+                      'transactions': transactions,
+                      'result': result, 'error': error, 'form': form,
+                  }))
 
-def _estimate(city, ptype, surface, bedrooms, bathrooms):
+# ── Prix de référence par type et transaction (FCFA) ─────────────────────────
+# Sources : moyennes observées sur le marché sénégalais
+# Format : (prix_min, prix_typique, prix_max)
+PRIX_REF = {
+    # Location mensuelle
+    ("chambre",      "location"): (30_000,      70_000,       150_000),
+    ("studio",       "location"): (60_000,      120_000,      300_000),
+    ("f1",           "location"): (60_000,      120_000,      300_000),
+    ("appartement",  "location"): (150_000,     400_000,    1_500_000),
+    ("villa",        "location"): (300_000,   1_200_000,    5_000_000),
+    ("duplex",       "location"): (250_000,     800_000,    3_000_000),
+    ("maison",       "location"): (80_000,      250_000,      800_000),
+    ("bureau",       "location"): (200_000,     600_000,    3_000_000),
+    ("local",        "location"): (150_000,     400_000,    2_000_000),
+    # Vente
+    ("chambre",      "vente"):    (500_000,   2_000_000,    8_000_000),
+    ("studio",       "vente"):    (2_000_000, 8_000_000,   25_000_000),
+    ("appartement",  "vente"):    (8_000_000,40_000_000,  200_000_000),
+    ("villa",        "vente"):    (20_000_000,100_000_000,500_000_000),
+    ("duplex",       "vente"):    (15_000_000,70_000_000, 300_000_000),
+    ("terrain",      "vente"):    (2_000_000, 20_000_000, 300_000_000),
+    ("maison",       "vente"):    (5_000_000, 30_000_000, 150_000_000),
+    ("local",        "vente"):    (10_000_000,50_000_000, 300_000_000),
+}
+
+# Multiplicateurs par zone géographique
+ZONE_MULT = {
+    "almadies":3.5,"ngor":3.0,"mermoz":2.5,"ouakam":2.0,"fann":2.2,
+    "plateau":2.0,"yoff":1.8,"sacre coeur":2.3,"vdn":1.9,"point e":2.1,
+    "sicap":1.5,"liberte":1.5,"hlm":1.3,"pikine":0.7,"guediawaye":0.65,
+    "rufisque":0.55,"thies":0.5,"mbour":0.6,"saly":1.2,"dakar":1.0,
+}
+
+
+def _detect_transaction(ptype_raw):
+    """Détecte si c'est vente ou location selon le type saisi."""
+    tl = (ptype_raw or "").lower()
+    loc_kw = ["louer","location","locat","bail","mois","mensuel","loyer"]
+    if any(k in tl for k in loc_kw):
+        return "location"
+    return "vente"
+
+
+def _normalize_type(ptype):
+    """Normalise le type de bien vers une clé PRIX_REF."""
+    if not ptype: return "appartement"
+    tl = ptype.lower()
+    if any(w in tl for w in ["chambre","room"]): return "chambre"
+    if any(w in tl for w in ["studio","f1","t1"]): return "studio"
+    if any(w in tl for w in ["villa","maison individuelle"]): return "villa"
+    if any(w in tl for w in ["appart","f2","f3","f4","f5","t2","t3"]): return "appartement"
+    if any(w in tl for w in ["terrain","parcelle","lot"]): return "terrain"
+    if any(w in tl for w in ["duplex","triplex"]): return "duplex"
+    if any(w in tl for w in ["maison","bungalow"]): return "maison"
+    if any(w in tl for w in ["bureau","office","local","commerce"]): return "local"
+    return tl.split()[0] if tl else "appartement"
+
+
+def _estimate(city, ptype, surface, bedrooms, bathrooms, transaction=None):
+    """
+    Estimation du prix d'un bien immobilier.
+    1. Essaie le modèle ML si disponible.
+    2. Sinon, utilise les prix de référence réels par type + zone.
+    """
     import os, sys, importlib
-    ml_dir = os.path.normpath(os.path.join(os.path.dirname(__file__),'..','properties','ml'))
-    if os.path.exists(os.path.join(ml_dir,'predict.py')):
-        if ml_dir not in sys.path: sys.path.insert(0, ml_dir)
+
+    # ── 1. Modèle ML (si disponible) ─────────────────────────────────────────
+    ml_dir = os.path.normpath(
+        os.path.join(os.path.dirname(__file__), '..', 'properties', 'ml'))
+    if os.path.exists(os.path.join(ml_dir, 'predict.py')):
+        if ml_dir not in sys.path:
+            sys.path.insert(0, ml_dir)
         try:
             mod = importlib.import_module('predict')
-            return mod.predict_price(city=city, property_type=ptype,
-                                      surface_area=surface, bedrooms=bedrooms, bathrooms=bathrooms)
+            return mod.predict_price(
+                city=city, property_type=ptype,
+                surface_area=surface, bedrooms=bedrooms, bathrooms=bathrooms)
         except Exception as e:
             logger.warning(f"ML: {e}")
+
+    # ── 2. Estimation statistique depuis la DB ────────────────────────────────
+    type_key = _normalize_type(ptype)
+    txn      = transaction or _detect_transaction(ptype)
+
+    # Chercher dans la DB des biens similaires
     try:
-        from properties.models import CoinAfriqueProperty, ExpatDakarProperty
-        from django.db.models import Avg
+        from properties.models import (CoinAfriqueProperty, ExpatDakarProperty,
+                                        LogerDakarProperty, DakarVenteProperty,
+                                        ImmoSenegalProperty)
+        from django.db.models import Avg, Count
+        import statistics as stats
+
+        KW_LOC = ["louer","location","locat","bail","mensuel","loyer"]
+        KW_VTE = ["vendre","vente","achat","cession"]
+
+        MODELS = [CoinAfriqueProperty, ExpatDakarProperty,
+                  LogerDakarProperty, DakarVenteProperty, ImmoSenegalProperty]
         prices = []
-        for m in [CoinAfriqueProperty, ExpatDakarProperty]:
-            qs = m.objects.filter(price__gt=0)
-            if city:  qs = qs.filter(city__icontains=city)
-            if ptype: qs = qs.filter(property_type__icontains=ptype)
-            a = qs.aggregate(a=Avg('price'))['a']
-            if a: prices.append(a)
-        base = sum(prices)/len(prices) if prices else _zone_base(city)
-    except:
-        base = _zone_base(city)
-    if surface and surface > 0: base = max(base, surface*450_000)
-    base *= (1 + bedrooms*0.07)
-    m = base*0.18
-    return {'predicted_price':round(base),'price_min':round(base-m),
-            'price_max':round(base+m),'model_used':'Estimation statistique','confidence':'±18%'}
+        for model in MODELS:
+            qs = model.objects.filter(price__gt=0, price__lt=5_000_000_000)
+            if city:  qs = qs.filter(city__icontains=city[:6])
+            if ptype: qs = qs.filter(property_type__icontains=type_key[:5])
+            # Filtre transaction via titre/statut
+            from django.db.models import Q
+            avail = [f.name for f in model._meta.get_fields()]
+            if txn == "location":
+                q = Q()
+                for k in KW_LOC:
+                    q |= Q(title__icontains=k)
+                    if "statut" in avail: q |= Q(statut__icontains=k)
+                qs = qs.filter(q)
+            elif txn == "vente":
+                q = Q()
+                for k in KW_VTE:
+                    q |= Q(title__icontains=k)
+                    if "statut" in avail: q |= Q(statut__icontains=k)
+                qs = qs.filter(q)
+            batch = list(qs.values_list("price", flat=True)[:200])
+            prices.extend(batch)
+
+        if len(prices) >= 5:
+            # Utiliser la médiane (plus robuste que la moyenne pour l'immobilier)
+            base = stats.median(prices)
+        else:
+            base = None
+    except Exception as e:
+        logger.warning(f"DB estimate: {e}")
+        base = None
+
+    # ── 3. Fallback : prix de référence par type + zone ───────────────────────
+    if not base:
+        ref_key = (type_key, txn)
+        # Chercher la clé exacte ou la plus proche
+        ref = PRIX_REF.get(ref_key)
+        if not ref:
+            # Chercher uniquement par type
+            for k, v in PRIX_REF.items():
+                if k[0] == type_key:
+                    ref = v; break
+        if not ref:
+            ref = PRIX_REF.get(("appartement", txn),
+                                (1_000_000, 30_000_000, 100_000_000))
+        base = ref[1]  # Prix typique
+
+    # ── 4. Ajustements ────────────────────────────────────────────────────────
+    # Multiplicateur de zone
+    city_key = (city or "dakar").lower().strip()
+    zone_mult = 1.0
+    for zone, mult in ZONE_MULT.items():
+        if zone in city_key:
+            zone_mult = mult
+            break
+
+    base *= zone_mult
+
+    # Surface (seulement pour les biens dont le prix dépend de la surface)
+    if surface and surface > 0 and type_key not in ("chambre","terrain"):
+        # Prix au m² de référence selon le type
+        prix_m2_ref = {
+            "appartement": 400_000 if txn=="vente" else 2_500,
+            "villa":        600_000 if txn=="vente" else 4_000,
+            "duplex":       500_000 if txn=="vente" else 3_000,
+            "maison":       300_000 if txn=="vente" else 1_500,
+            "studio":       450_000 if txn=="vente" else 2_000,
+            "local":        500_000 if txn=="vente" else 3_500,
+            "bureau":       600_000 if txn=="vente" else 5_000,
+        }
+        pm2 = prix_m2_ref.get(type_key, 350_000 if txn=="vente" else 2_000)
+        surface_price = surface * pm2 * zone_mult
+        # Pondérer : 60% surface, 40% base statistique
+        base = base * 0.4 + surface_price * 0.6
+
+    # Chambres (ajustement mineur)
+    if bedrooms and bedrooms > 1 and type_key not in ("chambre","studio","terrain"):
+        base *= (1 + (bedrooms - 1) * 0.05)
+
+    base = max(base, 10_000)   # Minimum absolu 10 000 FCFA
+    margin = base * 0.20
+
+    # Label de l'unité selon le type de transaction
+    unit = "/mois" if txn == "location" else ""
+    label = f"Estimation {type_key}"
+    if txn == "location": label += " (location mensuelle)"
+
+    return {
+        "predicted_price": round(base),
+        "price_min":       round(max(base - margin, 10_000)),
+        "price_max":       round(base + margin),
+        "model_used":      label,
+        "confidence":      "±20%",
+        "transaction":     txn,
+        "unit":            unit,
+    }
 
 def _zone_base(city):
     zones = {'almadies':240_000_000,'ngor':180_000_000,'ouakam':110_000_000,
@@ -244,298 +420,280 @@ def _zone_base(city):
 def _get_cities():
     try:
         from properties.models import CoinAfriqueProperty
-        cs = CoinAfriqueProperty.objects.values_list('city',flat=True).distinct().order_by('city')[:60]
+        cs = CoinAfriqueProperty.objects.values_list("city",flat=True).distinct().order_by("city")[:60]
         return sorted(set(c.strip() for c in cs if c and c.strip()))
     except:
-        return ['Almadies','Dakar','Fann','Guediawaye','Mermoz','Ngor',
-                'Ouakam','Pikine','Plateau','Rufisque','Thies','Yoff']
-
-# ── Viewer + Chatbot ──────────────────────────────────────────────────────────
-CITIES_SN = [
-    "almadies","ngor","ouakam","mermoz","pikine","guediawaye","plateau","fann",
-    "yoff","rufisque","liberte","hlm","sicap","grand yoff","keur massar",
-    "medina","thies","mbour","dakar","parcelles","sacre coeur","vdn","saly",
-    "patte d oie","dieuppeul","fass","colobane","biscuiterie","nord foire",
-    "mbao","yeumbeul","keur ndiaye lo","diamniadio",
-]
-TYPE_MAP  = {"villa":["villa"],"appartement":["appart","f2","f3","f4","f5"],
-             "terrain":["terrain","parcelle"],"duplex":["duplex"],
-             "studio":["studio"],"maison":["maison"],"local":["local","commerce","bureau"]}
-KW_LOC = ["louer","location","locat","bail","mensuel","loyer","à louer","a louer"]
-KW_VTE = ["vendre","acheter","achat","vente","à vendre","a vendre"]
-
-# Salutations et messages non-recherche
-GREETINGS = ["bonjour","bonsoir","salut","hello","hi","coucou","bonne nuit","merci","ok","oui","non","svp"]
-HELP_WORDS = ["aide","help","comment","quoi","que","quels","informations"]
-
-PRICE_MIN = 1_000_000      # 1M FCFA minimum réaliste
-PRICE_MAX = 5_000_000_000  # 5 milliards max
+        return ["Almadies","Dakar","Fann","Guediawaye","Mermoz","Ngor",
+                "Ouakam","Pikine","Plateau","Rufisque","Thies","Yoff"]
 
 
-def _is_greeting(text: str) -> bool:
-    tl = text.lower().strip().rstrip('!').rstrip('.').rstrip(',')
-    return tl in GREETINGS or len(tl) < 4
+# ── Réponses analytiques ──────────────────────────────────────────────────────
 
+def _analyze_prix_stats(question, crit):
+    """Calcule les statistiques de prix pour répondre à 'Que vaut X à Y ?'."""
+    import statistics
+    data = _get_db_data()
+    if not data:
+        return "Je n'ai pas accès aux données en ce moment.", []
 
-def _amt(t):
-    """Convertit un texte en montant FCFA."""
-    try:
-        s = str(t).replace(" ","").replace(",",".")
-        v = float(s)
-        # Détecter l'unité
-        if v < 1_000:          # "150" → 150M
-            return v * 1_000_000
-        if v < 100_000:        # "150000" → déjà en FCFA si < 100K, sinon en FCFA brut
-            # Ambiguïté : 150000 peut être 150 000 FCFA (trop bas) ou 150M (manque le M)
-            # Règle : si < 500K → probablement une erreur, on ignore
-            if v < 500:        return v * 1_000_000  # 150 → 150M
-            return v           # 150000 → 150 000 FCFA (sera filtré si < PRICE_MIN)
-        return v               # 150000000 → déjà en FCFA
-    except:
-        return None
+    # Filtrer
+    filtered = [d for d in data if d.get("price") and d["price"] >= PRICE_MIN]
+    if crit.get("city"):
+        city_q = crit["city"].lower()
+        filtered = [d for d in filtered
+                    if str(d.get("city","")).lower().find(city_q[:5]) >= 0]
+    if crit.get("type"):
+        type_q = crit["type"].lower()
+        filtered = [d for d in filtered
+                    if str(d.get("property_type","")).lower().find(type_q[:4]) >= 0]
 
+    if not filtered:
+        scope = []
+        if crit.get("city"):  scope.append(f"à {crit['city']}")
+        if crit.get("type"):  scope.append(crit["type"])
+        return (f"Aucune donnée disponible pour {' '.join(scope) or 'cette recherche'}. "
+                "Essayez un autre quartier ou type de bien."), []
 
-def _parse(text: str) -> dict:
-    """Extrait les critères de recherche depuis le texte naturel."""
-    tl = (text.lower()
-          .replace("é","e").replace("è","e").replace("à","a")
-          .replace("ê","e").replace("â","a").replace("ô","o"))
+    prices = [d["price"] for d in filtered]
+    p_med  = statistics.median(prices)
+    p_moy  = statistics.mean(prices)
+    p_min  = min(prices)
+    p_max  = max(prices)
+    n      = len(prices)
 
-    # Budget
-    mn = mx = None
+    # Construire la réponse
+    scope_parts = []
+    if crit.get("type"):  scope_parts.append(f"<b>{crit['type']}</b>")
+    if crit.get("city"):  scope_parts.append(f"à <b>{crit['city']}</b>")
+    scope = " ".join(scope_parts) if scope_parts else "ce type de bien"
 
-    # "entre X et Y"
-    m = re.search(r"entre\s+([\d\s,.]+)\s*(?:m|milli|millions?|fcfa)?\s*(?:et|a|-)\s*([\d\s,.]+)\s*(?:m|milli|millions?|fcfa)?", tl)
-    if m:
-        mn, mx = _amt(m.group(1)), _amt(m.group(2))
-    else:
-        # "moins de X" / "max X" / "inferieur a X"
-        m2 = re.search(r"(?:moins de|max|inferieur|jusqu'a|jusqu.a|pas plus de)\s+([\d\s,.]+)\s*(?:m|milli|millions?|fcfa|k)?", tl)
-        if m2:
-            raw = m2.group(1).strip()
-            unit_after = m2.group(0).split(raw)[-1].strip()
-            v = _amt(raw)
-            if v: mx = v
+    lines = [
+        f"Analyse sur <b>{n}</b> annonce{'s' if n>1 else ''} {scope} :",
+        f"• Prix minimum : <b>{_fmt_price(p_min)}</b>",
+        f"• Prix médian  : <b>{_fmt_price(p_med)}</b>",
+        f"• Prix moyen   : <b>{_fmt_price(p_moy)}</b>",
+        f"• Prix maximum : <b>{_fmt_price(p_max)}</b>",
+    ]
 
-        # "a partir de X" / "minimum X" / "plus de X"
-        m3 = re.search(r"(?:a partir de|au moins|minimum|plus de|min)\s+([\d\s,.]+)\s*(?:m|milli|millions?|fcfa|k)?", tl)
-        if m3:
-            v = _amt(m3.group(1))
-            if v: mn = v
-
-        # Budget isolé : "X millions" / "XM" / "X M FCFA"
-        if not mx and not mn:
-            m4 = re.search(r"([\d]+(?:[.,][\d]+)?)\s*(?:m|millions?|mds)", tl)
-            if m4:
-                v = _amt(m4.group(1))
-                if v and v >= PRICE_MIN:
-                    mn = v * 0.7
-                    mx = v * 1.4
-
-        # Montant brut en FCFA style "150000 fcfa" ou "2000000"
-        if not mx and not mn:
-            m5 = re.search(r"([\d]{4,})\s*(?:fcfa|f)?", tl)
-            if m5:
-                v = float(m5.group(1).replace(" ",""))
-                if v >= PRICE_MIN:
-                    mn = v * 0.7
-                    mx = v * 1.4
-
-    # Valider les montants (rejeter si trop bas)
-    if mn and mn < PRICE_MIN: mn = None
-    if mx and mx < PRICE_MIN: mx = None
-
-    # Ville
-    city = next((c.title() for c in sorted(CITIES_SN, key=len, reverse=True) if c in tl), None)
-
-    # Type de bien
-    ptype = next((k.capitalize() for k, kws in TYPE_MAP.items()
-                  if any(w in tl for w in [k]+kws)), None)
-
-    # Transaction
-    txn = ("location" if any(k in tl for k in KW_LOC)
-           else "vente" if any(k in tl for k in KW_VTE)
-           else None)
-
-    # Chambres
-    beds = None
-    mb = re.search(r"(\d+)\s*chambre", tl)
-    if mb: beds = int(mb.group(1))
-    mb2 = re.search(r"f(\d)", tl)
-    if mb2: beds = max(1, int(mb2.group(1)) - 1)
-
-    return {"city": city, "type": ptype, "transaction": txn,
-            "min_price": mn, "max_price": mx, "bedrooms": beds}
-
-
-def _search(crit: dict):
-    """Recherche dans toutes les tables avec filtres sur prix valides."""
-    try:
-        from properties.models import (CoinAfriqueProperty, ExpatDakarProperty,
-            LogerDakarProperty, DakarVenteProperty, ImmoSenegalProperty)
-        MODELS = [
-            (CoinAfriqueProperty, 'coinafrique'),
-            (ExpatDakarProperty,  'expat_dakar'),
-            (LogerDakarProperty,  'loger_dakar'),
-            (DakarVenteProperty,  'dakarvente'),
-            (ImmoSenegalProperty, 'immosenegal'),
-        ]
-        results = []
-        for model, src in MODELS:
-            qs = model.objects.filter(price__gte=PRICE_MIN, price__lte=PRICE_MAX)
-            if crit.get('city'):
-                qs = qs.filter(city__icontains=crit['city'])
-            if crit.get('type'):
-                qs = qs.filter(property_type__icontains=crit['type'])
-            if crit.get('min_price'):
-                qs = qs.filter(price__gte=max(crit['min_price'], PRICE_MIN))
-            if crit.get('max_price'):
-                qs = qs.filter(price__lte=crit['max_price'])
-            if crit.get('bedrooms'):
-                qs = qs.filter(bedrooms__gte=crit['bedrooms'])
-
-            for p in qs.order_by('price').values(
-                'id', 'title', 'price', 'city', 'property_type',
-                'surface_area', 'bedrooms', 'url')[:80]:
-                results.append({**p, 'source': src})
-
-        # Dédoublonnage + tri
-        seen, deduped = set(), []
-        for r in sorted(results, key=lambda x: x.get('price') or 0):
-            key = (r.get('price'), str(r.get('city', ''))[:8], str(r.get('property_type', ''))[:8])
-            if key not in seen:
-                seen.add(key)
-                deduped.append(r)
-
-        return deduped, len(deduped)
-    except Exception as e:
-        logger.warning(f"Search error: {e}")
-        return [], 0
-
-
-def _fmt_price(price) -> str:
-    """Formate un prix de façon lisible en FCFA."""
-    if not price:
-        return "—"
-    try:
-        p = float(price)
-        if p < PRICE_MIN:      return "—"
-        if p >= 1_000_000_000: return f"{p/1_000_000_000:.2f} Mds FCFA"
-        if p >= 1_000_000:     return f"{p/1_000_000:.1f}M FCFA"
-        if p >= 1_000:         return f"{p/1_000:.0f}K FCFA"
-        return f"{p:,.0f} FCFA"
-    except:
-        return "—"
-
-
-@login_required(login_url='/immo/login/')
-def api_chatbot(request):
-    """Endpoint AJAX pour le chatbot IA."""
-    if request.method != 'POST':
-        return JsonResponse({'error': 'POST requis'}, status=405)
-    try:
-        body = json.loads(request.body)
-        q    = body.get('message', '').strip()
-        if not q:
-            return JsonResponse({'error': 'Message vide'}, status=400)
-
-        # ── Détecter les messages hors-recherche ─────────────────────────────
-        if _is_greeting(q):
-            greet_resp = (
-                "Bonjour ! Je suis votre assistant immobilier. "
-                "Décrivez le bien que vous recherchez.<br>"
-                "<small style='opacity:.6'>Exemple : <em>villa Almadies moins de 200M</em> "
-                "ou <em>appartement 3 chambres Ouakam location</em></small>"
-            )
-            return JsonResponse({'response': greet_resp, 'total': 0, 'properties': []})
-
-        # Détecter demande d'aide
-        tl = q.lower()
-        if any(w in tl for w in HELP_WORDS) and len(tl) < 30:
-            help_resp = (
-                "Je peux vous aider à trouver des biens immobiliers. Précisez :<br>"
-                "• <b>Type</b> : villa, appartement, terrain, studio…<br>"
-                "• <b>Localité</b> : Almadies, Ouakam, Dakar, Pikine…<br>"
-                "• <b>Budget</b> : moins de 100M, entre 50M et 150M…<br>"
-                "• <b>Transaction</b> : vente ou location<br>"
-                "<em>Ex : studio à louer Plateau moins de 300K/mois</em>"
-            )
-            return JsonResponse({'response': help_resp, 'total': 0, 'properties': []})
-
-        # ── Extraction des critères et recherche ─────────────────────────────
-        crit    = _parse(q)
-        has_criteria = any(crit.get(k) for k in ['city','type','transaction','min_price','max_price','bedrooms'])
-
-        if not has_criteria:
-            no_crit_resp = (
-                "Je n'ai pas bien compris votre recherche. "
-                "Essayez par exemple :<br>"
-                "• <em>Villa à vendre à Almadies moins de 300M</em><br>"
-                "• <em>Appartement 3 chambres location Ouakam</em><br>"
-                "• <em>Terrain Pikine entre 10M et 30M</em>"
-            )
-            return JsonResponse({'response': no_crit_resp, 'total': 0, 'properties': []})
-
-        results, total = _search(crit)
-
-        # ── Réponse naturelle ─────────────────────────────────────────────────
-        parts = []
-        if crit.get('city'):        parts.append(f"<b>{crit['city']}</b>")
-        if crit.get('type'):        parts.append(f"<b>{crit['type']}</b>")
-        if crit.get('transaction'): parts.append(f"en <b>{crit['transaction']}</b>")
-        if crit.get('bedrooms'):    parts.append(f"<b>{crit['bedrooms']}+ chambres</b>")
-        mn, mx = crit.get('min_price'), crit.get('max_price')
-        if mn and mx:   parts.append(f"budget <b>{_fmt_price(mn)} – {_fmt_price(mx)}</b>")
-        elif mn:        parts.append(f"à partir de <b>{_fmt_price(mn)}</b>")
-        elif mx:        parts.append(f"max <b>{_fmt_price(mx)}</b>")
-
-        lines = []
-        if parts:
-            lines.append(f"Recherche : {', '.join(parts)}.")
-
-        if total == 0:
-            lines.append(
-                "Aucun bien trouvé pour ces critères.<br>"
-                "<small style='opacity:.65'>Suggestions : essayez un quartier différent, "
-                "élargissez votre budget, ou retirez certains filtres.</small>"
-            )
-        elif total == 1:
-            prices = [r['price'] for r in results if r.get('price') and r['price'] >= PRICE_MIN]
-            lines.append(f"<b>1</b> bien trouvé au prix de <b>{_fmt_price(prices[0]) if prices else '—'}</b>.")
-        else:
-            lines.append(f"<b>{total}</b> biens trouvés.")
-            prices = sorted([r['price'] for r in results if r.get('price') and r['price'] >= PRICE_MIN])
-            if len(prices) >= 2:
-                lines.append(
-                    f"Prix : de <b>{_fmt_price(prices[0])}</b> "
-                    f"à <b>{_fmt_price(prices[-1])}</b>."
-                )
-
-        props = []
-        for p in results[:6]:
-            price = p.get('price') or 0
-            if price < PRICE_MIN:
-                continue
-            props.append({
-                'title':     str(p.get('title', '') or 'Annonce immobilière')[:60],
-                'price':     price,
-                'price_fmt': _fmt_price(price),
-                'city':      str(p.get('city', '') or ''),
-                'type':      str(p.get('property_type', '') or ''),
-                'source':    p.get('source', ''),
-                'surface':   p.get('surface_area', ''),
-                'bedrooms':  p.get('bedrooms', ''),
-            })
-
-        return JsonResponse({
-            'response':   " ".join(lines),
-            'total':      total,
-            'properties': props,
+    # Exemples de biens
+    props = []
+    for d in sorted(filtered, key=lambda x: abs(x["price"]-p_med))[:5]:
+        props.append({
+            "title":     str(d.get("title","") or "Annonce")[:55],
+            "price":     d["price"],
+            "price_fmt": _fmt_price(d["price"]),
+            "city":      str(d.get("city","") or ""),
+            "type":      str(d.get("property_type","") or ""),
+            "source":    "",
+            "surface":   d.get("surface_area",""),
+            "bedrooms":  d.get("bedrooms",""),
         })
+    return "<br>".join(lines), props
 
-    except Exception as e:
-        logger.error(f"Chatbot error: {e}")
-        return JsonResponse({'response': "Une erreur s'est produite. Réessayez.", 'total': 0, 'properties': []})
+
+def _analyze_comparaison(question, crit):
+    """Compare les prix entre quartiers ou types de biens."""
+    import statistics
+    data = _get_db_data()
+    if not data:
+        return "Données indisponibles.", []
+
+    filtered = [d for d in data if d.get("price") and d["price"] >= PRICE_MIN]
+    if crit.get("type"):
+        type_q = crit["type"].lower()
+        filtered = [d for d in filtered
+                    if str(d.get("property_type","")).lower().find(type_q[:4]) >= 0]
+
+    # Grouper par ville
+    from collections import defaultdict
+    by_city = defaultdict(list)
+    for d in filtered:
+        city = str(d.get("city","") or "").strip().title()
+        if city and city != "Inconnu":
+            by_city[city].append(d["price"])
+
+    # Top 8 villes avec le plus d'annonces
+    top = sorted([(c, ps) for c, ps in by_city.items() if len(ps) >= 5],
+                 key=lambda x: statistics.median(x[1]), reverse=True)[:8]
+
+    if not top:
+        return "Pas assez de données pour comparer les quartiers.", []
+
+    scope = f"({crit['type']})" if crit.get("type") else ""
+    lines = [f"Comparaison des prix médians par quartier {scope} :"]
+    for city, prices in top:
+        med = statistics.median(prices)
+        lines.append(f"• <b>{city}</b> : {_fmt_price(med)} ({len(prices)} annonces)")
+
+    cheaper = top[-1]
+    pricier = top[0]
+    lines.append(
+        f"<br><b>{pricier[0]}</b> est le quartier le plus cher "
+        f"et <b>{cheaper[0]}</b> le plus abordable."
+    )
+    return "<br>".join(lines), []
+
+
+def _analyze_stats_marche(question, crit):
+    """Donne une vue d'ensemble du marché."""
+    import statistics
+    data = _get_db_data()
+    if not data:
+        return "Données indisponibles.", []
+
+    total  = len([d for d in data if d.get("price") and d["price"] >= PRICE_MIN])
+    prices = [d["price"] for d in data if d.get("price") and d["price"] >= PRICE_MIN]
+
+    if not prices:
+        return "Données insuffisantes.", []
+
+    # Compter par type
+    from collections import Counter
+    types = Counter(str(d.get("property_type","") or "").strip() for d in data
+                    if d.get("price") and d["price"] >= PRICE_MIN)
+    top_types = types.most_common(4)
+
+    lines = [
+        f"<b>Marché immobilier au Sénégal</b> — aperçu sur <b>{total:,}</b> annonces :",
+        f"• Prix médian global : <b>{_fmt_price(statistics.median(prices))}</b>",
+        f"• Prix moyen global  : <b>{_fmt_price(statistics.mean(prices))}</b>",
+        f"• Prix minimum       : <b>{_fmt_price(min(prices))}</b>",
+        f"• Prix maximum       : <b>{_fmt_price(max(prices))}</b>",
+        "",
+        "<b>Répartition par type :</b>",
+    ]
+    for t, n in top_types:
+        lines.append(f"• {t or 'Autre'} : <b>{n:,}</b> annonces")
+
+    return "<br>".join(lines), []
+
+
+def _analyze_budget(question, crit):
+    """Conseille sur ce qu'on peut trouver avec un budget donné."""
+    import statistics
+    mn = crit.get("min_price") or crit.get("max_price")
+    mx = crit.get("max_price") or (mn * 1.4 if mn else None)
+    if not mx:
+        # Essayer d'extraire un montant brut depuis la question
+        import re as _re
+        m = _re.search(r"(\d[\d\s]{1,12}\d)\s*(?:fcfa|cfa|f)?", question.lower())
+        if m:
+            v = _amt(m.group(1).replace(" ",""))
+            if v and v >= 500_000:
+                mx = v
+                mn = v * 0.7
+    if not mx:
+        return ("Précisez votre budget pour que je puisse vous conseiller.<br>"
+                "<small style='opacity:.65'>Exemples :<br>"
+                "• <em>Avec 200M FCFA que puis-je acheter ?</em><br>"
+                "• <em>Avec un budget de 50 000 000 FCFA à Dakar</em><br>"
+                "• <em>Budget 150M, quel bien à Ouakam ?</em></small>"), []
+
+    data = _get_db_data()
+    filtered = [d for d in data
+                if d.get("price") and PRICE_MIN <= d["price"] <= mx * 1.1]
+    if crit.get("city"):
+        city_q = crit["city"].lower()
+        filtered = [d for d in filtered
+                    if str(d.get("city","")).lower().find(city_q[:5]) >= 0]
+
+    if not filtered:
+        return (f"Avec un budget de <b>{_fmt_price(mx)}</b>, "
+                "il n'y a pas d'annonces correspondantes. "
+                "Essayez un budget plus élevé ou un autre quartier."), []
+
+    from collections import Counter
+    types = Counter(str(d.get("property_type","") or "").strip()
+                    for d in filtered if d.get("price") and d["price"] <= mx)
+    budget_filtered = [d for d in filtered if d.get("price") and d["price"] <= mx]
+
+    loc = f"à {crit['city']}" if crit.get("city") else "au Sénégal"
+    lines = [
+        f"Avec <b>{_fmt_price(mx)}</b> {loc}, vous pouvez trouver :",
+    ]
+    for t, n in types.most_common(5):
+        if n > 0:
+            prices = [d["price"] for d in budget_filtered
+                      if str(d.get("property_type","")).strip() == t]
+            if prices:
+                lines.append(f"• <b>{n} {t}{'s' if n>1 else ''}</b> "
+                              f"(de {_fmt_price(min(prices))} à {_fmt_price(max(prices))})")
+
+    props = []
+    for d in sorted(budget_filtered, key=lambda x: x.get("price",0), reverse=True)[:5]:
+        props.append({
+            "title":     str(d.get("title","") or "Annonce")[:55],
+            "price":     d["price"],
+            "price_fmt": _fmt_price(d["price"]),
+            "city":      str(d.get("city","") or ""),
+            "type":      str(d.get("property_type","") or ""),
+            "source":    "",
+            "surface":   d.get("surface_area",""),
+            "bedrooms":  d.get("bedrooms",""),
+        })
+    return "<br>".join(lines), props
+
+
+def _analyze_recommandation(question, crit):
+    """Recommande des quartiers selon le profil."""
+    import statistics, re as _re
+    tl = question.lower()
+
+    # Détecter louer vs acheter
+    is_loc = any(k in tl for k in KW_LOC)
+    is_vte = any(k in tl for k in KW_VTE)
+
+    data = _get_db_data()
+    if not data:
+        return "Données indisponibles.", []
+
+    filtered = [d for d in data if d.get("price") and d["price"] >= PRICE_MIN]
+    if is_loc:
+        filtered = [d for d in filtered
+                    if any(k in str(d.get("statut","") or d.get("title","") or "").lower()
+                           for k in KW_LOC)]
+    elif is_vte:
+        filtered = [d for d in filtered
+                    if any(k in str(d.get("statut","") or d.get("title","") or "").lower()
+                           for k in KW_VTE)]
+
+    # Grouper par ville + calculer score (médiane + nb annonces)
+    from collections import defaultdict
+    by_city = defaultdict(list)
+    for d in filtered:
+        city = str(d.get("city","") or "").strip().title()
+        if city and city != "Inconnu":
+            by_city[city].append(d["price"])
+
+    if not by_city:
+        return "Pas assez de données pour faire une recommandation.", []
+
+    # Score : équilibre prix et volume
+    scored = []
+    all_medians = [statistics.median(ps) for ps in by_city.values() if len(ps) >= 3]
+    global_med  = statistics.median(all_medians) if all_medians else 1
+    for city, prices in by_city.items():
+        if len(prices) < 3: continue
+        med   = statistics.median(prices)
+        score = len(prices) * 0.4 + (1/(med/global_med + 0.001)) * 0.6
+        scored.append((city, med, len(prices), score))
+
+    scored.sort(key=lambda x: x[3], reverse=True)
+    top_abordable = scored[:5]
+
+    action = "louer" if is_loc else ("acheter" if is_vte else "investir")
+    lines = [f"<b>Meilleures zones pour {action}</b> (rapport qualité/prix) :"]
+    for city, med, n, _ in top_abordable:
+        lines.append(f"• <b>{city}</b> : médiane <b>{_fmt_price(med)}</b> — {n} annonces")
+
+    if is_loc:
+        lines.append("<br>Ces quartiers offrent le meilleur choix de biens en location.")
+    elif is_vte:
+        lines.append("<br>Ces quartiers ont le plus d'offres et les meilleurs prix à l'achat.")
+    else:
+        lines.append("<br>Ces quartiers présentent le meilleur potentiel d'investissement.")
+
+    return "<br>".join(lines), []
 
 
 
@@ -577,6 +735,123 @@ def viewer_page(request):
         'prop_types':   ['Villa', 'Appartement', 'Terrain', 'Duplex', 'Studio', 'Maison'],
         'beds_choices': ['1', '2', '3', '4', '5'],
     }))
+
+
+@login_required(login_url='/immo/login/')
+def api_chatbot(request):
+    """Endpoint AJAX chatbot IA — recherche + analytique."""
+    if request.method != 'POST':
+        return JsonResponse({'error':'POST requis'}, status=405)
+    try:
+        body = json.loads(request.body)
+        q    = body.get('message','').strip()
+        if not q:
+            return JsonResponse({'error':'Message vide'}, status=400)
+
+        # ── Salutation ───────────────────────────────────────────────────────
+        if _is_greeting(q):
+            return JsonResponse({
+                'response': (
+                    "Bonjour ! Je suis votre assistant immobilier intelligent.<br>"
+                    "Je peux vous aider à :<br>"
+                    "• Rechercher des biens disponibles<br>"
+                    "• Analyser les prix d'un quartier ou type de bien<br>"
+                    "• Comparer les quartiers<br>"
+                    "• Estimer ce que vous pouvez acheter avec votre budget<br>"
+                    "• Recommander les meilleures zones<br>"
+                    "<small style='opacity:.65'>Exemple : <em>Que vaut une villa à Almadies ?</em> "
+                    "ou <em>Avec 80M FCFA, que puis-je acheter à Dakar ?</em></small>"
+                ),
+                'total':0, 'properties':[]
+            })
+
+        # ── Détecter l'intention ─────────────────────────────────────────────
+        intent = _detect_intent(q)
+        crit   = _parse(q)
+
+        # ── Répondre selon l'intention ───────────────────────────────────────
+        if intent == "prix_stats":
+            response, props = _analyze_prix_stats(q, crit)
+            return JsonResponse({'response':response,'total':len(props),'properties':props})
+
+        elif intent == "comparaison":
+            response, props = _analyze_comparaison(q, crit)
+            return JsonResponse({'response':response,'total':0,'properties':props})
+
+        elif intent == "stats_marche":
+            response, props = _analyze_stats_marche(q, crit)
+            return JsonResponse({'response':response,'total':0,'properties':props})
+
+        elif intent == "budget_conseil":
+            response, props = _analyze_budget(q, crit)
+            return JsonResponse({'response':response,'total':len(props),'properties':props})
+
+        elif intent == "recommandation":
+            response, props = _analyze_recommandation(q, crit)
+            return JsonResponse({'response':response,'total':0,'properties':props})
+
+        else:
+            # ── Recherche classique ──────────────────────────────────────────
+            has_crit = any(crit.get(k) for k in ['city','type','transaction','min_price','max_price','bedrooms'])
+
+            if not has_crit:
+                return JsonResponse({
+                    'response': (
+                        "Je n'ai pas bien compris. Essayez :<br>"
+                        "• <em>Villa à vendre Almadies moins de 300M</em><br>"
+                        "• <em>Que vaut un appartement à Ouakam ?</em><br>"
+                        "• <em>Avec 50M que puis-je acheter à Dakar ?</em><br>"
+                        "• <em>Quel quartier est le moins cher pour louer ?</em>"
+                    ),
+                    'total':0, 'properties':[]
+                })
+
+            results, total = _search(crit)
+            parts = []
+            if crit.get('city'):        parts.append(f"<b>{crit['city']}</b>")
+            if crit.get('type'):        parts.append(f"<b>{crit['type']}</b>")
+            if crit.get('transaction'): parts.append(f"en <b>{crit['transaction']}</b>")
+            if crit.get('bedrooms'):    parts.append(f"<b>{crit['bedrooms']}+ chambres</b>")
+            mn, mx = crit.get('min_price'), crit.get('max_price')
+            if mn and mx:   parts.append(f"budget <b>{_fmt_price(mn)} – {_fmt_price(mx)}</b>")
+            elif mn:        parts.append(f"à partir de <b>{_fmt_price(mn)}</b>")
+            elif mx:        parts.append(f"max <b>{_fmt_price(mx)}</b>")
+
+            lines = []
+            if parts:
+                lines.append(f"Recherche : {', '.join(parts)}.")
+
+            if total == 0:
+                lines.append("Aucun bien trouvé. Essayez un autre quartier ou élargissez votre budget.")
+            elif total == 1:
+                p = results[0]["price"]
+                lines.append(f"1 bien trouvé au prix de <b>{_fmt_price(p)}</b>.")
+            else:
+                lines.append(f"<b>{total}</b> biens trouvés.")
+                prices = sorted([r["price"] for r in results if r.get("price") and r["price"] >= PRICE_MIN])
+                if len(prices) >= 2:
+                    lines.append(f"Prix : de <b>{_fmt_price(prices[0])}</b> à <b>{_fmt_price(prices[-1])}</b>.")
+
+            props = []
+            for p in results[:6]:
+                price = p.get("price",0) or 0
+                if price < PRICE_MIN: continue
+                props.append({
+                    "title":    str(p.get("title","") or "Annonce immobilière")[:60],
+                    "price":    price,
+                    "price_fmt":_fmt_price(price),
+                    "city":     str(p.get("city","") or ""),
+                    "type":     str(p.get("property_type","") or ""),
+                    "source":   p.get("source",""),
+                    "surface":  p.get("surface_area",""),
+                    "bedrooms": p.get("bedrooms",""),
+                })
+
+            return JsonResponse({'response':" ".join(lines),'total':total,'properties':props})
+
+    except Exception as e:
+        logger.error(f"Chatbot: {e}")
+        return JsonResponse({'response':"Une erreur s'est produite. Réessayez.",'total':0,'properties':[]})
 
 
 def api_current_user(request):
