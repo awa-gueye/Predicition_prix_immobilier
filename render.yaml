@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: immoanalytics
+    env: python
+    buildCommand: |
+      pip install -r requirement.txt
+      python manage.py collectstatic --noinput
+      python manage.py migrate
+    startCommand: gunicorn immobilier_project.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: DATABASE_URL
+        sync: false   # à renseigner dans le dashboard Render

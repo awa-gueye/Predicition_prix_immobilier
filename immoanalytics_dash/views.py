@@ -429,6 +429,160 @@ def _get_cities():
 
 # ── Réponses analytiques ──────────────────────────────────────────────────────
 
+
+PRICE_MIN = 1_000_000
+PRICE_MAX = 5_000_000_000
+
+KW_LOC = ["louer","location","locat","bail","mensuel","loyer","a louer","par mois"]
+KW_VTE = ["vendre","acheter","achat","vente","a vendre"]
+
+
+def _get_db_data():
+    """Charge toutes les données valides depuis la DB (prix >= 10 000 FCFA)."""
+    try:
+        from properties.models import (CoinAfriqueProperty, ExpatDakarProperty,
+            LogerDakarProperty, DakarVenteProperty, ImmoSenegalProperty)
+        MODELS = [CoinAfriqueProperty, ExpatDakarProperty,
+                  LogerDakarProperty, DakarVenteProperty, ImmoSenegalProperty]
+        results = []
+        for model in MODELS:
+            for p in model.objects.filter(
+                price__gte=10_000, price__lte=PRICE_MAX
+            ).values("price","city","property_type","surface_area",
+                     "bedrooms","statut","title")[:3000]:
+                results.append(p)
+        return results
+    except Exception as e:
+        logger.warning(f"DB data: {e}")
+        return []
+
+
+def _search(crit):
+    """Recherche dans toutes les tables avec filtres."""
+    try:
+        from properties.models import (CoinAfriqueProperty, ExpatDakarProperty,
+            LogerDakarProperty, DakarVenteProperty, ImmoSenegalProperty)
+        MODELS = [(CoinAfriqueProperty,"coinafrique"),(ExpatDakarProperty,"expat_dakar"),
+                  (LogerDakarProperty,"loger_dakar"),(DakarVenteProperty,"dakarvente"),
+                  (ImmoSenegalProperty,"immosenegal")]
+        results = []
+        for model, src in MODELS:
+            qs = model.objects.filter(price__gte=10_000, price__lte=PRICE_MAX)
+            if crit.get("city"):      qs = qs.filter(city__icontains=crit["city"])
+            if crit.get("type"):      qs = qs.filter(property_type__icontains=crit["type"])
+            if crit.get("min_price"): qs = qs.filter(price__gte=crit["min_price"])
+            if crit.get("max_price"): qs = qs.filter(price__lte=crit["max_price"])
+            if crit.get("bedrooms"):  qs = qs.filter(bedrooms__gte=crit["bedrooms"])
+            for p in qs.order_by("price").values(
+                "id","title","price","city","property_type",
+                "surface_area","bedrooms","url")[:80]:
+                results.append({**p, "source": src})
+        seen, deduped = set(), []
+        for r in sorted(results, key=lambda x: x.get("price") or 0):
+            key = (r.get("price"), str(r.get("city",""))[:8], str(r.get("property_type",""))[:8])
+            if key not in seen:
+                seen.add(key); deduped.append(r)
+        return deduped, len(deduped)
+    except Exception as e:
+        logger.warning(f"Search: {e}")
+        return [], 0
+
+
+
+def _is_greeting(text):
+    tl = text.lower().strip().rstrip("!?.,")
+    return tl in GREETINGS or len(tl.replace(" ","")) < 4
+
+
+def _detect_intent(text):
+    """Détecte l'intention analytique ou recherche."""
+    import re
+    tl = (text.lower()
+          .replace("é","e").replace("è","e").replace("à","a")
+          .replace("ê","e").replace("â","a").replace("ç","c")
+          .replace("\u2019","'").replace("\u2018","'"))
+    for pattern, intent in ANALYTIC_PATTERNS:
+        if re.search(pattern, tl):
+            return intent
+    return "recherche"
+
+
+def _fmt_price(price):
+    if not price or float(price) < 100: return "—"
+    p = float(price)
+    if p >= 1e9:  return f"{p/1e9:.2f} Mds FCFA"
+    if p >= 1e6:  return f"{p/1e6:.1f}M FCFA"
+    if p >= 1e3:  return f"{p/1e3:.0f}K FCFA"
+    return f"{p:,.0f} FCFA"
+
+
+def _amt(t, unit=""):
+    """Convertit un texte en montant FCFA avec unité optionnelle."""
+    try:
+        v = float(str(t).replace(" ","").replace(",","."))
+        if v <= 0: return None
+        u = (unit or "").lower().strip()
+        if u in ("m","million","millions"):     return v * 1_000_000
+        if u in ("mds","milliard","milliards"): return v * 1_000_000_000
+        if u in ("k","mille","millier"):        return v * 1_000
+        # Sans unité : < 1000 → millions, sinon valeur brute
+        if v < 1_000: return v * 1_000_000
+        return v
+    except:
+        return None
+
+
+def _parse(text):
+    """Extrait les critères depuis le texte naturel."""
+    import re
+    tl = (text.lower()
+          .replace("é","e").replace("è","e").replace("à","a")
+          .replace("ê","e").replace("â","a").replace("ç","c")
+          .replace("\u2019","'").replace("\u2018","'"))
+    mn = mx = None
+    NB  = r"([\d][\d\s]*(?:[.,][\d]+)?)"
+    UNI = r"\s*(m\b|millions?|mds|milliard|k\b|mille|fcfa|cfa)?"
+
+    m = re.search(r"entre\s+" + NB + UNI + r"\s*(?:et|-)\s*" + NB + UNI, tl)
+    if m:
+        mn = _amt(m.group(1).replace(" ",""), m.group(2) or "")
+        mx = _amt(m.group(3).replace(" ",""), m.group(4) or "")
+    else:
+        m2 = re.search(r"(?:moins de|max|pas plus de|jusqu.a)\s+" + NB + UNI, tl)
+        if m2: mx = _amt(m2.group(1).replace(" ",""), m2.group(2) or "")
+        m3 = re.search(r"(?:a partir de|au moins|minimum|plus de)\s+" + NB + UNI, tl)
+        if m3: mn = _amt(m3.group(1).replace(" ",""), m3.group(2) or "")
+        if not m2 and not m3:
+            m4 = re.search(NB + r"\s*(m\b|millions?|mds|milliard)", tl)
+            if m4:
+                v = _amt(m4.group(1).replace(" ",""), m4.group(2))
+                if v: mn = v * 0.7; mx = v * 1.4
+            if not mx and not mn:
+                m5 = re.search(r"([\d]{4,})\s*(?:fcfa|cfa)?", tl)
+                if m5:
+                    v = _amt(m5.group(1))
+                    if v: mn = v * 0.7; mx = v * 1.4
+
+    if mn and mn <= 0: mn = None
+    if mx and mx <= 0: mx = None
+
+    city  = next((c.title() for c in sorted(CITIES_SN, key=len, reverse=True)
+                  if c in tl), None)
+    ptype = next((k.capitalize() for k, kws in TYPE_MAP.items()
+                  if any(w in tl for w in [k]+kws)), None)
+    txn   = ("location" if any(k in tl for k in KW_LOC)
+             else "vente" if any(k in tl for k in KW_VTE)
+             else None)
+    beds = None
+    mb = re.search(r"(\d+)\s*chambre", tl)
+    if mb: beds = int(mb.group(1))
+    mb2 = re.search(r"\bf(\d)\b", tl)
+    if mb2: beds = max(1, int(mb2.group(1))-1)
+
+    return {"city":city,"type":ptype,"transaction":txn,
+            "min_price":mn,"max_price":mx,"bedrooms":beds}
+
+
 def _analyze_prix_stats(question, crit):
     """Calcule les statistiques de prix pour répondre à 'Que vaut X à Y ?'."""
     import statistics
@@ -865,4 +1019,44 @@ def api_check_auth(request):
     if request.user.is_authenticated:
         return JsonResponse({'authenticated':True,'role':get_user_role(request.user)})
     return JsonResponse({'authenticated':False},status=401)
+CITIES_SN = [
+    "almadies","ngor","ouakam","mermoz","pikine","guediawaye","plateau","fann",
+    "yoff","rufisque","liberte","hlm","sicap","grand yoff","keur massar",
+    "medina","thies","mbour","dakar","parcelles","sacre coeur","vdn","saly",
+    "patte d oie","dieuppeul","fass","colobane","biscuiterie","nord foire",
+    "mbao","yeumbeul","diamniadio","bargny","malika",
+]
+TYPE_MAP = {
+    "villa":["villa"],"appartement":["appart","f2","f3","f4","f5"],
+    "terrain":["terrain","parcelle"],"duplex":["duplex"],
+    "studio":["studio"],"maison":["maison"],"local":["local","commerce","bureau"],
+    "chambre":["chambre","studio","f1"],
+}
+GREETINGS = {"bonjour","bonsoir","salut","hello","hi","coucou","bonne nuit",
+             "merci","ok","oui","non","svp","s'il vous plait","stp"}
+ANALYTIC_PATTERNS = [
+    (r"(?:prix|valeur|cout|combien|que vaut|quel est le prix).{0,40}(?:moyen|median|typique|habituel)",
+     "prix_stats"),
+    (r"(?:que vaut|combien coute|quel est le prix).{0,50}(?:chambre|studio|villa|appart|terrain|duplex|maison)",
+     "prix_stats"),
+    (r"(?:prix|tarif|valeur).{0,30}(?:a|dans|au|en)\s+\w+",
+     "prix_stats"),
+    (r"(?:difference|comparer|comparaison|plus cher|moins cher|meilleur marche)",
+     "comparaison"),
+    (r"(?:quel|quelle).{0,20}(?:quartier|ville|zone).{0,20}(?:cher|abordable|moins cher|plus cher)",
+     "comparaison"),
+    (r"(?:statistique|tendance|marche immobilier|etat du marche|situation|apercu)",
+     "stats_marche"),
+    (r"(?:combien).{0,30}(?:annonce|bien|propriete|logement).{0,20}(?:disponible|en vente|a louer)",
+     "stats_marche"),
+    (r"(?:avec|pour|quel bien|que puis.je avoir|que peut.on trouver).{0,30}(?:budget|million|fcfa)",
+     "budget_conseil"),
+    (r"(?:budget de|avec \d+).{0,20}(?:fcfa|million)",
+     "budget_conseil"),
+    (r"(?:recommander|conseil|suggerer|meilleur|ideal).{0,50}(?:investir|acheter|louer|quartier)",
+     "recommandation"),
+    (r"(?:ou investir|ou acheter|ou louer|ou habiter|ou s.installer)",
+     "recommandation"),
+]
+
 
