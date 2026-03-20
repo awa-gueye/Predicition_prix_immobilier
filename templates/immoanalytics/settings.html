@@ -1,0 +1,88 @@
+{% extends 'immoanalytics/base.html' %}
+{% load static %}
+{% block title %}Paramètres{% endblock %}
+{% block page_title %}<i class="fas fa-cog" style="color:var(--gold)"></i> Paramètres{% endblock %}
+
+{% block content %}
+<div style="max-width:700px;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start">
+
+  <div class="card">
+    <div class="card-header"><i class="fas fa-user-edit"></i> Informations du profil</div>
+    <div class="card-body">
+      {% if messages %}{% for m in messages %}
+      <div class="alert alert-{% if m.tags == 'success' %}success{% else %}error{% endif %} mb-2">{{ m }}</div>
+      {% endfor %}{% endif %}
+      <form method="POST" action="/immo/settings/">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update_profile">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Prénom</label>
+            <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nom</label>
+            <input type="text" name="last_name" class="form-control" value="{{ user.last_name }}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" name="email" class="form-control" value="{{ user.email }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nom d'utilisateur</label>
+          <input type="text" class="form-control" value="{{ user.username }}" disabled style="background:#F7F8FA;color:#999">
+          <div class="form-hint">Non modifiable</div>
+        </div>
+        <button type="submit" class="btn btn-primary w-full">
+          <i class="fas fa-save"></i> Enregistrer
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div>
+    <div class="card mb-3">
+      <div class="card-header"><i class="fas fa-lock"></i> Mot de passe</div>
+      <div class="card-body">
+        <form method="POST" action="/immo/settings/">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="change_password">
+          <div class="form-group">
+            <label class="form-label">Mot de passe actuel</label>
+            <input type="password" name="current_password" class="form-control" placeholder="••••••••" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nouveau mot de passe</label>
+            <input type="password" name="new_password" class="form-control" placeholder="••••••••" required minlength="8">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirmer</label>
+            <input type="password" name="confirm_password" class="form-control" placeholder="••••••••" required>
+          </div>
+          <button type="submit" class="btn btn-dark w-full">
+            <i class="fas fa-key"></i> Modifier
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><i class="fas fa-info-circle"></i> Infos compte</div>
+      <div class="card-body">
+        <table style="width:100%">
+          <tr><td class="text-muted text-sm" style="padding:.4rem 0">Rôle</td>
+              <td><span class="badge {% if user.is_superuser %}badge-red{% else %}badge-green{% endif %}">{{ role }}</span></td></tr>
+          <tr><td class="text-muted text-sm" style="padding:.4rem 0">Statut</td>
+              <td><span class="badge {% if user.is_active %}badge-green{% else %}badge-red{% endif %}">{% if user.is_active %}Actif{% else %}Inactif{% endif %}</span></td></tr>
+          <tr><td class="text-muted text-sm" style="padding:.4rem 0">Inscrit</td>
+              <td class="text-sm">{{ user.date_joined|date:"d/m/Y" }}</td></tr>
+          <tr><td class="text-muted text-sm" style="padding:.4rem 0">Dernière cnx</td>
+              <td class="text-sm">{{ user.last_login|date:"d/m/Y H:i"|default:"Jamais" }}</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

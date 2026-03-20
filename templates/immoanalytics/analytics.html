@@ -1,0 +1,161 @@
+{% extends 'immoanalytics/base.html' %}
+{% load static %}
+{% block title %}Analytics{% endblock %}
+{% block page_title %}<i class="fas fa-chart-bar" style="color:var(--gold)"></i> Analytics{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+  .filter-bar { display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;
+                background:#fff;padding:.9rem 1.2rem;border-radius:10px;
+                border:1px solid #E8EAF0;margin-bottom:1.2rem;
+                box-shadow:0 1px 4px rgba(0,0,0,.05); }
+  .filter-group label { display:block;font-size:.67rem;text-transform:uppercase;
+                        letter-spacing:.08em;color:#8B8680;
+                        font-family:'JetBrains Mono',monospace;margin-bottom:.3rem; }
+  .filter-group select { padding:.45rem .8rem;border:1.5px solid #D0D3DC;border-radius:7px;
+                          font-size:.82rem;font-family:'Inter',sans-serif;
+                          background:#fff;color:#1A1A2E;outline:none;cursor:pointer;
+                          transition:border-color .18s; }
+  .filter-group select:focus { border-color:var(--gold); }
+  .chart-card { background:#fff;border-radius:10px;border:1px solid #E8EAF0;
+                box-shadow:0 1px 4px rgba(0,0,0,.05);overflow:hidden; }
+  .chart-card-header { padding:.65rem 1rem;border-bottom:1px solid #E8EAF0;
+                       font-weight:600;font-size:.82rem;color:#1A1A2E; }
+  .charts-row { display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap; }
+  .chart-wrap { flex:1;min-width:280px; }
+  .chart-wrap.wide { flex:1.4; }
+  .stat-row { display:flex;justify-content:space-between;align-items:center;
+              padding:.45rem 0;border-bottom:1px solid #F0F1F5; }
+  .stat-row:last-child { border-bottom:none; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Filtres -->
+<form method="GET" action="/analytics/" class="filter-bar">
+  <div class="filter-group">
+    <label>Transaction</label>
+    <select name="txn" onchange="this.form.submit()">
+      <option value="all"      {% if txn_filter == 'all' %}selected{% endif %}>Toutes</option>
+      <option value="Vente"    {% if txn_filter == 'Vente' %}selected{% endif %}>Vente</option>
+      <option value="Location" {% if txn_filter == 'Location' %}selected{% endif %}>Location</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Source</label>
+    <select name="src" onchange="this.form.submit()">
+      <option value="all" {% if src_filter == 'all' %}selected{% endif %}>Toutes les sources</option>
+      {% for s in sources %}
+      <option value="{{ s }}" {% if src_filter == s %}selected{% endif %}>{{ s|title }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Type de bien</label>
+    <select name="type" onchange="this.form.submit()">
+      <option value="all" {% if type_filter == 'all' %}selected{% endif %}>Tous les types</option>
+      {% for t in types %}
+      <option value="{{ t }}" {% if type_filter == t %}selected{% endif %}>{{ t }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Ville</label>
+    <select name="city" onchange="this.form.submit()">
+      <option value="" {% if not city_filter %}selected{% endif %}>Toutes les villes</option>
+      {% for c in cities %}
+      <option value="{{ c }}" {% if city_filter == c %}selected{% endif %}>{{ c }}</option>
+      {% endfor %}
+    </select>
+  </div>
+</form>
+
+<!-- Ligne 1 : Box plot + Scatter -->
+<div class="charts-row">
+  <div class="chart-wrap">
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <i class="fas fa-box" style="color:var(--gold);margin-right:.4rem"></i>
+        Distribution des prix par type
+      </div>
+      <div id="fig-box" style="height:300px"></div>
+    </div>
+  </div>
+  <div class="chart-wrap">
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <i class="fas fa-circle-dot" style="color:var(--gold);margin-right:.4rem"></i>
+        Prix vs Superficie
+      </div>
+      <div id="fig-sc" style="height:300px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Ligne 2 : Bar villes + Stats -->
+<div class="charts-row">
+  <div class="chart-wrap wide">
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <i class="fas fa-map-pin" style="color:var(--gold);margin-right:.4rem"></i>
+        Prix médian par ville
+      </div>
+      <div id="fig-bar" style="height:320px"></div>
+    </div>
+  </div>
+  <div class="chart-wrap">
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <i class="fas fa-calculator" style="color:var(--gold);margin-right:.4rem"></i>
+        Statistiques descriptives
+      </div>
+      <div style="padding:1rem">
+        {% for k, v in stats %}
+        <div class="stat-row">
+          <span style="font-size:.75rem;color:#8B8680">{{ k }}</span>
+          <span style="font-size:.78rem;font-weight:600;color:#1A1A2E">{{ v }}</span>
+        </div>
+        {% empty %}
+        <p style="color:#8B8680;font-size:.83rem">Aucune donnée.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Ligne 3 : Sources + Prix m² -->
+<div class="charts-row">
+  <div class="chart-wrap">
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <i class="fas fa-layer-group" style="color:var(--gold);margin-right:.4rem"></i>
+        Comparaison sources
+      </div>
+      <div id="fig-src" style="height:280px"></div>
+    </div>
+  </div>
+  <div class="chart-wrap">
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <i class="fas fa-expand" style="color:var(--gold);margin-right:.4rem"></i>
+        Distribution du prix au m²
+      </div>
+      <div id="fig-m2" style="height:280px"></div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const CFG = {responsive:true,displayModeBar:false};
+Plotly.newPlot('fig-box', {{ fig_box|safe }}.data, {{ fig_box|safe }}.layout, CFG);
+Plotly.newPlot('fig-sc',  {{ fig_sc|safe }}.data,  {{ fig_sc|safe }}.layout,  CFG);
+Plotly.newPlot('fig-bar', {{ fig_bar|safe }}.data,  {{ fig_bar|safe }}.layout, CFG);
+Plotly.newPlot('fig-src', {{ fig_src|safe }}.data,  {{ fig_src|safe }}.layout, CFG);
+Plotly.newPlot('fig-m2',  {{ fig_m2|safe }}.data,   {{ fig_m2|safe }}.layout,  CFG);
+</script>
+{% endblock %}

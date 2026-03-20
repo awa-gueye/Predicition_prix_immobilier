@@ -24,14 +24,20 @@ INSTALLED_APPS = [
     # Third-party
     'rest_framework',
     'django_filters',
+    # django-plotly-dash
+    'django_plotly_dash.apps.DjangoPlotlyDashConfig',
+    'channels',
     # Local
     'properties',
+    # ImmoAnalytics dashboards
+    'immoanalytics_dash.apps.ImmoAnalyticsDashConfig',
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware', 
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django_plotly_dash.middleware.BaseMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -95,6 +101,38 @@ TIME_ZONE = 'Africa/Dakar'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
+# ── Static files ──────────────────────────────────────────────────────────────
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'static']
+
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
+
+# ── django-plotly-dash ────────────────────────────────────────────────────────
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+PLOTLY_DASH = {
+    "ws_route"           : "dpd/ws/channel",
+    "http_route"         : "dpd/views",
+    "http_poke_enabled"  : True,
+    "view_decorator"     : None,
+    "cache_arguments"    : True,
+    "serve_locally"      : False,
+    "insert_demo_viewer" : False,
+}
+
+ASGI_APPLICATION = 'immobilier_project.asgi.application'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
+
+LOGIN_URL = '/immo/login/'

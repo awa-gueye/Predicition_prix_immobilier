@@ -1,0 +1,159 @@
+{% extends 'immoanalytics/base.html' %}
+{% load static %}
+{% block title %}Carte interactive{% endblock %}
+{% block page_title %}<i class="fas fa-map-marked-alt" style="color:var(--gold)"></i> Carte des annonces{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+  .page-content { padding: 1rem; }
+  .map-topbar { display:flex; align-items:center; justify-content:space-between;
+                gap:1rem; margin-bottom:.8rem; flex-wrap:wrap; }
+  .map-filters { display:flex; gap:.5rem; flex-wrap:wrap; }
+  .map-filter  { padding:.35rem .7rem; border:1px solid #D0D3DC; border-radius:6px;
+                 font-size:.78rem; background:#fff; cursor:pointer; color:#333;
+                 font-family:'Inter',sans-serif; transition:all .18s; }
+  .map-filter.active { background:var(--gold); color:var(--dark); border-color:var(--gold); }
+  #map { height:calc(100vh - 160px); border-radius:10px;
+         border:1px solid #E8EAF0; z-index:1; }
+  .map-legend { position:absolute; bottom:30px; right:10px; z-index:999;
+                background:rgba(255,255,255,.95); border-radius:8px;
+                padding:.8rem 1rem; font-size:.75rem; border:1px solid #E8EAF0;
+                box-shadow:0 4px 12px rgba(0,0,0,.1); min-width:140px; }
+  .legend-item { display:flex; align-items:center; gap:.5rem; margin-bottom:.35rem; }
+  .legend-dot  { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
+  .map-stats   { display:flex; gap:1rem; }
+  .map-stat    { background:#fff; border:1px solid #E8EAF0; border-radius:8px;
+                 padding:.5rem .9rem; font-size:.78rem; }
+  .map-stat strong { color:var(--gold); }
+  .leaflet-popup-content { font-family:'Inter',sans-serif; min-width:180px; }
+  .popup-title  { font-weight:600; font-size:.85rem; margin-bottom:.3rem; color:#1A1A2E; }
+  .popup-price  { font-family:'Playfair Display',serif; font-size:1.1rem;
+                  font-weight:700; color:var(--gold); }
+  .popup-detail { font-size:.76rem; color:#666; margin-top:.2rem; }
+  .popup-src    { font-size:.65rem; color:#999; font-family:'JetBrains Mono',monospace;
+                  margin-top:.3rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="map-topbar">
+  <div class="map-stats">
+    <div class="map-stat">
+      <i class="fas fa-map-pin" style="color:var(--gold)"></i>
+      <strong id="visible-count">{{ total }}</strong> annonces
+    </div>
+  </div>
+  <div class="map-filters">
+    <button class="map-filter active" onclick="filterMap('all', this)">
+      <i class="fas fa-globe"></i> Toutes
+    </button>
+    <button class="map-filter" onclick="filterMap('Villa', this)">
+      <i class="fas fa-home"></i> Villas
+    </button>
+    <button class="map-filter" onclick="filterMap('Appartement', this)">
+      <i class="fas fa-building"></i> Appartements
+    </button>
+    <button class="map-filter" onclick="filterMap('Terrain', this)">
+      <i class="fas fa-vector-square"></i> Terrains
+    </button>
+  </div>
+</div>
+
+<div style="position:relative">
+  <div id="map"></div>
+  <div class="map-legend">
+    <div style="font-weight:600;margin-bottom:.5rem;font-size:.75rem">Sources</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#F39C12"></div> CoinAfrique</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#3498DB"></div> DakarVente</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#27AE60"></div> ImmoSenegal</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#9B59B6"></div> Démo</div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const RAW = {{ props_json|safe }};
+
+const SRC_COLORS = {
+  'coinafrique':'#F39C12','dakarvente':'#3498DB',
+  'immosenegal':'#27AE60','demo':'#9B59B6'
+};
+
+function fmt(p) {
+  if (p >= 1e9) return (p/1e9).toFixed(1)+' Mds FCFA';
+  if (p >= 1e6) return (p/1e6).toFixed(0)+' M FCFA';
+  return p.toLocaleString('fr-FR')+' FCFA';
+}
+
+// Carte centrée sur Dakar
+const map = L.map('map', {
+  center: [14.72, -17.47], zoom: 12,
+  zoomControl: true
+});
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '© OpenStreetMap'
+}).addTo(map);
+
+// Marqueurs
+let allMarkers = [];
+
+function mkMarker(p) {
+  const color = SRC_COLORS[p.s] || '#999';
+  const icon  = L.divIcon({
+    className: '',
+    html: `<div style="
+      width:14px;height:14px;border-radius:50%;
+      background:${color};border:2px solid #fff;
+      box-shadow:0 2px 5px rgba(0,0,0,.3)
+    "></div>`,
+    iconSize:[14,14], iconAnchor:[7,7]
+  });
+  const marker = L.marker([p.lat, p.lon], {icon});
+  marker.propData = p;
+  marker.bindPopup(`
+    <div class="popup-title">${p.t || 'Annonce immobilière'}</div>
+    <div class="popup-price">${fmt(p.p)}</div>
+    <div class="popup-detail">
+      <i class="fas fa-map-pin"></i> ${p.c}
+      &nbsp;·&nbsp;
+      <i class="fas fa-tag"></i> ${p.k}
+    </div>
+    <div class="popup-src">${p.s}</div>
+  `, {maxWidth: 220});
+  return marker;
+}
+
+// Cluster visuel simple (regroupement par proximité)
+const layerGroup = L.layerGroup().addTo(map);
+
+RAW.forEach(p => {
+  const m = mkMarker(p);
+  allMarkers.push(m);
+  layerGroup.addLayer(m);
+});
+
+function filterMap(type, btn) {
+  document.querySelectorAll('.map-filter').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  layerGroup.clearLayers();
+  let count = 0;
+  allMarkers.forEach(m => {
+    if (type === 'all' || (m.propData.k || '').includes(type)) {
+      layerGroup.addLayer(m);
+      count++;
+    }
+  });
+  document.getElementById('visible-count').textContent = count;
+}
+
+// Adapter la vue aux marqueurs
+if (RAW.length > 0) {
+  const lats = RAW.map(p=>p.lat), lons = RAW.map(p=>p.lon);
+  const bounds = [[Math.min(...lats),Math.min(...lons)],[Math.max(...lats),Math.max(...lons)]];
+  try { map.fitBounds(bounds, {padding:[30,30], maxZoom:14}); } catch(e) {}
+}
+</script>
+{% endblock %}

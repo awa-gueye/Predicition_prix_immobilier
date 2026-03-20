@@ -1,0 +1,332 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ImmoAnalytics — Plateforme Immobilière Sénégal</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="{% static 'immoanalytics/css/app.css' %}" rel="stylesheet">
+<style>
+/* Overrides pour la landing page (fond sombre) */
+body { background: #FFFFFF; color: #1A1A2E; }
+
+nav { position:fixed;top:0;left:0;right:0;z-index:100;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:.9rem 5%; background:rgba(255,255,255,.95);
+      backdrop-filter:blur(20px);
+      border-bottom:1px solid rgba(184,149,90,.2); }
+.nav-logo { display:flex;align-items:center;gap:.6rem;text-decoration:none; }
+.nav-logo-icon { width:34px;height:34px;border-radius:8px;
+  background:linear-gradient(135deg,#B8955A,#D4AF7A);
+  display:flex;align-items:center;justify-content:center;color:#0D1117;font-size:.85rem; }
+.nav-logo-text { font-family:'Playfair Display',serif;font-size:1.1rem;
+                 font-weight:700;color:#FAFAF8;letter-spacing:.02em; }
+.nav-links { display:flex;align-items:center;gap:2rem; }
+.nav-links a { color:rgba(30,30,50,.6);text-decoration:none;font-size:.83rem;
+               letter-spacing:.03em;transition:color .2s; }
+.nav-links a:hover { color:#B8955A; }
+.nav-cta { display:flex;gap:.5rem; }
+.btn-nav-o { padding:.45rem 1.1rem;border:1px solid rgba(184,149,90,.35);color:#B8955A;
+             background:transparent;border-radius:6px;font-size:.8rem;font-weight:500;
+             text-decoration:none;transition:all .18s; }
+.btn-nav-o:hover { background:rgba(184,149,90,.1); }
+.btn-nav-s { padding:.45rem 1.1rem;background:linear-gradient(135deg,#B8955A,#D4AF7A);
+             color:#0D1117;border:none;border-radius:6px;font-size:.8rem;font-weight:600;
+             text-decoration:none;transition:all .18s; }
+.btn-nav-s:hover { transform:translateY(-1px);box-shadow:0 4px 14px rgba(184,149,90,.3); }
+
+/* Hero */
+.hero { min-height:100vh;display:flex;align-items:center;
+        padding:7rem 5% 5rem;position:relative;overflow:hidden;
+        background:#F8F9FA; }
+.hero-bg-img { position:absolute;inset:0;
+               background:url('{% static "immoanalytics/img/hero-bg.jpg" %}') center/cover no-repeat;
+               opacity:.12; }
+.hero-overlay { position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 60% at 30% 50%,rgba(26,92,58,.08),transparent 70%),
+             radial-gradient(ellipse 50% 40% at 80% 70%,rgba(184,149,90,.06),transparent 60%); }
+.hero-grid { position:absolute;inset:0;
+  background-image:linear-gradient(rgba(184,149,90,.03) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(184,149,90,.03) 1px,transparent 1px);
+  background-size:60px 60px; }
+.hero-content { position:relative;z-index:2;max-width:640px; }
+.hero-chip { display:inline-flex;align-items:center;gap:.45rem;
+             background:rgba(184,149,90,.12);border:1px solid rgba(184,149,90,.3);
+             padding:.3rem .9rem;border-radius:20px;
+             font-size:.68rem;color:#B8955A;letter-spacing:.1em;text-transform:uppercase;
+             font-family:'JetBrains Mono',monospace;margin-bottom:2rem; }
+.hero-title { font-family:'Playfair Display',serif;
+              font-size:clamp(2.6rem,5vw,4.2rem);font-weight:700;line-height:1.1;
+              color:#1A1A2E;margin-bottom:1.2rem; }
+.hero-title em { color:#B8955A;font-style:italic; }
+.hero-desc { font-size:.95rem;color:rgba(30,30,50,.55);line-height:1.75;
+             font-weight:300;max-width:500px;margin-bottom:2.5rem; }
+.hero-btns { display:flex;gap:.8rem;flex-wrap:wrap; }
+.btn-hero-p { padding:.8rem 2rem;background:linear-gradient(135deg,#B8955A,#D4AF7A);
+              color:#0D1117;border:none;border-radius:8px;font-size:.88rem;font-weight:600;
+              text-decoration:none;display:inline-flex;align-items:center;gap:.4rem;
+              transition:all .22s;cursor:pointer; }
+.btn-hero-p:hover { transform:translateY(-2px);box-shadow:0 8px 22px rgba(184,149,90,.35); }
+.btn-hero-s { padding:.8rem 2rem;background:transparent;color:#1A1A2E;
+              border:1px solid rgba(30,30,50,.2);border-radius:8px;font-size:.88rem;
+              text-decoration:none;display:inline-flex;align-items:center;gap:.4rem;
+              transition:all .22s; }
+.btn-hero-s:hover { border-color:var(--gold);color:var(--gold); }
+.hero-stats { display:flex;gap:2.5rem;margin-top:3.5rem;
+              padding-top:2.5rem;border-top:1px solid rgba(184,149,90,.2); }
+.h-stat-n { font-family:'Playfair Display',serif;font-size:1.8rem;
+            font-weight:700;color:#B8955A;line-height:1; }
+.h-stat-l { font-size:.68rem;color:rgba(30,30,50,.45);text-transform:uppercase;
+            letter-spacing:.1em;margin-top:.25rem;font-family:'JetBrains Mono',monospace; }
+
+/* Mockup (côté droit) */
+.hero-right { position:absolute;right:5%;top:50%;transform:translateY(-50%);
+              width:40%;max-width:520px;z-index:2; }
+.mock-win { background:#F0F2F5;border:1px solid rgba(184,149,90,.2);border-radius:12px;
+            overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.55); }
+.mock-bar { background:#E8EAF0;padding:.6rem .9rem;
+            display:flex;align-items:center;gap:.4rem;
+            border-bottom:1px solid rgba(255,255,255,.05); }
+.dot { width:9px;height:9px;border-radius:50%; }
+.mock-url { flex:1;background:#fff;border-radius:4px;padding:.2rem .6rem;margin:0 .4rem;
+            font-family:'JetBrains Mono',monospace;font-size:.62rem;
+            color:rgba(30,30,50,.35);border:1px solid #E8EAF0; }
+.mock-body { padding:1.2rem;background:#F8F9FA; }
+.kpi-r { display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-bottom:1rem; }
+.kpi-m { background:#fff;border-radius:7px;padding:.7rem;border-left:2px solid #B8955A;box-shadow:0 1px 4px rgba(0,0,0,.06); }
+.kpi-m-v { font-family:'Playfair Display',serif;font-size:1.2rem;
+            font-weight:700;color:#B8955A; }
+.kpi-m-l { font-size:.58rem;color:rgba(30,30,50,.45);
+            text-transform:uppercase;letter-spacing:.07em;margin-top:.15rem; }
+.chart-ph { background:#fff;border-radius:7px;height:120px;box-shadow:0 1px 4px rgba(0,0,0,.06);
+             display:flex;align-items:flex-end;gap:.3rem;padding:.8rem; }
+.bar-m { flex:1;border-radius:2px 2px 0 0;
+          background:linear-gradient(to top,#B8955A,rgba(184,149,90,.25)); }
+
+/* Features */
+.section { padding:5rem 5%; }
+.section-tag { font-family:'JetBrains Mono',monospace;font-size:.68rem;
+               letter-spacing:.18em;text-transform:uppercase;color:#B8955A;margin-bottom:.7rem;text-align:center; }
+.section-h { font-family:'Playfair Display',serif;font-size:clamp(1.7rem,3vw,2.5rem);
+             font-weight:700;color:#1A1A2E;margin-bottom:3rem; }
+.feat-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem; }
+.feat-card { background:#F8F9FA;border:1px solid rgba(0,0,0,.07);border-radius:10px;
+             padding:1.8rem;transition:all .25s;position:relative;overflow:hidden; }
+.feat-card::after { content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+                    background:linear-gradient(90deg,#B8955A,#D4AF7A);
+                    transform:scaleX(0);transform-origin:left;transition:transform .25s; }
+.feat-card:hover { border-color:rgba(184,149,90,.4);transform:translateY(-3px); }
+.feat-card:hover::after { transform:scaleX(1); }
+.feat-icon { width:44px;height:44px;border-radius:9px;background:rgba(184,149,90,.1);
+             display:flex;align-items:center;justify-content:center;
+             color:#B8955A;font-size:1.1rem;margin-bottom:1rem; }
+.feat-title { font-weight:600;color:#1A1A2E;font-size:.92rem;margin-bottom:.5rem; }
+.feat-desc { font-size:.82rem;color:rgba(30,30,50,.55);line-height:1.65; }
+
+/* Sources */
+.sources-sec { padding:3rem 5%;border-top:1px solid rgba(255,255,255,.05); }
+.src-grid { display:flex;justify-content:center;align-items:center;
+            flex-wrap:wrap;gap:2.5rem;margin-top:2rem; }
+.src-item { color:rgba(30,30,50,.45);font-size:.83rem;font-weight:500;
+            display:flex;align-items:center;gap:.5rem;transition:color .2s; }
+.src-item:hover { color:#B8955A; }
+.src-dot { width:6px;height:6px;border-radius:50%;background:#B8955A;opacity:.4; }
+
+/* CTA */
+.cta-sec { padding:5rem 5%;text-align:center;
+           background:linear-gradient(135deg,rgba(26,92,58,.06),rgba(184,149,90,.04));
+           border-top:1px solid rgba(184,149,90,.15);
+           border-bottom:1px solid rgba(184,149,90,.15); }
+.cta-h { font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3vw,2.8rem);
+          font-weight:700;color:#1A1A2E;margin-bottom:.8rem; }
+.cta-d { font-size:.9rem;color:rgba(30,30,50,.55);max-width:440px;
+          margin:0 auto 2.2rem;line-height:1.75; }
+.cta-btns { display:flex;justify-content:center;gap:.8rem;flex-wrap:wrap; }
+
+/* Footer */
+footer { padding:2.5rem 5%;background:#1A1A2E;
+         border-top:1px solid rgba(255,255,255,.05);
+         display:flex;align-items:center;justify-content:space-between;
+         flex-wrap:wrap;gap:1rem; }
+.foot-brand { font-family:'Playfair Display',serif;color:#B8955A;font-weight:700; }
+.foot-copy { font-size:.75rem;color:rgba(240,237,232,.25); }
+.foot-links { display:flex;gap:1.2rem; }
+.foot-links a { font-size:.75rem;color:rgba(240,237,232,.3);text-decoration:none;transition:color .2s; }
+.foot-links a:hover { color:#B8955A; }
+
+@keyframes fade-up { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+.fade-up { animation:fade-up .6s ease forwards;opacity:0; }
+.d1{animation-delay:.1s}.d2{animation-delay:.25s}.d3{animation-delay:.4s}.d4{animation-delay:.55s}
+@keyframes float { 0%,100%{transform:translateY(-50%)} 50%{transform:translateY(calc(-50% - 10px))} }
+.hero-right { animation:float 5s ease-in-out infinite; }
+@media(max-width:1024px){.hero-right{display:none}.nav-links{display:none}}
+@media(max-width:640px){.hero-stats{flex-wrap:wrap;gap:1.2rem}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-icon"><i class="fas fa-building"></i></div>
+    <span class="nav-logo-text">ImmoAnalytics</span>
+  </a>
+  <div class="nav-links">
+    <a href="#features">Fonctionnalités</a>
+    <a href="#sources">Sources</a>
+    <a href="/api/properties/stats/" target="_blank">API</a>
+  </div>
+  <div class="nav-cta">
+    <a href="/immo/login/"    class="btn-nav-o">Connexion</a>
+    <a href="/immo/register/" class="btn-nav-s">
+      <i class="fas fa-user-plus"></i> S'inscrire
+    </a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-img"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-chip fade-up d1">
+      <i class="fas fa-satellite-dish"></i>
+      Plateforme d'Intelligence Immobilière · Sénégal
+    </div>
+    <h1 class="hero-title fade-up d2">
+      Décryptez le marché<br>immobilier avec <em>l'IA</em>
+    </h1>
+    <p class="hero-desc fade-up d3">
+      Données agrégées de 5 sources, analyses en temps réel,
+      prédiction des prix par machine learning et recherche
+      en langage naturel.
+    </p>
+    <div class="hero-btns fade-up d4">
+      <a href="/immo/register/" class="btn-hero-p">
+        <i class="fas fa-rocket"></i> Commencer gratuitement
+      </a>
+      <a href="/immo/login/" class="btn-hero-s">
+        <i class="fas fa-sign-in-alt"></i> Se connecter
+      </a>
+    </div>
+    <div class="hero-stats fade-up d4">
+      <div><div class="h-stat-n" id="st">10K+</div><div class="h-stat-l">Annonces</div></div>
+      <div><div class="h-stat-n">5</div><div class="h-stat-l">Sources</div></div>
+      <div><div class="h-stat-n">80+</div><div class="h-stat-l">Quartiers</div></div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="mock-win">
+      <div class="mock-bar">
+        <div class="dot" style="background:#FF5F57"></div>
+        <div class="dot" style="background:#FFBD2E"></div>
+        <div class="dot" style="background:#28C941"></div>
+        <div class="mock-url">immoanalytics.sn/dashboard</div>
+      </div>
+      <div class="mock-body">
+        <div class="kpi-r">
+          <div class="kpi-m"><div class="kpi-m-v">10K+</div><div class="kpi-m-l">Annonces</div></div>
+          <div class="kpi-m"><div class="kpi-m-v">85M</div><div class="kpi-m-l">Prix médian</div></div>
+          <div class="kpi-m"><div class="kpi-m-v">5</div><div class="kpi-m-l">Sources</div></div>
+        </div>
+        <div class="chart-ph">
+          <div class="bar-m" style="height:40%"></div>
+          <div class="bar-m" style="height:65%"></div>
+          <div class="bar-m" style="height:45%"></div>
+          <div class="bar-m" style="height:82%"></div>
+          <div class="bar-m" style="height:55%"></div>
+          <div class="bar-m" style="height:90%"></div>
+          <div class="bar-m" style="height:68%"></div>
+          <div class="bar-m" style="height:60%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" id="features" style="background:#FFFFFF">
+  <div class="section-tag">Fonctionnalités</div>
+  <h2 class="section-h">Tout ce dont vous avez besoin</h2>
+  <div class="feat-grid">
+    <div class="feat-card">
+      <div class="feat-icon"><i class="fas fa-chart-line"></i></div>
+      <h3 class="feat-title">Dashboard en temps réel</h3>
+      <p class="feat-desc">KPIs actualisés, distribution des prix, top quartiers. Toutes les métriques du marché en un coup d'œil.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><i class="fas fa-calculator"></i></div>
+      <h3 class="feat-title">Estimation ML des prix</h3>
+      <p class="feat-desc">Renseignez quartier, surface et chambres. Obtenez une estimation basée sur XGBoost entraîné sur 10 000+ annonces.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><i class="fas fa-comments"></i></div>
+      <h3 class="feat-title">Chatbot IA</h3>
+      <p class="feat-desc">Tapez « villa Almadies moins de 200M » — l'IA extrait les critères et filtre les résultats instantanément.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><i class="fas fa-map-marked-alt"></i></div>
+      <h3 class="feat-title">Carte interactive</h3>
+      <p class="feat-desc">Visualisez les annonces géolocalisées sur une carte Leaflet de Dakar. Filtrez par type de bien.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><i class="fas fa-chart-bar"></i></div>
+      <h3 class="feat-title">Analytics avancés</h3>
+      <p class="feat-desc">Box plots, scatter prix/surface, comparaison sources, distribution prix au m². Pour une analyse approfondie.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><i class="fas fa-database"></i></div>
+      <h3 class="feat-title">API REST complète</h3>
+      <p class="feat-desc">Accédez aux données en JSON. Filtres, pagination, endpoints par source. Intégration dans vos propres outils.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SOURCES -->
+<section class="sources-sec" id="sources" style="background:#F8F9FA;border-top:1px solid #E8EAF0">
+  <div style="text-align:center">
+    <div class="section-tag" style="text-align:center">Sources de données</div>
+    <h2 class="section-h" style="text-align:center;margin-bottom:0">5 plateformes agrégées en continu</h2>
+  </div>
+  <div class="src-grid">
+    <div class="src-item"><div class="src-dot"></div> CoinAfrique</div>
+    <div class="src-item"><div class="src-dot"></div> Expat-Dakar</div>
+    <div class="src-item"><div class="src-dot"></div> Loger-Dakar</div>
+    <div class="src-item"><div class="src-dot"></div> DakarVente</div>
+    <div class="src-item"><div class="src-dot"></div> ImmoSénégal</div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-sec">
+  <h2 class="cta-h">Prêt à analyser le marché ?</h2>
+  <p class="cta-d">Créez votre compte gratuitement et accédez immédiatement à toutes les données.</p>
+  <div class="cta-btns">
+    <a href="/immo/register/" class="btn-hero-p">
+      <i class="fas fa-user-plus"></i> Créer mon compte
+    </a>
+    <a href="/immo/login/" class="btn-hero-s">
+      <i class="fas fa-sign-in-alt"></i> J'ai déjà un compte
+    </a>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-brand">ImmoAnalytics</div>
+  <div class="foot-copy">© 2026 · Plateforme Nationale d'Information Immobilière · Sénégal</div>
+  <div class="foot-links">
+    <a href="/api/properties/stats/" target="_blank">API</a>
+    <a href="/admin/">Admin</a>
+    <a href="/immo/login/">Connexion</a>
+  </div>
+</footer>
+
+<script>
+fetch('/api/properties/stats/').then(r=>r.json()).then(d=>{
+  const t=Object.values(d).reduce((a,s)=>a+(s?.total||0),0);
+  if(t>0){const e=document.getElementById('st');if(e)e.textContent=t>1000?(t/1000).toFixed(0)+'K+':t;}
+}).catch(()=>{});
+</script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+{% extends 'immoanalytics/base.html' %}
+{% load static %}
+{% block title %}Mon Profil{% endblock %}
+{% block page_title %}<i class="fas fa-user" style="color:var(--gold)"></i> Mon Profil{% endblock %}
+
+{% block content %}
+<div style="max-width:800px;display:grid;grid-template-columns:280px 1fr;gap:1.5rem;align-items:start">
+
+  <!-- Carte profil -->
+  <div class="card" style="text-align:center">
+    <div class="card-body" style="padding:2rem 1.5rem">
+      <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-lt));display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:700;color:var(--dark);margin:0 auto 1rem">
+        {% if user.get_full_name %}{{ user.first_name|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}{% else %}{{ user.username|slice:":2"|upper }}{% endif %}
+      </div>
+      <div class="fw-600" style="font-size:1rem">{{ user.get_full_name|default:user.username }}</div>
+      <div class="text-muted text-sm">@{{ user.username }}</div>
+      <div style="margin-top:.7rem">
+        <span class="badge {% if user.is_superuser %}badge-red{% else %}badge-green{% endif %}">
+          <i class="fas {% if user.is_superuser %}fa-crown{% else %}fa-eye{% endif %}"></i>
+          {% if user.is_superuser %}Admin{% else %}Viewer{% endif %}
+        </span>
+      </div>
+      <div class="sb-divider mt-2 mb-2"></div>
+      <div style="display:flex;flex-direction:column;gap:.4rem;text-align:left">
+        {% if user.email %}
+        <div class="text-sm"><i class="fas fa-envelope text-gold" style="width:16px"></i> {{ user.email }}</div>
+        {% endif %}
+        <div class="text-sm"><i class="fas fa-calendar text-gold" style="width:16px"></i> Inscrit le {{ user.date_joined|date:"d/m/Y" }}</div>
+        <div class="text-sm"><i class="fas fa-clock text-gold" style="width:16px"></i> {{ user.last_login|date:"d/m/Y H:i"|default:"Jamais" }}</div>
+      </div>
+      <a href="/immo/settings/" class="btn btn-outline w-full mt-3">
+        <i class="fas fa-edit"></i> Modifier
+      </a>
+    </div>
+  </div>
+
+  <div>
+    <!-- Permissions -->
+    <div class="card mb-3">
+      <div class="card-header"><i class="fas fa-shield-alt"></i> Permissions</div>
+      <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+        {% for icon, label, has in perms %}
+        <div style="display:flex;align-items:center;gap:.6rem;padding:.5rem .7rem;border-radius:6px;background:{% if has %}rgba(26,92,58,.07){% else %}#F7F8FA{% endif %}">
+          <i class="fas {{ icon }}" style="width:14px;font-size:.78rem;color:{% if has %}#1A5C3A{% else %}#ccc{% endif %}"></i>
+          <span style="font-size:.8rem;color:{% if has %}#333{% else %}#aaa{% endif %}">{{ label }}</span>
+          <i class="fas fa-{% if has %}check{% else %}times{% endif %} ms-auto" style="margin-left:auto;font-size:.65rem;color:{% if has %}#1A5C3A{% else %}#ccc{% endif %}"></i>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Accès rapide -->
+    <div class="card">
+      <div class="card-header"><i class="fas fa-bolt"></i> Accès rapide</div>
+      <div class="card-body" style="display:flex;flex-wrap:wrap;gap:.5rem">
+        <a href="/dashboard/"  class="btn btn-outline btn-sm"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a href="/analytics/"  class="btn btn-outline btn-sm"><i class="fas fa-chart-bar"></i> Analytics</a>
+        <a href="/map/"        class="btn btn-outline btn-sm"><i class="fas fa-map-marked-alt"></i> Carte</a>
+        <a href="/viewer/"     class="btn btn-outline btn-sm"><i class="fas fa-search"></i> Recherche IA</a>
+        <a href="/estimation/" class="btn btn-outline btn-sm"><i class="fas fa-calculator"></i> Estimation</a>
+        {% if user.is_superuser %}
+        <a href="/immo-admin/" class="btn btn-outline btn-sm"><i class="fas fa-crown"></i> Admin Panel</a>
+        {% endif %}
+        <a href="/admin/"      class="btn btn-outline btn-sm"><i class="fas fa-tools"></i> Django Admin</a>
+        <a href="/api/properties/stats/" target="_blank" class="btn btn-outline btn-sm"><i class="fas fa-server"></i> API Stats</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

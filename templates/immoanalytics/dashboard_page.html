@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ImmoAnalytics — {{ page_title }}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600&family=DM+Sans:wght@300;400;500&family=Space+Mono&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="{% static 'immoanalytics/css/modern-ui.css' %}" rel="stylesheet">
+<style>
+  html, body { height: 100%; margin: 0; overflow: hidden; }
+  .app-wrapper { height: 100vh; display: flex; overflow: hidden; }
+  .dash-iframe {
+    flex: 1;
+    border: none;
+    height: 100vh;
+    width: 100%;
+    display: block;
+  }
+</style>
+</head>
+<body class="app-container">
+<div class="app-wrapper">
+
+  <!-- ── SIDEBAR ─────────────────────────────────────────────────────────── -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <i class="fas fa-building sidebar-logo-icon"></i>
+        <span class="sidebar-logo-text">ImmoAnalytics</span>
+      </div>
+      <div class="sidebar-tagline">Marché immobilier · Sénégal 🇸🇳</div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" style="background:#3498db;">
+        {% if user.get_full_name %}{{ user.first_name|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}{% else %}{{ user.username|slice:":2"|upper }}{% endif %}
+      </div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-username">{{ user.get_full_name|default:user.username }}</div>
+        <div class="sidebar-role"
+             style="color:{% if user.is_superuser %}#e74c3c{% elif user.is_staff %}#3498db{% else %}#27ae60{% endif %};">
+          {% if user.is_superuser %}👑 Admin
+          {% elif user.is_staff %}📊 Analyste
+          {% else %}👁️ Viewer{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <hr class="sidebar-divider"/>
+
+    <nav class="sidebar-nav">
+      {% if user.is_staff or user.is_superuser %}
+      <a href="/dashboard/" class="sidebar-link {% if '/dashboard' in request.path %}active{% endif %}">
+        <i class="fas fa-chart-line sidebar-icon"></i>
+        <span class="sidebar-label">Dashboard</span>
+      </a>
+      <a href="/analytics/" class="sidebar-link {% if '/analytics' in request.path %}active{% endif %}">
+        <i class="fas fa-chart-bar sidebar-icon"></i>
+        <span class="sidebar-label">Analytics</span>
+      </a>
+      <a href="/map/" class="sidebar-link {% if '/map' in request.path %}active{% endif %}">
+        <i class="fas fa-map-marked-alt sidebar-icon"></i>
+        <span class="sidebar-label">Carte</span>
+      </a>
+      {% endif %}
+
+      <a href="/viewer/" class="sidebar-link {% if '/viewer' in request.path %}active{% endif %}">
+        <i class="fas fa-robot sidebar-icon"></i>
+        <span class="sidebar-label">Recherche IA</span>
+      </a>
+
+      {% if user.is_superuser %}
+      <a href="/immo-admin/" class="sidebar-link {% if '/immo-admin' in request.path %}active{% endif %}">
+        <i class="fas fa-crown sidebar-icon"></i>
+        <span class="sidebar-label">Admin Panel</span>
+      </a>
+      {% endif %}
+
+      <hr class="sidebar-divider"/>
+      <div style="padding:.4rem 1.5rem .2rem;font-size:.6rem;color:rgba(245,239,224,.3);
+                  text-transform:uppercase;letter-spacing:.15em;font-family:'Space Mono',monospace;">
+        API Django
+      </div>
+      <a href="/api/properties/stats/" target="_blank" class="sidebar-link">
+        <i class="fas fa-server sidebar-icon"></i>
+        <span class="sidebar-label">Stats API</span>
+      </a>
+      <a href="/api/properties/gold/dashboard/" target="_blank" class="sidebar-link">
+        <i class="fas fa-layer-group sidebar-icon"></i>
+        <span class="sidebar-label">Gold Layer</span>
+      </a>
+      <a href="/api/properties/ml/results/" target="_blank" class="sidebar-link">
+        <i class="fas fa-brain sidebar-icon"></i>
+        <span class="sidebar-label">ML Results</span>
+      </a>
+      <hr class="sidebar-divider"/>
+      <a href="/admin/" class="sidebar-link">
+        <i class="fas fa-tools sidebar-icon"></i>
+        <span class="sidebar-label">Django Admin</span>
+      </a>
+      <a href="/immo/profile/" class="sidebar-link">
+        <i class="fas fa-user sidebar-icon"></i>
+        <span class="sidebar-label">Mon Profil</span>
+      </a>
+      <a href="/immo/settings/" class="sidebar-link">
+        <i class="fas fa-cog sidebar-icon"></i>
+        <span class="sidebar-label">Paramètres</span>
+      </a>
+      <a href="/immo/logout/" class="sidebar-link sidebar-logout">
+        <i class="fas fa-sign-out-alt sidebar-icon"></i>
+        <span class="sidebar-label">Déconnexion</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- ── DASHBOARD — iframe pointant directement vers /dpd/app/<name>/ ─── -->
+  <iframe
+    src="/dpd/app/{{ dash_app_id }}/"
+    class="dash-iframe"
+    title="{{ page_title }}"
+    allowfullscreen
+  ></iframe>
+
+</div>
+</body>
+</html>

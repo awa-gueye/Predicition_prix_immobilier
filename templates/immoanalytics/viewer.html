@@ -1,0 +1,317 @@
+{% extends 'immoanalytics/base.html' %}
+{% load static %}
+{% block title %}Recherche IA{% endblock %}
+{% block page_title %}<i class="fas fa-search" style="color:var(--gold)"></i> Recherche IA{% endblock %}
+
+{% block content %}
+<div class="viewer-layout">
+
+  <!-- ── Panneau gauche : chatbot + filtres ────────────────────────────── -->
+  <div>
+
+    <!-- Chatbot -->
+    <div class="card mb-3">
+      <div class="chat-box" style="height:auto;border:none;border-radius:0">
+        <div class="chat-header">
+          <i class="fas fa-robot"></i> Assistant IA
+        </div>
+        <div class="chat-messages" id="chat-messages" style="height:200px">
+          <div class="chat-msg bot">
+            Bonjour ! Décrivez le bien que vous recherchez.<br>
+            <span style="font-size:.75rem;opacity:.6">
+              Ex : « villa Almadies moins de 200M » ou « appartement Ouakam 3 chambres »
+            </span>
+          </div>
+        </div>
+        <div class="chat-input">
+          <input type="text" id="chat-input" placeholder="Décrivez votre recherche..."
+                 onkeydown="if(event.key==='Enter') sendChat()">
+          <button class="chat-send" onclick="sendChat()" title="Envoyer">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+      <!-- Suggestions -->
+      <div style="padding:.5rem .8rem .7rem;display:flex;flex-wrap:wrap;gap:.4rem">
+        <button class="map-filter" onclick="fillChat('Villa Almadies moins de 200M')"
+                style="border:1px solid #E8EAF0;background:#F7F8FA;cursor:pointer;font-size:.73rem;padding:.25rem .6rem;border-radius:20px;color:#555">
+          Villa Almadies &lt;200M
+        </button>
+        <button class="map-filter" onclick="fillChat('Appartement location Ouakam')"
+                style="border:1px solid #E8EAF0;background:#F7F8FA;cursor:pointer;font-size:.73rem;padding:.25rem .6rem;border-radius:20px;color:#555">
+          Appt location Ouakam
+        </button>
+        <button class="map-filter" onclick="fillChat('Terrain Pikine moins de 30M')"
+                style="border:1px solid #E8EAF0;background:#F7F8FA;cursor:pointer;font-size:.73rem;padding:.25rem .6rem;border-radius:20px;color:#555">
+          Terrain Pikine
+        </button>
+      </div>
+    </div>
+
+    <!-- Filtres manuels -->
+    <div class="card">
+      <div class="card-header"><i class="fas fa-sliders-h"></i> Filtres</div>
+      <div class="card-body">
+        <form method="GET" action="/viewer/" id="filter-form">
+          <input type="hidden" name="q" id="q-hidden" value="{{ q }}">
+
+          <div class="form-group">
+            <label class="form-label">Ville</label>
+            <select name="city" class="form-control form-select" onchange="this.form.submit()">
+              <option value="">Toutes</option>
+              {% for c in cities %}
+              <option value="{{ c }}" {% if city == c %}selected{% endif %}>{{ c }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Type de bien</label>
+            <select name="type" class="form-control form-select" onchange="this.form.submit()">
+              <option value="">Tous</option>
+              {% for t in prop_types %}
+              <option value="{{ t }}" {% if ptype == t %}selected{% endif %}>{{ t }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Transaction</label>
+            <select name="txn" class="form-control form-select" onchange="this.form.submit()">
+              <option value="">Toutes</option>
+              <option value="vente"    {% if txn == 'vente' %}selected{% endif %}>Vente</option>
+              <option value="location" {% if txn == 'location' %}selected{% endif %}>Location</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Min (M FCFA)</label>
+              <input type="number" name="min_price" class="form-control"
+                     placeholder="0" min="0" value="{{ min_p }}"
+                     onchange="this.form.submit()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Max (M FCFA)</label>
+              <input type="number" name="max_price" class="form-control"
+                     placeholder="500" min="0" value="{{ max_p }}"
+                     onchange="this.form.submit()">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Chambres minimum</label>
+            <select name="beds" class="form-control form-select" onchange="this.form.submit()">
+              <option value="">Peu importe</option>
+              {% for n in beds_choices %}
+              <option value="{{ n }}" {% if min_b == n %}selected{% endif %}>{{ n }}+</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <a href="/viewer/" class="btn btn-outline w-full" style="justify-content:center">
+            <i class="fas fa-times"></i> Réinitialiser
+          </a>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Résultats ───────────────────────────────────────────────────── -->
+  <div>
+
+    <!-- Barre de résultats -->
+    <div class="d-flex align-center justify-between mb-3" style="flex-wrap:wrap;gap:.5rem">
+      <div>
+        {% if total %}
+        <span class="fw-600">{{ total }} résultat{{ total|pluralize }}</span>
+        {% if ai_msg %}
+        <span class="text-muted text-sm"> — {{ ai_msg }}</span>
+        {% endif %}
+        {% elif q or city or ptype %}
+        <span class="text-muted">Aucun résultat pour ces critères</span>
+        {% else %}
+        <span class="text-muted">Utilisez le chatbot ou les filtres pour rechercher</span>
+        {% endif %}
+      </div>
+      {% if q %}<span class="badge badge-gold"><i class="fas fa-robot"></i> Recherche IA</span>{% endif %}
+    </div>
+
+    <!-- Résultats chatbot dynamiques -->
+    <div id="chat-results" style="display:none" class="mb-3">
+      <div class="card">
+        <div class="card-header" id="chat-results-header">
+          <i class="fas fa-search"></i> Résultats de votre recherche
+        </div>
+        <div class="card-body prop-grid" id="chat-results-body" style="gap:.8rem"></div>
+      </div>
+    </div>
+
+    <!-- Résultats filtrés (Django) -->
+    {% if results %}
+    <div class="prop-grid" id="results-grid">
+      {% for p in results %}
+      <div class="prop-card">
+        <div class="prop-img">
+          <img src="{% static 'immoanalytics/img/property-' %}{% if 'villa' in p.property_type|lower %}villa{% elif 'appart' in p.property_type|lower %}appt{% else %}terrain{% endif %}.jpg"
+               alt="{{ p.property_type }}" class="img-cover"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="prop-img-ph" style="display:none">
+            <i class="fas {% if 'villa' in p.property_type|lower %}fa-home{% elif 'appart' in p.property_type|lower %}fa-building{% else %}fa-vector-square{% endif %}"></i>
+          </div>
+          <span class="prop-type-badge">{{ p.property_type|default:"Bien" }}</span>
+          <span class="prop-src-badge">{{ p.source }}</span>
+        </div>
+        <div class="prop-body">
+          <div class="prop-title">{{ p.title|default:"Annonce immobilière"|truncatechars:50 }}</div>
+          <div class="prop-loc"><i class="fas fa-map-pin"></i> {{ p.city|default:"Sénégal" }}</div>
+          <div class="prop-feats">
+            {% if p.bedrooms and p.bedrooms > 0 %}
+            <span class="prop-feat"><i class="fas fa-bed"></i> {{ p.bedrooms }} ch.</span>
+            {% endif %}
+            {% if p.surface_area and p.surface_area > 0 %}
+            <span class="prop-feat"><i class="fas fa-expand"></i> {{ p.surface_area|floatformat:0 }} m²</span>
+            {% endif %}
+          </div>
+          <div class="prop-price">
+            {% if p.price >= 1000000000 %}
+              {{ p.price|divisibleby:1000000000|default:0 }}
+              {% widthratio p.price 1000000000 1 %} Mds FCFA
+            {% elif p.price >= 1000000 %}
+              {% widthratio p.price 1000000 1 %}M FCFA
+            {% elif p.price >= 100000 %}
+              {% widthratio p.price 1000 1 %}K FCFA
+            {% else %}
+              {{ p.price|floatformat:0 }} FCFA
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% elif q or city or ptype or txn or min_p or max_p or min_b %}
+    <div class="card" style="border:2px dashed #E8EAF0;background:#FAFBFC">
+      <div class="card-body" style="text-align:center;padding:3rem">
+        <i class="fas fa-search" style="font-size:2rem;color:var(--muted);margin-bottom:1rem;display:block"></i>
+        <div class="fw-600 mb-1">Aucun résultat</div>
+        <div class="text-muted text-sm">Essayez des critères plus larges ou une autre localité.</div>
+      </div>
+    </div>
+    {% else %}
+    <div class="card" style="border:2px dashed #E8EAF0;background:#FAFBFC">
+      <div class="card-body" style="text-align:center;padding:3rem">
+        <i class="fas fa-robot" style="font-size:2rem;color:var(--gold);margin-bottom:1rem;display:block"></i>
+        <div class="fw-600 mb-1">Prêt à rechercher</div>
+        <div class="text-muted text-sm">
+          Décrivez votre bien dans le chatbot ou utilisez les filtres.
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const CSRF = '{{ csrf_token }}';
+
+function fmtP(p) {
+  if (!p || p < 500000) return '—';
+  if (p >= 1e9) return (p/1e9).toFixed(1)+' Mds FCFA';
+  if (p >= 1e6) return (p/1e6).toFixed(1)+'M FCFA';
+  if (p >= 1e3) return (p/1e3).toFixed(0)+'K FCFA';
+  return Number(p).toLocaleString('fr-FR')+' FCFA';
+}
+
+function propCard(p) {
+  return `<div class="prop-card">
+    <div class="prop-img">
+      <div class="prop-img-ph" style="display:flex">
+        <i class="fas fa-home"></i>
+      </div>
+      <span class="prop-type-badge">${p.type||'Bien'}</span>
+      <span class="prop-src-badge">${p.source||''}</span>
+    </div>
+    <div class="prop-body">
+      <div class="prop-title">${(p.title||'Annonce').substring(0,50)}</div>
+      <div class="prop-loc"><i class="fas fa-map-pin"></i> ${p.city||'Sénégal'}</div>
+      <div class="prop-feats">
+        ${p.surface?`<span class="prop-feat"><i class="fas fa-expand"></i> ${p.surface} m²</span>`:''}
+      </div>
+      <div class="prop-price">${p.price_fmt || fmtP(p.price)}</div>
+    </div>
+  </div>`;
+}
+
+function addMsg(text, type, isHtml) {
+  const box = document.getElementById('chat-messages');
+  const d   = document.createElement('div');
+  d.className = 'chat-msg ' + type;
+  if (isHtml) d.innerHTML = text;
+  else d.textContent = text;
+  // Icône toujours en innerHTML
+  if (text.includes('fa-')) d.innerHTML = text;
+  box.appendChild(d);
+  box.scrollTop = box.scrollHeight;
+}
+
+function fillChat(txt) {
+  document.getElementById('chat-input').value = txt;
+  sendChat();
+}
+
+async function sendChat() {
+  const inp = document.getElementById('chat-input');
+  const msg = inp.value.trim();
+  if (!msg) return;
+
+  addMsg(msg, 'user');
+  inp.value = '';
+
+  // Indicateur de chargement
+  const loadId = 'load-' + Date.now();
+  addMsg('<i class="fas fa-spinner fa-spin"></i> Recherche en cours...', 'bot');
+
+  try {
+    const resp = await fetch('/immo/api/chatbot/', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','X-CSRFToken': CSRF},
+      body: JSON.stringify({message: msg})
+    });
+    const data = await resp.json();
+
+    // Supprimer le loading
+    const msgs = document.getElementById('chat-messages');
+    const last = msgs.lastElementChild;
+    if (last && last.innerHTML.includes('fa-spinner')) msgs.removeChild(last);
+
+    if (data.error) {
+      addMsg('<i class="fas fa-exclamation-triangle"></i> ' + data.error, 'bot');
+      return;
+    }
+
+    addMsg('<i class="fas fa-check-circle" style="color:var(--gold)"></i> ' + data.response, 'bot', true);
+
+    // Afficher les résultats
+    if (data.properties && data.properties.length > 0) {
+      const cr  = document.getElementById('chat-results');
+      const crh = document.getElementById('chat-results-header');
+      const crb = document.getElementById('chat-results-body');
+      crh.innerHTML = `<i class="fas fa-search"></i> ${data.total} résultat(s) trouvé(s)`;
+      crb.innerHTML = data.properties.map(propCard).join('');
+      cr.style.display = 'block';
+      cr.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+  } catch(e) {
+    const msgs = document.getElementById('chat-messages');
+    const last = msgs.lastElementChild;
+    if (last && last.innerHTML.includes('fa-spinner')) msgs.removeChild(last);
+    addMsg('<i class="fas fa-wifi" style="color:#e74c3c"></i> Erreur de connexion. Réessayez.', 'bot');
+  }
+}
+</script>
+{% endblock %}

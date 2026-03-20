@@ -1,27 +1,20 @@
 from rest_framework import generics, filters
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from django.db.models import Avg, Min, Max, Count
+from rest_framework.views     import APIView
+from rest_framework.response  import Response
+from django.db.models         import Avg, Min, Max, Count
 from django_filters.rest_framework import DjangoFilterBackend
-from django.utils.decorators import method_decorator
+from django.utils.decorators  import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import (
-    CoinAfriqueProperty,
-    ExpatDakarProperty,
-    LogerDakarProperty,
-    DakarVenteProperty,
-    ImmoSenegalProperty,
-    PrixMedianQuartier,
-    TendanceMensuelle,
+    CoinAfriqueProperty, ExpatDakarProperty, LogerDakarProperty,
+    DakarVenteProperty, ImmoSenegalProperty,
+    PrixMedianQuartier, TendanceMensuelle,
 )
 from .serializers import (
-    CoinAfriqueSerializer,
-    ExpatDakarSerializer,
-    LogerDakarSerializer,
-    PropertyUnifiedSerializer,
+    CoinAfriqueSerializer, ExpatDakarSerializer, LogerDakarSerializer,
+    DakarVenteSerializer, ImmoSenegalSerializer, PropertyUnifiedSerializer,
 )
-
 
 
 # ── CoinAfrique ───────────────────────────────────────────────────────────────
@@ -43,15 +36,12 @@ class CoinAfriqueListView(generics.ListAPIView):
 
     def get_queryset(self):
         qs = CoinAfriqueProperty.objects.exclude(price__isnull=True)
-        min_price   = self.request.query_params.get('min_price')
-        max_price   = self.request.query_params.get('max_price')
-        min_surface = self.request.query_params.get('min_surface')
-        if min_price:
-            qs = qs.filter(price__gte=min_price)
-        if max_price:
-            qs = qs.filter(price__lte=max_price)
-        if min_surface:
-            qs = qs.filter(surface_area__gte=min_surface)
+        mp  = self.request.query_params.get('min_price')
+        xp  = self.request.query_params.get('max_price')
+        ms  = self.request.query_params.get('min_surface')
+        if mp:  qs = qs.filter(price__gte=mp)
+        if xp:  qs = qs.filter(price__lte=xp)
+        if ms:  qs = qs.filter(surface_area__gte=ms)
         return qs
 
 
@@ -77,12 +67,10 @@ class ExpatDakarListView(generics.ListAPIView):
 
     def get_queryset(self):
         qs = ExpatDakarProperty.objects.exclude(price__isnull=True)
-        min_price = self.request.query_params.get('min_price')
-        max_price = self.request.query_params.get('max_price')
-        if min_price:
-            qs = qs.filter(price__gte=min_price)
-        if max_price:
-            qs = qs.filter(price__lte=max_price)
+        mp = self.request.query_params.get('min_price')
+        xp = self.request.query_params.get('max_price')
+        if mp: qs = qs.filter(price__gte=mp)
+        if xp: qs = qs.filter(price__lte=xp)
         return qs
 
 
@@ -111,6 +99,56 @@ class LogerDakarDetailView(generics.RetrieveAPIView):
     serializer_class = LogerDakarSerializer
 
 
+# ── DakarVente ────────────────────────────────────────────────────────────────
+
+class DakarVenteListView(generics.ListAPIView):
+    """Liste toutes les annonces DakarVente."""
+    serializer_class = DakarVenteSerializer
+    filter_backends  = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['city', 'property_type', 'statut']
+    search_fields    = ['title', 'adresse']
+    ordering_fields  = ['price', 'surface_area', 'scraped_at']
+    ordering         = ['-scraped_at']
+
+    def get_queryset(self):
+        qs = DakarVenteProperty.objects.exclude(price__isnull=True)
+        mp = self.request.query_params.get('min_price')
+        xp = self.request.query_params.get('max_price')
+        if mp: qs = qs.filter(price__gte=mp)
+        if xp: qs = qs.filter(price__lte=xp)
+        return qs
+
+
+class DakarVenteDetailView(generics.RetrieveAPIView):
+    queryset         = DakarVenteProperty.objects.all()
+    serializer_class = DakarVenteSerializer
+
+
+# ── ImmoSenegal ───────────────────────────────────────────────────────────────
+
+class ImmoSenegalListView(generics.ListAPIView):
+    """Liste toutes les annonces ImmoSenegal."""
+    serializer_class = ImmoSenegalSerializer
+    filter_backends  = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['city', 'property_type', 'statut', 'transaction']
+    search_fields    = ['title', 'adresse']
+    ordering_fields  = ['price', 'surface_area', 'scraped_at']
+    ordering         = ['-scraped_at']
+
+    def get_queryset(self):
+        qs = ImmoSenegalProperty.objects.exclude(price__isnull=True)
+        mp = self.request.query_params.get('min_price')
+        xp = self.request.query_params.get('max_price')
+        if mp: qs = qs.filter(price__gte=mp)
+        if xp: qs = qs.filter(price__lte=xp)
+        return qs
+
+
+class ImmoSenegalDetailView(generics.RetrieveAPIView):
+    queryset         = ImmoSenegalProperty.objects.all()
+    serializer_class = ImmoSenegalSerializer
+
+
 # ── Vue unifiée — toutes les sources ─────────────────────────────────────────
 
 class AllPropertiesView(APIView):
@@ -123,7 +161,6 @@ class AllPropertiesView(APIView):
     """
     def get(self, request):
         source = request.query_params.get('source', 'all')
-        results = []
 
         def extract(obj, src):
             return {
@@ -148,15 +185,13 @@ class AllPropertiesView(APIView):
             'immosenegal': (ImmoSenegalProperty, 'immosenegal'),
         }
 
+        results = []
         for key, (model, label) in SOURCES.items():
             if source in ('all', key):
-                for obj in model.objects.exclude(price__isnull=True):
+                for obj in model.objects.exclude(price__isnull=True)[:1000]:
                     results.append(extract(obj, label))
 
-        return Response({
-            'count':   len(results),
-            'results': results,
-        })
+        return Response({'count': len(results), 'results': results})
 
 
 # ── Statistiques globales ─────────────────────────────────────────────────────
@@ -171,36 +206,49 @@ class StatsView(APIView):
         def stats(model):
             qs = model.objects.exclude(price__isnull=True)
             return qs.aggregate(
-                total         = Count('id'),
-                prix_moyen    = Avg('price'),
-                prix_min      = Min('price'),
-                prix_max      = Max('price'),
+                total           = Count('id'),
+                prix_moyen      = Avg('price'),
+                prix_min        = Min('price'),
+                prix_max        = Max('price'),
                 surface_moyenne = Avg('surface_area'),
             )
 
         return Response({
-            'coinafrique':  stats(CoinAfriqueProperty),
-            'expat_dakar':  stats(ExpatDakarProperty),
-            'loger_dakar':  stats(LogerDakarProperty),
-            'dakarvente':   stats(DakarVenteProperty),
-            'immosenegal':  stats(ImmoSenegalProperty),
+            'coinafrique': stats(CoinAfriqueProperty),
+            'expat_dakar': stats(ExpatDakarProperty),
+            'loger_dakar': stats(LogerDakarProperty),
+            'dakarvente':  stats(DakarVenteProperty),
+            'immosenegal': stats(ImmoSenegalProperty),
         })
 
 
 # ── Prédiction ML ─────────────────────────────────────────────────────────────
+
 @method_decorator(csrf_exempt, name='dispatch')
 class PredictPriceView(APIView):
+    """
+    Prédit le prix d'un bien à partir de ses caractéristiques.
+    POST /api/properties/predict/
+
+    Body JSON :
+        city, property_type, surface_area, bedrooms, bathrooms,
+        source (optionnel), latitude, longitude (optionnels)
+    """
     def post(self, request):
         import os, sys, importlib
 
-        # Chemin absolu vers le dossier ml
         ml_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ml')
         if ml_dir not in sys.path:
             sys.path.insert(0, ml_dir)
 
-        # Import dynamique pour éviter les problèmes de résolution de chemin
-        predict_module = importlib.import_module('predict')
-        predict_price  = predict_module.predict_price
+        try:
+            predict_module = importlib.import_module('predict')
+            predict_price  = predict_module.predict_price
+        except ModuleNotFoundError:
+            return Response(
+                {'error': "Modèle ML non trouvé. Exécutez d'abord le Notebook 4."},
+                status=503
+            )
 
         data = request.data
         try:
@@ -251,17 +299,13 @@ class PrixMediansQuartierView(APIView):
         min_obs   : nombre minimum d'observations (défaut : 5)
     """
     def get(self, request):
-        qs = PrixMedianQuartier.objects.all()
-
+        qs        = PrixMedianQuartier.objects.all()
         quartier  = request.query_params.get('quartier')
         type_bien = request.query_params.get('type_bien')
         min_obs   = request.query_params.get('min_obs', 5)
 
-        if quartier:
-            qs = qs.filter(quartier__icontains=quartier)
-        if type_bien:
-            qs = qs.filter(type_bien__icontains=type_bien)
-
+        if quartier:  qs = qs.filter(quartier__icontains=quartier)
+        if type_bien: qs = qs.filter(type_bien__icontains=type_bien)
         qs = qs.filter(nb_observations__gte=min_obs)
 
         data = list(qs.values(
@@ -270,7 +314,6 @@ class PrixMediansQuartierView(APIView):
             'prix_min', 'prix_max', 'ecart_type',
             'source', 'date_calcul',
         ))
-
         return Response({'count': len(data), 'results': data})
 
 
@@ -285,25 +328,20 @@ class TendancesMensuellesView(APIView):
         annee     : filtrer par année (ex: ?annee=2026)
     """
     def get(self, request):
-        qs = TendanceMensuelle.objects.all()
-
+        qs        = TendanceMensuelle.objects.all()
         quartier  = request.query_params.get('quartier')
         type_bien = request.query_params.get('type_bien')
         annee     = request.query_params.get('annee')
 
-        if quartier:
-            qs = qs.filter(quartier__icontains=quartier)
-        if type_bien:
-            qs = qs.filter(type_bien__icontains=type_bien)
-        if annee:
-            qs = qs.filter(annee=annee)
+        if quartier:  qs = qs.filter(quartier__icontains=quartier)
+        if type_bien: qs = qs.filter(type_bien__icontains=type_bien)
+        if annee:     qs = qs.filter(annee=annee)
 
         data = list(qs.values(
             'quartier', 'mois', 'annee',
             'prix_median', 'nb_annonces',
             'variation_pct', 'type_bien', 'source',
         ))
-
         return Response({'count': len(data), 'results': data})
 
 
@@ -319,13 +357,12 @@ class DashboardStatsView(APIView):
         - Prix médian global par type de bien
     """
     def get(self, request):
-
         sources = {
-            'coinafrique':  CoinAfriqueProperty.objects.exclude(price__isnull=True).count(),
-            'expat_dakar':  ExpatDakarProperty.objects.exclude(price__isnull=True).count(),
-            'loger_dakar':  LogerDakarProperty.objects.exclude(price__isnull=True).count(),
-            'dakarvente':   DakarVenteProperty.objects.exclude(price__isnull=True).count(),
-            'immosenegal':  ImmoSenegalProperty.objects.exclude(price__isnull=True).count(),
+            'coinafrique': CoinAfriqueProperty.objects.exclude(price__isnull=True).count(),
+            'expat_dakar': ExpatDakarProperty.objects.exclude(price__isnull=True).count(),
+            'loger_dakar': LogerDakarProperty.objects.exclude(price__isnull=True).count(),
+            'dakarvente':  DakarVenteProperty.objects.exclude(price__isnull=True).count(),
+            'immosenegal': ImmoSenegalProperty.objects.exclude(price__isnull=True).count(),
         }
 
         top_chers = list(
@@ -346,8 +383,8 @@ class DashboardStatsView(APIView):
             PrixMedianQuartier.objects
             .values('type_bien')
             .annotate(
-                prix_median_global  = Avg('prix_median'),
-                total_observations  = Count('nb_observations'),
+                prix_median_global = Avg('prix_median'),
+                total_observations = Count('nb_observations'),
             )
             .order_by('-prix_median_global')
         )

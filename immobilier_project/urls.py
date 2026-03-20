@@ -1,25 +1,44 @@
-"""
-URL configuration for immobilier_project project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/6.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 from django.views.generic import TemplateView
+from django.shortcuts import redirect
+
+from immoanalytics_dash.views import (
+    login_view, logout_view, register_view,
+    profile_view, settings_view,
+    viewer_page, map_page, estimation_page,
+    admin_panel_page,
+    api_chatbot, api_current_user, api_check_auth,
+)
+from immoanalytics_dash.chart_views import (
+    dashboard_page, analytics_page,
+)
+
+def index_view(request):
+    if request.user.is_authenticated:
+        from immoanalytics_dash.views import get_user_redirect
+        return redirect(get_user_redirect(request.user))
+    return TemplateView.as_view(template_name='immoanalytics/welcome.html')(request)
 
 urlpatterns = [
-    path('', TemplateView.as_view(template_name='index.html')),
-    path('admin/', admin.site.urls),
+    path('',             index_view,     name='index'),
+    path('admin/',       admin.site.urls),
     path('api/properties/', include('properties.urls')),
-]
+    path('immo/login/',    login_view,    name='immo_login'),
+    path('immo/logout/',   logout_view,   name='immo_logout'),
+    path('immo/register/', register_view, name='immo_register'),
+    path('immo/profile/',  profile_view,  name='immo_profile'),
+    path('immo/settings/', settings_view, name='immo_settings'),
+    path('immo/api/me/',      api_current_user, name='immo_api_me'),
+    path('immo/api/check/',   api_check_auth,   name='immo_api_check'),
+    path('immo/api/chatbot/', api_chatbot,      name='immo_api_chatbot'),
+    path('dpd/', include('django_plotly_dash.urls')),
+    path('dashboard/',  dashboard_page,  name='dashboard'),
+    path('analytics/',  analytics_page,  name='analytics'),
+    path('viewer/',     viewer_page,     name='viewer'),
+    path('map/',        map_page,        name='map'),
+    path('estimation/', estimation_page, name='estimation'),
+    path('immo-admin/', admin_panel_page, name='immo_admin'),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
