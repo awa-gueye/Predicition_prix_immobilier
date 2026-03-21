@@ -165,24 +165,31 @@ footer { padding:2.5rem 5%;background:#1A1A2E;
 
 /* ── Carousel ────────────────────────────────────────────────────────────── */
 .carousel-section {
-  position: relative; overflow: hidden;
-  background: #0D1117;
-}
-.carousel-track {
-  display: flex; transition: transform .8s cubic-bezier(.77,0,.175,1);
-  will-change: transform;
-}
-.carousel-slide {
-  min-width: 100%; height: 520px; position: relative; flex-shrink: 0;
+  position: relative;
   overflow: hidden;
+  background: #0D1117;
+  height: 520px;
+}
+/* Tous les slides empilés en absolu */
+.carousel-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1s ease;
+  z-index: 1;
+}
+.carousel-slide.active {
+  opacity: 1;
+  z-index: 2;
 }
 .carousel-slide img {
-  width: 100%; height: 100%; object-fit: cover;
-  transition: transform 8s ease; transform: scale(1.05);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
-.carousel-slide.active img { transform: scale(1); }
 .carousel-overlay {
-  position: absolute; inset: 0;
+  position: absolute;
+  inset: 0;
   background: linear-gradient(
     135deg,
     rgba(13,17,23,.75) 0%,
@@ -191,72 +198,88 @@ footer { padding:2.5rem 5%;background:#1A1A2E;
   );
 }
 .carousel-content {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  padding: 3rem 6%;
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 2.5rem 6%;
   background: linear-gradient(to top, rgba(13,17,23,.9) 0%, transparent 100%);
+  z-index: 3;
 }
 .carousel-tag {
   display: inline-flex; align-items: center; gap: .4rem;
-  background: rgba(184,149,90,.15); border: 1px solid rgba(184,149,90,.3);
+  background: rgba(184,149,90,.15);
+  border: 1px solid rgba(184,149,90,.3);
   padding: .25rem .75rem; border-radius: 20px;
-  font-size: .68rem; color: #B8955A; letter-spacing: .1em;
-  text-transform: uppercase; font-family: 'JetBrains Mono', monospace;
-  margin-bottom: .9rem;
+  font-size: .68rem; color: #B8955A;
+  letter-spacing: .1em; text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: .8rem;
 }
 .carousel-title {
   font-family: 'Playfair Display', serif;
-  font-size: clamp(1.6rem, 3.5vw, 2.8rem);
-  font-weight: 700; color: #FAFAF8; line-height: 1.15;
-  margin-bottom: .7rem; max-width: 680px;
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 700; color: #FAFAF8;
+  line-height: 1.15; margin-bottom: .6rem;
+  max-width: 680px;
 }
 .carousel-title em { color: #B8955A; font-style: italic; }
 .carousel-desc {
-  font-size: .9rem; color: rgba(240,237,232,.6);
-  max-width: 520px; line-height: 1.7; font-weight: 300;
-  margin-bottom: 1.2rem;
+  font-size: .88rem; color: rgba(240,237,232,.65);
+  max-width: 500px; line-height: 1.7;
+  font-weight: 300; margin-bottom: 1rem;
 }
 .carousel-cta {
   display: inline-flex; align-items: center; gap: .5rem;
-  padding: .6rem 1.4rem;
+  padding: .55rem 1.3rem;
   background: linear-gradient(135deg, #B8955A, #D4AF7A);
-  color: #0D1117; border-radius: 7px; font-size: .82rem;
-  font-weight: 600; text-decoration: none;
-  transition: all .2s;
+  color: #0D1117; border-radius: 7px;
+  font-size: .82rem; font-weight: 600;
+  text-decoration: none; transition: all .2s;
 }
-.carousel-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(184,149,90,.35); }
-/* Indicateurs */
+.carousel-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(184,149,90,.35);
+}
 .carousel-indicators {
-  position: absolute; bottom: 1.5rem; right: 5%;
+  position: absolute; bottom: 1.2rem; right: 5%;
   display: flex; gap: .5rem; z-index: 10;
 }
 .carousel-dot {
   width: 8px; height: 8px; border-radius: 50%;
-  background: rgba(240,237,232,.3); cursor: pointer;
-  transition: all .3s; border: none; padding: 0;
+  background: rgba(240,237,232,.35);
+  cursor: pointer; transition: all .3s;
+  border: none; padding: 0;
 }
-.carousel-dot.active { background: #B8955A; width: 24px; border-radius: 4px; }
-/* Flèches */
+.carousel-dot.active {
+  background: #B8955A;
+  width: 22px; border-radius: 4px;
+}
 .carousel-arrow {
-  position: absolute; top: 50%; transform: translateY(-50%);
-  width: 42px; height: 42px; border-radius: 50%;
-  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15);
-  color: #fff; font-size: .9rem; cursor: pointer;
+  position: absolute; top: 50%;
+  transform: translateY(-50%);
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.18);
+  color: #fff; font-size: .85rem;
+  cursor: pointer; z-index: 10;
   display: flex; align-items: center; justify-content: center;
-  transition: all .2s; z-index: 10; backdrop-filter: blur(8px);
+  transition: all .2s; backdrop-filter: blur(8px);
 }
-.carousel-arrow:hover { background: rgba(184,149,90,.4); border-color: #B8955A; }
+.carousel-arrow:hover {
+  background: rgba(184,149,90,.45);
+  border-color: #B8955A;
+}
 .carousel-prev { left: 2%; }
 .carousel-next { right: 2%; }
-/* Barre de progression */
 .carousel-progress {
-  position: absolute; bottom: 0; left: 0; height: 3px;
+  position: absolute; bottom: 0; left: 0;
+  height: 3px; width: 0%;
   background: linear-gradient(90deg, #B8955A, #D4AF7A);
-  transition: width linear; z-index: 10;
+  z-index: 10;
 }
 @media(max-width: 640px) {
-  .carousel-slide { height: 380px; }
+  .carousel-section { height: 400px; }
   .carousel-arrow { display: none; }
-  .carousel-title { font-size: 1.4rem; }
+  .carousel-title { font-size: 1.35rem; }
 }
 </style>
 </head>
@@ -476,89 +499,83 @@ footer { padding:2.5rem 5%;background:#1A1A2E;
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  const TRACK    = document.getElementById('carTrack');
-  const PROGRESS = document.getElementById('carProgress');
-  const DOTS_W   = document.getElementById('carDots');
-  const SLIDES   = TRACK ? TRACK.querySelectorAll('.carousel-slide') : [];
-  const N        = SLIDES.length;
-  const DELAY    = 5000;
-  let cur = 0, autoTimer = null;
+  var slides  = document.querySelectorAll('.carousel-slide');
+  var dots    = document.getElementById('carDots');
+  var prog    = document.getElementById('carProgress');
+  var n       = slides.length;
+  var cur     = 0;
+  var DELAY   = 5000;
+  var timer   = null;
 
-  if (!N) return;
+  if (!n) return;
 
   // Créer les dots
-  for (let i = 0; i < N; i++) {
-    const d = document.createElement('button');
+  for (var i = 0; i < n; i++) {
+    var d = document.createElement('button');
     d.className = 'carousel-dot' + (i === 0 ? ' active' : '');
     d.setAttribute('aria-label', 'Slide ' + (i+1));
-    (function(idx){ d.addEventListener('click', function(){ goTo(idx); }); })(i);
-    DOTS_W.appendChild(d);
+    (function(idx) {
+      d.addEventListener('click', function() { goTo(idx); restart(); });
+    })(i);
+    dots.appendChild(d);
   }
 
   function goTo(idx) {
-    // Retirer active du slide courant
-    SLIDES[cur].classList.remove('active');
-    DOTS_W.children[cur].classList.remove('active');
-
-    // Aller au nouveau slide
-    cur = (idx % N + N) % N;
-    SLIDES[cur].classList.add('active');
-    DOTS_W.children[cur].classList.add('active');
-
-    // Déplacer le track
-    TRACK.style.transform = 'translateX(-' + (cur * 100) + '%)';
-
-    // Relancer la barre de progression
-    startProgress();
+    slides[cur].classList.remove('active');
+    dots.children[cur].classList.remove('active');
+    cur = ((idx % n) + n) % n;
+    slides[cur].classList.add('active');
+    dots.children[cur].classList.add('active');
+    animProgress();
   }
 
-  function next() { goTo(cur + 1); }
-  window.carMove = function(dir) { goTo(cur + dir); };
-
-  function startProgress() {
-    if (!PROGRESS) return;
-    PROGRESS.style.transition = 'none';
-    PROGRESS.style.width = '0%';
-    // Forcer le reflow
-    PROGRESS.getBoundingClientRect();
-    PROGRESS.style.transition = 'width ' + DELAY + 'ms linear';
-    PROGRESS.style.width = '100%';
+  function animProgress() {
+    if (!prog) return;
+    prog.style.transition = 'none';
+    prog.style.width = '0%';
+    prog.offsetWidth; // force reflow
+    prog.style.transition = 'width ' + DELAY + 'ms linear';
+    prog.style.width = '100%';
   }
 
-  function startAuto() {
-    stopAuto();
-    autoTimer = setInterval(next, DELAY);
-    startProgress();
+  function tick() { goTo(cur + 1); }
+
+  function start() {
+    stop();
+    timer = setInterval(tick, DELAY);
+    animProgress();
   }
 
-  function stopAuto() {
-    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+  function stop() {
+    if (timer) { clearInterval(timer); timer = null; }
   }
+
+  function restart() { start(); }
+
+  // Exposer pour les boutons
+  window.carMove = function(dir) { goTo(cur + dir); restart(); };
 
   // Pause au survol
-  const section = document.querySelector('.carousel-section');
-  if (section) {
-    section.addEventListener('mouseenter', function() {
-      stopAuto();
-      if (PROGRESS) { PROGRESS.style.transition = 'none'; }
-    });
-    section.addEventListener('mouseleave', startAuto);
+  var sec = document.querySelector('.carousel-section');
+  if (sec) {
+    sec.addEventListener('mouseenter', stop);
+    sec.addEventListener('mouseleave', start);
   }
 
   // Swipe mobile
-  let touchX = 0;
-  if (section) {
-    section.addEventListener('touchstart', function(e) {
-      touchX = e.touches[0].clientX;
+  var tx = 0;
+  if (sec) {
+    sec.addEventListener('touchstart', function(e) {
+      tx = e.touches[0].clientX;
     }, {passive: true});
-    section.addEventListener('touchend', function(e) {
-      const dx = e.changedTouches[0].clientX - touchX;
-      if (Math.abs(dx) > 40) goTo(cur + (dx < 0 ? 1 : -1));
+    sec.addEventListener('touchend', function(e) {
+      var dx = e.changedTouches[0].clientX - tx;
+      if (Math.abs(dx) > 50) { goTo(cur + (dx < 0 ? 1 : -1)); restart(); }
     }, {passive: true});
   }
 
-  // Lancer
-  startAuto();
+  // Lancer immédiatement
+  start();
 });
 </script>
 
