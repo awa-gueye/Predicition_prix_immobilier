@@ -350,7 +350,7 @@ footer { padding:2.5rem 5%;background:#1A1A2E;
 
     <!-- Slide 1 — Dashboard analytique -->
     <div class="carousel-slide active">
-      <img src="{% static 'immoanalytics/img/slide-dashboard.jpg' %}"
+      <img src="{% static 'immoanalytics/img/slide-dashboard.png' %}"
            alt="Dashboard ImmoAnalytics"
            onerror="this.parentElement.style.background='linear-gradient(135deg,#0D1117,#1A5C3A)'">
       <div class="carousel-overlay"></div>
@@ -475,67 +475,91 @@ footer { padding:2.5rem 5%;background:#1A1A2E;
 </section>
 
 <script>
-(function() {
-  const SLIDES    = document.querySelectorAll('.carousel-slide');
-  const TRACK     = document.getElementById('carTrack');
-  const DOTS_WRAP = document.getElementById('carDots');
-  const PROGRESS  = document.getElementById('carProgress');
-  const DELAY     = 5000;   // ms entre les slides
-  let current = 0, timer, progTimer, elapsed = 0;
+document.addEventListener('DOMContentLoaded', function() {
+  const TRACK    = document.getElementById('carTrack');
+  const PROGRESS = document.getElementById('carProgress');
+  const DOTS_W   = document.getElementById('carDots');
+  const SLIDES   = TRACK ? TRACK.querySelectorAll('.carousel-slide') : [];
+  const N        = SLIDES.length;
+  const DELAY    = 5000;
+  let cur = 0, autoTimer = null;
+
+  if (!N) return;
 
   // Créer les dots
-  SLIDES.forEach((_, i) => {
+  for (let i = 0; i < N; i++) {
     const d = document.createElement('button');
     d.className = 'carousel-dot' + (i === 0 ? ' active' : '');
-    d.setAttribute('aria-label', `Slide ${i+1}`);
-    d.onclick = () => goTo(i);
-    DOTS_WRAP.appendChild(d);
-  });
+    d.setAttribute('aria-label', 'Slide ' + (i+1));
+    (function(idx){ d.addEventListener('click', function(){ goTo(idx); }); })(i);
+    DOTS_W.appendChild(d);
+  }
 
   function goTo(idx) {
-    SLIDES[current].classList.remove('active');
-    document.querySelectorAll('.carousel-dot')[current].classList.remove('active');
-    current = (idx + SLIDES.length) % SLIDES.length;
-    SLIDES[current].classList.add('active');
-    document.querySelectorAll('.carousel-dot')[current].classList.add('active');
-    TRACK.style.transform = `translateX(-${current * 100}%)`;
-    resetProgress();
+    // Retirer active du slide courant
+    SLIDES[cur].classList.remove('active');
+    DOTS_W.children[cur].classList.remove('active');
+
+    // Aller au nouveau slide
+    cur = (idx % N + N) % N;
+    SLIDES[cur].classList.add('active');
+    DOTS_W.children[cur].classList.add('active');
+
+    // Déplacer le track
+    TRACK.style.transform = 'translateX(-' + (cur * 100) + '%)';
+
+    // Relancer la barre de progression
+    startProgress();
   }
 
-  function carMove(dir) { goTo(current + dir); }
-  window.carMove = carMove;
+  function next() { goTo(cur + 1); }
+  window.carMove = function(dir) { goTo(cur + dir); };
 
-  function resetProgress() {
-    clearInterval(progTimer); elapsed = 0;
+  function startProgress() {
+    if (!PROGRESS) return;
     PROGRESS.style.transition = 'none';
     PROGRESS.style.width = '0%';
-    setTimeout(() => {
-      PROGRESS.style.transition = `width ${DELAY}ms linear`;
-      PROGRESS.style.width = '100%';
-    }, 20);
+    // Forcer le reflow
+    PROGRESS.getBoundingClientRect();
+    PROGRESS.style.transition = 'width ' + DELAY + 'ms linear';
+    PROGRESS.style.width = '100%';
   }
 
-  function autoPlay() {
-    clearInterval(timer);
-    timer = setInterval(() => goTo(current + 1), DELAY);
-    resetProgress();
+  function startAuto() {
+    stopAuto();
+    autoTimer = setInterval(next, DELAY);
+    startProgress();
+  }
+
+  function stopAuto() {
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
   }
 
   // Pause au survol
   const section = document.querySelector('.carousel-section');
-  section.addEventListener('mouseenter', () => { clearInterval(timer); clearInterval(progTimer); });
-  section.addEventListener('mouseleave', autoPlay);
+  if (section) {
+    section.addEventListener('mouseenter', function() {
+      stopAuto();
+      if (PROGRESS) { PROGRESS.style.transition = 'none'; }
+    });
+    section.addEventListener('mouseleave', startAuto);
+  }
 
-  // Swipe tactile
-  let startX = 0;
-  section.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive:true});
-  section.addEventListener('touchend', e => {
-    const dx = e.changedTouches[0].clientX - startX;
-    if (Math.abs(dx) > 40) carMove(dx < 0 ? 1 : -1);
-  }, {passive:true});
+  // Swipe mobile
+  let touchX = 0;
+  if (section) {
+    section.addEventListener('touchstart', function(e) {
+      touchX = e.touches[0].clientX;
+    }, {passive: true});
+    section.addEventListener('touchend', function(e) {
+      const dx = e.changedTouches[0].clientX - touchX;
+      if (Math.abs(dx) > 40) goTo(cur + (dx < 0 ? 1 : -1));
+    }, {passive: true});
+  }
 
-  autoPlay();
-})();
+  // Lancer
+  startAuto();
+});
 </script>
 
 <!-- FEATURES -->
