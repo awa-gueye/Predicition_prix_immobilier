@@ -143,7 +143,10 @@ LOGIN_URL = '/immo/login/'
 ##--------------
 
 # ── Base de données (Neon PostgreSQL via DATABASE_URL) ────────────────────────
-DATABASE_URL = config('DATABASE_URL')
+DATABASE_URL = config(
+    'DATABASE_URL',
+    default="postgresql://neondb_owner:npg_ciyfh8H9bZdj@ep-frosty-wind-a4aoph5q-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require"
+)
 
 DATABASES = {
     'default': dj_database_url.parse(
