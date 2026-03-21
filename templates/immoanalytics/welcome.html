@@ -162,6 +162,102 @@ footer { padding:2.5rem 5%;background:#1A1A2E;
 .hero-right { animation:float 5s ease-in-out infinite; }
 @media(max-width:1024px){.hero-right{display:none}.nav-links{display:none}}
 @media(max-width:640px){.hero-stats{flex-wrap:wrap;gap:1.2rem}}
+
+/* ── Carousel ────────────────────────────────────────────────────────────── */
+.carousel-section {
+  position: relative; overflow: hidden;
+  background: #0D1117;
+}
+.carousel-track {
+  display: flex; transition: transform .8s cubic-bezier(.77,0,.175,1);
+  will-change: transform;
+}
+.carousel-slide {
+  min-width: 100%; height: 520px; position: relative; flex-shrink: 0;
+  overflow: hidden;
+}
+.carousel-slide img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 8s ease; transform: scale(1.05);
+}
+.carousel-slide.active img { transform: scale(1); }
+.carousel-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(13,17,23,.75) 0%,
+    rgba(26,92,58,.4) 50%,
+    rgba(13,17,23,.5) 100%
+  );
+}
+.carousel-content {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 3rem 6%;
+  background: linear-gradient(to top, rgba(13,17,23,.9) 0%, transparent 100%);
+}
+.carousel-tag {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: rgba(184,149,90,.15); border: 1px solid rgba(184,149,90,.3);
+  padding: .25rem .75rem; border-radius: 20px;
+  font-size: .68rem; color: #B8955A; letter-spacing: .1em;
+  text-transform: uppercase; font-family: 'JetBrains Mono', monospace;
+  margin-bottom: .9rem;
+}
+.carousel-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.6rem, 3.5vw, 2.8rem);
+  font-weight: 700; color: #FAFAF8; line-height: 1.15;
+  margin-bottom: .7rem; max-width: 680px;
+}
+.carousel-title em { color: #B8955A; font-style: italic; }
+.carousel-desc {
+  font-size: .9rem; color: rgba(240,237,232,.6);
+  max-width: 520px; line-height: 1.7; font-weight: 300;
+  margin-bottom: 1.2rem;
+}
+.carousel-cta {
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .6rem 1.4rem;
+  background: linear-gradient(135deg, #B8955A, #D4AF7A);
+  color: #0D1117; border-radius: 7px; font-size: .82rem;
+  font-weight: 600; text-decoration: none;
+  transition: all .2s;
+}
+.carousel-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(184,149,90,.35); }
+/* Indicateurs */
+.carousel-indicators {
+  position: absolute; bottom: 1.5rem; right: 5%;
+  display: flex; gap: .5rem; z-index: 10;
+}
+.carousel-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(240,237,232,.3); cursor: pointer;
+  transition: all .3s; border: none; padding: 0;
+}
+.carousel-dot.active { background: #B8955A; width: 24px; border-radius: 4px; }
+/* Flèches */
+.carousel-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 42px; height: 42px; border-radius: 50%;
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15);
+  color: #fff; font-size: .9rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s; z-index: 10; backdrop-filter: blur(8px);
+}
+.carousel-arrow:hover { background: rgba(184,149,90,.4); border-color: #B8955A; }
+.carousel-prev { left: 2%; }
+.carousel-next { right: 2%; }
+/* Barre de progression */
+.carousel-progress {
+  position: absolute; bottom: 0; left: 0; height: 3px;
+  background: linear-gradient(90deg, #B8955A, #D4AF7A);
+  transition: width linear; z-index: 10;
+}
+@media(max-width: 640px) {
+  .carousel-slide { height: 380px; }
+  .carousel-arrow { display: none; }
+  .carousel-title { font-size: 1.4rem; }
+}
 </style>
 </head>
 <body>
@@ -244,6 +340,203 @@ footer { padding:2.5rem 5%;background:#1A1A2E;
     </div>
   </div>
 </section>
+
+
+<!-- ── CAROUSEL ─────────────────────────────────────────────────────────── -->
+{% load static %}
+<section class="carousel-section">
+
+  <div class="carousel-track" id="carTrack">
+
+    <!-- Slide 1 — Dashboard analytique -->
+    <div class="carousel-slide active">
+      <img src="{% static 'immoanalytics/img/slide-dashboard.jpg' %}"
+           alt="Dashboard ImmoAnalytics"
+           onerror="this.parentElement.style.background='linear-gradient(135deg,#0D1117,#1A5C3A)'">
+      <div class="carousel-overlay"></div>
+      <div class="carousel-content">
+        <div class="carousel-tag"><i class="fas fa-chart-line"></i> Dashboard en temps réel</div>
+        <h2 class="carousel-title">
+          Visualisez le marché<br>immobilier <em>sénégalais</em>
+        </h2>
+        <p class="carousel-desc">
+          KPIs actualisés, distribution des prix, top quartiers et répartition
+          par source sur plus de 10 000 annonces agrégées en continu.
+        </p>
+        <a href="/immo/register/" class="carousel-cta">
+          <i class="fas fa-rocket"></i> Accéder au dashboard
+        </a>
+      </div>
+    </div>
+
+    <!-- Slide 2 — Estimation ML -->
+    <div class="carousel-slide">
+      <img src="{% static 'immoanalytics/img/slide-estimation.jpg' %}"
+           alt="Estimation de prix"
+           onerror="this.parentElement.style.background='linear-gradient(135deg,#0D1117,#2563EB)'">
+      <div class="carousel-overlay"></div>
+      <div class="carousel-content">
+        <div class="carousel-tag"><i class="fas fa-brain"></i> Intelligence artificielle</div>
+        <h2 class="carousel-title">
+          Estimez le prix de<br>n'importe quel <em>bien</em>
+        </h2>
+        <p class="carousel-desc">
+          Notre modèle XGBoost entraîné sur des milliers d'annonces prédit
+          le prix d'un bien en quelques secondes selon son quartier,
+          sa superficie et ses caractéristiques.
+        </p>
+        <a href="/immo/register/" class="carousel-cta">
+          <i class="fas fa-calculator"></i> Estimer un bien
+        </a>
+      </div>
+    </div>
+
+    <!-- Slide 3 — Carte interactive -->
+    <div class="carousel-slide">
+      <img src="{% static 'immoanalytics/img/slide-carte.jpg' %}"
+           alt="Carte de Dakar"
+           onerror="this.parentElement.style.background='linear-gradient(135deg,#0D1117,#7C3AED)'">
+      <div class="carousel-overlay"></div>
+      <div class="carousel-content">
+        <div class="carousel-tag"><i class="fas fa-map-marked-alt"></i> Carte interactive</div>
+        <h2 class="carousel-title">
+          Explorez les annonces<br>sur la <em>carte de Dakar</em>
+        </h2>
+        <p class="carousel-desc">
+          Visualisez la densité et les prix des biens géolocalisés sur une carte
+          interactive. Filtrez par type de bien et cliquez pour voir les détails.
+        </p>
+        <a href="/immo/register/" class="carousel-cta">
+          <i class="fas fa-map-marked-alt"></i> Explorer la carte
+        </a>
+      </div>
+    </div>
+
+    <!-- Slide 4 — Recherche IA -->
+    <div class="carousel-slide">
+      <img src="{% static 'immoanalytics/img/slide-recherche.jpg' %}"
+           alt="Recherche IA"
+           onerror="this.parentElement.style.background='linear-gradient(135deg,#0D1117,#B8955A)'">
+      <div class="carousel-overlay"></div>
+      <div class="carousel-content">
+        <div class="carousel-tag"><i class="fas fa-robot"></i> Assistant IA</div>
+        <h2 class="carousel-title">
+          Trouvez le bien idéal<br>en <em>langage naturel</em>
+        </h2>
+        <p class="carousel-desc">
+          Décrivez simplement ce que vous cherchez — « villa à Almadies
+          avec piscine moins de 200M » — et notre assistant analyse
+          les données pour vous répondre instantanément.
+        </p>
+        <a href="/immo/register/" class="carousel-cta">
+          <i class="fas fa-search"></i> Rechercher un bien
+        </a>
+      </div>
+    </div>
+
+    <!-- Slide 5 — Dakar vue aérienne -->
+    <div class="carousel-slide">
+      <img src="{% static 'immoanalytics/img/dakar-aerial.jpg' %}"
+           alt="Dakar vue aérienne"
+           onerror="this.parentElement.style.background='linear-gradient(135deg,#0D1117,#1A5C3A)'">
+      <div class="carousel-overlay"></div>
+      <div class="carousel-content">
+        <div class="carousel-tag"><i class="fas fa-building"></i> Marché immobilier</div>
+        <h2 class="carousel-title">
+          Dakar, capitale de<br>l'investissement <em>immobilier</em>
+        </h2>
+        <p class="carousel-desc">
+          De l'Almadies au Plateau, de Pikine à Ouakam — découvrez
+          les dynamiques de prix de tous les quartiers de Dakar
+          et prenez les meilleures décisions immobilières.
+        </p>
+        <a href="/immo/register/" class="carousel-cta">
+          <i class="fas fa-chart-bar"></i> Analyser le marché
+        </a>
+      </div>
+    </div>
+
+  </div><!-- /track -->
+
+  <!-- Flèches -->
+  <button class="carousel-arrow carousel-prev" onclick="carMove(-1)" aria-label="Précédent">
+    <i class="fas fa-chevron-left"></i>
+  </button>
+  <button class="carousel-arrow carousel-next" onclick="carMove(1)" aria-label="Suivant">
+    <i class="fas fa-chevron-right"></i>
+  </button>
+
+  <!-- Indicateurs -->
+  <div class="carousel-indicators" id="carDots"></div>
+
+  <!-- Barre de progression -->
+  <div class="carousel-progress" id="carProgress"></div>
+
+</section>
+
+<script>
+(function() {
+  const SLIDES    = document.querySelectorAll('.carousel-slide');
+  const TRACK     = document.getElementById('carTrack');
+  const DOTS_WRAP = document.getElementById('carDots');
+  const PROGRESS  = document.getElementById('carProgress');
+  const DELAY     = 5000;   // ms entre les slides
+  let current = 0, timer, progTimer, elapsed = 0;
+
+  // Créer les dots
+  SLIDES.forEach((_, i) => {
+    const d = document.createElement('button');
+    d.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+    d.setAttribute('aria-label', `Slide ${i+1}`);
+    d.onclick = () => goTo(i);
+    DOTS_WRAP.appendChild(d);
+  });
+
+  function goTo(idx) {
+    SLIDES[current].classList.remove('active');
+    document.querySelectorAll('.carousel-dot')[current].classList.remove('active');
+    current = (idx + SLIDES.length) % SLIDES.length;
+    SLIDES[current].classList.add('active');
+    document.querySelectorAll('.carousel-dot')[current].classList.add('active');
+    TRACK.style.transform = `translateX(-${current * 100}%)`;
+    resetProgress();
+  }
+
+  function carMove(dir) { goTo(current + dir); }
+  window.carMove = carMove;
+
+  function resetProgress() {
+    clearInterval(progTimer); elapsed = 0;
+    PROGRESS.style.transition = 'none';
+    PROGRESS.style.width = '0%';
+    setTimeout(() => {
+      PROGRESS.style.transition = `width ${DELAY}ms linear`;
+      PROGRESS.style.width = '100%';
+    }, 20);
+  }
+
+  function autoPlay() {
+    clearInterval(timer);
+    timer = setInterval(() => goTo(current + 1), DELAY);
+    resetProgress();
+  }
+
+  // Pause au survol
+  const section = document.querySelector('.carousel-section');
+  section.addEventListener('mouseenter', () => { clearInterval(timer); clearInterval(progTimer); });
+  section.addEventListener('mouseleave', autoPlay);
+
+  // Swipe tactile
+  let startX = 0;
+  section.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive:true});
+  section.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 40) carMove(dx < 0 ? 1 : -1);
+  }, {passive:true});
+
+  autoPlay();
+})();
+</script>
 
 <!-- FEATURES -->
 <section class="section" id="features" style="background:#FFFFFF">
