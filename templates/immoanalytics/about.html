@@ -1,0 +1,115 @@
+{% extends 'immoanalytics/base.html' %}
+{% load static %}
+{% block title %}À propos — ImmoPredict SN{% endblock %}
+
+{% block content %}
+<div class="page-content fade-in">
+
+  <!-- Hero -->
+  <div class="about-hero">
+    <h1>À propos d'<span>ImmoPredict</span> SN</h1>
+    <p style="color:rgba(255,255,255,.65);margin-top:.8rem;font-size:.95rem;max-width:600px;margin-inline:auto">
+      La plateforme d'intelligence immobilière de référence au Sénégal —
+      données réelles, analyses avancées, prédiction ML.
+    </p>
+  </div>
+
+  <!-- Contenu -->
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:1.5rem">
+
+    <div>
+      <!-- Mission -->
+      <div class="card mb-3">
+        <div class="card-header"><i class="fas fa-bullseye"></i> Notre mission</div>
+        <div class="card-body">
+          <p style="color:var(--muted);line-height:1.75;margin-bottom:1rem">
+            ImmoPredict SN est une plateforme d'intelligence immobilière développée pour
+            démocratiser l'accès aux données du marché immobilier sénégalais. Nous agrégeons
+            les annonces de 5 sources majeures et appliquons des algorithmes de machine learning
+            pour fournir des estimations de prix précises et des analyses de marché en temps réel.
+          </p>
+          <p style="color:var(--muted);line-height:1.75">
+            Notre objectif est d'aider les acheteurs, vendeurs, investisseurs et professionnels
+            de l'immobilier à prendre des décisions éclairées grâce à des données fiables et
+            des outils analytiques de pointe.
+          </p>
+        </div>
+      </div>
+
+      <!-- Technologies -->
+      <div class="card mb-3">
+        <div class="card-header"><i class="fas fa-code"></i> Stack technologique</div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+            {% for tech in technologies %}
+            <div style="display:flex;align-items:center;gap:.7rem;padding:.6rem;background:var(--bg);border-radius:8px">
+              <i class="{{ tech.icon }}" style="color:var(--gold);width:20px;text-align:center"></i>
+              <div>
+                <div style="font-weight:600;font-size:.83rem">{{ tech.name }}</div>
+                <div class="text-xs text-muted">{{ tech.desc }}</div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Sources de données -->
+      <div class="card">
+        <div class="card-header"><i class="fas fa-database"></i> Sources de données</div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.8rem">
+            {% for src in data_sources %}
+            <div style="background:var(--bg);border-radius:8px;padding:.8rem;border-left:3px solid {{ src.color }}">
+              <div style="font-weight:600;font-size:.83rem;color:var(--dark)">{{ src.name }}</div>
+              <div class="text-xs text-muted mt-1">{{ src.desc }}</div>
+              <div style="font-size:.72rem;color:{{ src.color }};font-family:var(--mono);margin-top:.3rem">{{ src.count }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div>
+      <!-- Stats clés -->
+      <div class="card mb-3">
+        <div class="card-header"><i class="fas fa-chart-line"></i> Statistiques</div>
+        <div class="card-body">
+          {% for stat in stats %}
+          <div style="padding:.6rem 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+            <span class="text-sm text-muted">{{ stat.label }}</span>
+            <span style="font-weight:700;color:var(--gold);font-family:var(--serif)">{{ stat.value }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Modèle ML -->
+      <div class="card mb-3">
+        <div class="card-header"><i class="fas fa-brain"></i> Modèle ML</div>
+        <div class="card-body">
+          <div style="background:var(--navy);border-radius:8px;padding:1rem;color:var(--light)">
+            <div style="font-family:var(--mono);font-size:.72rem;color:var(--gold)">XGBoost + LightGBM</div>
+            <div style="font-size:.78rem;color:rgba(255,255,255,.6);margin-top:.4rem;line-height:1.6">
+              Modèle entraîné sur 10 000+ annonces avec 46 features incluant distances POI,
+              target encoding, NLP sur descriptions.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact rapide -->
+      <div class="card">
+        <div class="card-header"><i class="fas fa-envelope"></i> Contact rapide</div>
+        <div class="card-body">
+          <a href="/contact/" class="btn btn-primary w-full" style="justify-content:center">
+            <i class="fas fa-paper-plane"></i> Nous contacter
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

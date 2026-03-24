@@ -1,0 +1,104 @@
+{% extends 'immoanalytics/base.html' %}
+{% load static %}
+{% block title %}Contact — ImmoPredict SN{% endblock %}
+
+{% block content %}
+<div class="page-content fade-in" style="max-width:900px">
+
+  <div class="about-hero" style="margin-bottom:1.5rem">
+    <h1><span>Contactez</span>-nous</h1>
+    <p style="color:rgba(255,255,255,.6);margin-top:.5rem;font-size:.9rem">
+      Une question sur la plateforme, un partenariat ou un retour d'expérience ?
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:1.5rem;align-items:start">
+
+    <!-- Infos contact -->
+    <div>
+      <div class="card mb-3">
+        <div class="card-header"><i class="fas fa-address-card"></i> Nos coordonnées</div>
+        <div class="card-body">
+          {% for c in contacts %}
+          <div style="display:flex;align-items:flex-start;gap:.8rem;padding:.7rem 0;border-bottom:1px solid var(--border)">
+            <div class="contact-icon" style="margin-bottom:0;width:38px;height:38px;border-radius:9px">
+              <i class="{{ c.icon }}" style="font-size:.9rem"></i>
+            </div>
+            <div>
+              <div style="font-weight:600;font-size:.82rem;color:var(--dark)">{{ c.label }}</div>
+              <div style="font-size:.8rem;color:var(--muted)">{{ c.value }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><i class="fas fa-clock"></i> Disponibilité</div>
+        <div class="card-body">
+          <div style="font-size:.83rem;color:var(--muted);line-height:1.8">
+            <div><strong style="color:var(--dark)">Lundi – Vendredi</strong><br>08h00 – 18h00</div>
+            <div style="margin-top:.5rem"><strong style="color:var(--dark)">Samedi</strong><br>09h00 – 14h00</div>
+            <div style="margin-top:.5rem;color:var(--red)"><strong>Dimanche</strong><br>Fermé</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulaire -->
+    <div class="card">
+      <div class="card-header"><i class="fas fa-paper-plane"></i> Envoyer un message</div>
+      <div class="card-body">
+        {% if sent %}
+        <div class="alert alert-success">
+          <i class="fas fa-check-circle"></i>
+          Message envoyé avec succès ! Nous vous répondrons dans les plus brefs délais.
+        </div>
+        {% else %}
+        {% if error %}
+        <div class="alert alert-error">
+          <i class="fas fa-exclamation-circle"></i> {{ error }}
+        </div>
+        {% endif %}
+        <form method="POST" action="/contact/">
+          {% csrf_token %}
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Prénom *</label>
+              <input type="text" name="first_name" class="form-control" placeholder="Jean" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nom *</label>
+              <input type="text" name="last_name" class="form-control" placeholder="Dupont" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email *</label>
+            <input type="email" name="email" class="form-control" placeholder="jean@exemple.sn" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Objet</label>
+            <select name="subject" class="form-control form-select">
+              <option>Question sur la plateforme</option>
+              <option>Partenariat commercial</option>
+              <option>Signaler un bug</option>
+              <option>Demande d'accès analytique</option>
+              <option>Autre</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Message *</label>
+            <textarea name="message" class="form-control" rows="5"
+                      placeholder="Votre message..." required
+                      style="resize:vertical;min-height:120px"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary w-full btn-lg" style="justify-content:center">
+            <i class="fas fa-paper-plane"></i> Envoyer le message
+          </button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

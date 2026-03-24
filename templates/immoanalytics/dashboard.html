@@ -1,182 +1,166 @@
 {% extends 'immoanalytics/base.html' %}
 {% load static %}
 {% block title %}Dashboard{% endblock %}
-{% block page_title %}<i class="fas fa-chart-line" style="color:var(--gold)"></i> Dashboard{% endblock %}
+
 
 {% block extra_css %}
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <style>
-  .filter-bar { display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;
-                background:#fff;padding:.9rem 1.2rem;border-radius:10px;
-                border:1px solid #E8EAF0;margin-bottom:1.2rem;
-                box-shadow:0 1px 4px rgba(0,0,0,.05); }
-  .filter-group label { display:block;font-size:.67rem;text-transform:uppercase;
-                        letter-spacing:.08em;color:#8B8680;
-                        font-family:'JetBrains Mono',monospace;margin-bottom:.3rem; }
-  .filter-group select { padding:.45rem .8rem;border:1.5px solid #D0D3DC;border-radius:7px;
-                          font-size:.82rem;font-family:'Inter',sans-serif;
-                          background:#fff;color:#1A1A2E;outline:none;cursor:pointer;
-                          transition:border-color .18s; }
-  .filter-group select:focus { border-color:var(--gold); }
-  .chart-card { background:#fff;border-radius:10px;border:1px solid #E8EAF0;
-                box-shadow:0 1px 4px rgba(0,0,0,.05);overflow:hidden; }
-  .chart-card-header { padding:.65rem 1rem;border-bottom:1px solid #E8EAF0;
-                       font-weight:600;font-size:.82rem;color:#1A1A2E; }
-  .charts-row { display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap; }
-  .chart-wrap { flex:1;min-width:280px; }
-  .chart-wrap.wide { flex:1.5; }
+.page-content { padding: 1.2rem 1.5rem; }
 </style>
 {% endblock %}
 
 {% block content %}
+<div class="page-content fade-in">
 
-<!-- Filtres -->
-<form method="GET" action="/dashboard/" class="filter-bar">
-  <div class="filter-group">
-    <label>Transaction</label>
-    <select name="txn" onchange="this.form.submit()">
-      <option value="all"      {% if txn_filter == 'all' %}selected{% endif %}>Toutes</option>
-      <option value="Vente"    {% if txn_filter == 'Vente' %}selected{% endif %}>Vente</option>
-      <option value="Location" {% if txn_filter == 'Location' %}selected{% endif %}>Location</option>
-    </select>
-  </div>
-  <div class="filter-group">
-    <label>Source</label>
-    <select name="src" onchange="this.form.submit()">
-      <option value="all" {% if src_filter == 'all' %}selected{% endif %}>Toutes les sources</option>
-      {% for s in sources %}
-      <option value="{{ s }}" {% if src_filter == s %}selected{% endif %}>
-        {{ s|title }}
-      </option>
-      {% endfor %}
-    </select>
-  </div>
-</form>
-
-<!-- KPIs -->
-<div class="kpi-grid mb-3">
-  {% for k in kpis %}
-  <div class="kpi-card" style="border-left-color:{{ k.color }}">
-    <div style="display:flex;align-items:center;gap:.8rem">
-      <div style="width:38px;height:38px;border-radius:9px;background:{{ k.color }}15;
-                  display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <i class="{{ k.icon }}" style="color:{{ k.color }};font-size:.88rem"></i>
-      </div>
-      <div>
-        <div class="kpi-val">{{ k.value }}</div>
-        <div class="kpi-lbl">{{ k.label }}</div>
-      </div>
+  <!-- Filtres -->
+  <form method="GET" action="/dashboard/" class="filter-bar">
+    <div class="filter-group">
+      <label>Transaction</label>
+      <select name="txn" class="form-select" onchange="this.form.submit()">
+        <option value="all"      {% if txn_filter == 'all' %}selected{% endif %}>Toutes</option>
+        <option value="Vente"    {% if txn_filter == 'Vente' %}selected{% endif %}>Vente</option>
+        <option value="Location" {% if txn_filter == 'Location' %}selected{% endif %}>Location</option>
+      </select>
     </div>
-  </div>
-  {% endfor %}
-</div>
-
-<!-- Ligne 1 -->
-<div class="charts-row">
-  <div class="chart-wrap wide">
-    <div class="chart-card">
-      <div class="chart-card-header">
-        <i class="fas fa-chart-bar" style="color:var(--gold);margin-right:.4rem"></i>
-        Distribution des prix — Vente
-      </div>
-      <div id="fig-dist" style="height:270px"></div>
-    </div>
-  </div>
-  <div class="chart-wrap">
-    <div class="chart-card">
-      <div class="chart-card-header">
-        <i class="fas fa-circle-half-stroke" style="color:var(--gold);margin-right:.4rem"></i>
-        Annonces par source
-      </div>
-      <div id="fig-pie" style="height:270px"></div>
-    </div>
-  </div>
-</div>
-
-<!-- Ligne 2 -->
-<div class="charts-row">
-  <div class="chart-wrap">
-    <div class="chart-card">
-      <div class="chart-card-header">
-        <i class="fas fa-map-pin" style="color:var(--gold);margin-right:.4rem"></i>
-        Top quartiers — Prix médian
-      </div>
-      <div id="fig-cities" style="height:300px"></div>
-    </div>
-  </div>
-  <div class="chart-wrap">
-    <div class="chart-card">
-      <div class="chart-card-header">
-        <i class="fas fa-home" style="color:var(--gold);margin-right:.4rem"></i>
-        Types de bien
-      </div>
-      <div id="fig-types" style="height:300px"></div>
-    </div>
-  </div>
-</div>
-
-<!-- Tableau -->
-<div class="chart-card">
-  <div class="chart-card-header">
-    <i class="fas fa-list" style="color:var(--gold);margin-right:.4rem"></i>
-    Annonces — prix les plus élevés
-  </div>
-  <div style="overflow-x:auto">
-    <table style="width:100%;border-collapse:collapse">
-      <thead>
-        <tr>
-    {% for h in headers %}
-          <th style="padding:.55rem .9rem;background:#F7F8FA;font-size:.7rem;font-weight:600;
-                     color:#8B8680;text-transform:uppercase;letter-spacing:.07em;
-                     border-bottom:1px solid #E8EAF0;white-space:nowrap">{{ h }}</th>
-          {% endfor %}
-        </tr>
-      </thead>
-      <tbody>
-        {% for r in recent %}
-        <tr>
-          <td style="padding:.6rem .9rem;font-size:.81rem;border-bottom:1px solid #F0F1F5;
-                     max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-            {{ r.title_short }}
-          </td>
-          <td style="padding:.6rem .9rem;font-size:.81rem;border-bottom:1px solid #F0F1F5;
-                     font-weight:700;color:#B8955A;white-space:nowrap">
-            {{ r.price_fmt }}
-          </td>
-          <td style="padding:.6rem .9rem;font-size:.81rem;border-bottom:1px solid #F0F1F5">
-            {{ r.city|default:"—" }}
-          </td>
-          <td style="padding:.6rem .9rem;font-size:.81rem;border-bottom:1px solid #F0F1F5">
-            {{ r.property_type|default:"—" }}
-          </td>
-          <td style="padding:.6rem .9rem;border-bottom:1px solid #F0F1F5">
-            <span style="background:{{ r.src_color }}18;color:{{ r.src_color }};
-                         padding:.12rem .45rem;border-radius:4px;font-size:.68rem;
-                         font-weight:600;font-family:'JetBrains Mono',monospace">
-              {{ r.source|default:"—" }}
-            </span>
-          </td>
-          <td style="padding:.6rem .9rem;border-bottom:1px solid #F0F1F5">
-            <span style="background:{{ r.txn_color }}12;color:{{ r.txn_color }};
-                         padding:.12rem .4rem;border-radius:4px;font-size:.7rem;font-weight:600">
-              {{ r.transaction|default:"—" }}
-            </span>
-          </td>
-        </tr>
+    <div class="filter-group">
+      <label>Source</label>
+      <select name="src" class="form-select" onchange="this.form.submit()">
+        <option value="all" {% if src_filter == 'all' %}selected{% endif %}>Toutes les sources</option>
+        {% for s in sources %}
+        <option value="{{ s }}" {% if src_filter == s %}selected{% endif %}>{{ s|title }}</option>
         {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
+      </select>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:flex-end">
+      <span style="font-size:.78rem;color:var(--muted)">
+        <i class="fas fa-database" style="color:var(--gold)"></i>
+        <strong>{{ total }}</strong> annonces au total
+        (<strong>{{ nv }}</strong> ventes · <strong>{{ nl }}</strong> locations)
+      </span>
+    </div>
+  </form>
 
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    {% for k in kpis %}
+    <div class="kpi-card fade-up" style="border-left-color:{{ k.color }};animation-delay:{{ forloop.counter0 }}00ms">
+      <div class="d-flex align-center gap-2 mb-2">
+        <div class="kpi-icon" style="background:{{ k.color }}15;color:{{ k.color }}">
+          <i class="{{ k.icon }}"></i>
+        </div>
+      </div>
+      <div class="kpi-val">{{ k.value }}</div>
+      <div class="kpi-lbl">{{ k.label }}</div>
+      {% if k.sub %}
+      <div class="text-xs text-muted mt-1">{{ k.sub }}</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Ligne 1 : Distribution + Donut -->
+  <div class="charts-row">
+    <div class="chart-wrap wide">
+      <div class="chart-card">
+        <div class="chart-header">
+          <i class="fas fa-chart-bar"></i> Distribution des prix — Vente
+        </div>
+        <div id="fig-dist" style="height:260px"></div>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-card">
+        <div class="chart-header">
+          <i class="fas fa-circle-half-stroke"></i> Répartition par source
+        </div>
+        <div id="fig-pie" style="height:260px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ligne 2 : Top quartiers + Types -->
+  <div class="charts-row">
+    <div class="chart-wrap">
+      <div class="chart-card">
+        <div class="chart-header">
+          <i class="fas fa-map-pin"></i> Top quartiers — Prix médian (FCFA)
+        </div>
+        <div id="fig-cities" style="height:290px"></div>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-card">
+        <div class="chart-header">
+          <i class="fas fa-home"></i> Répartition par type de bien
+        </div>
+        <div id="fig-types" style="height:290px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ligne 3 : Évolution temporelle -->
+  <div class="charts-row mb-3">
+    <div class="chart-wrap" style="flex:1">
+      <div class="chart-card">
+        <div class="chart-header">
+          <i class="fas fa-timeline"></i> Évolution temporelle des annonces et prix
+        </div>
+        <div id="fig-trend" style="height:240px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tableau annonces -->
+  <div class="chart-card mb-3">
+    <div class="chart-header">
+      <i class="fas fa-list"></i> Annonces — prix les plus élevés
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            {% for h in headers %}
+            <th>{{ h }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in recent %}
+          <tr>
+            <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+              {{ r.title_sh }}
+            </td>
+            <td style="font-weight:700;color:var(--gold);white-space:nowrap">{{ r.price_fmt }}</td>
+            <td>{{ r.city }}</td>
+            <td>{{ r.prop_type }}</td>
+            <td>
+              <span style="background:{{ r.src_color }}18;color:{{ r.src_color }};padding:.1rem .4rem;border-radius:4px;font-size:.68rem;font-weight:600;font-family:var(--mono)">
+                {{ r.source }}
+              </span>
+            </td>
+            <td>
+              <span style="background:{{ r.txn_color }}12;color:{{ r.txn_color }};padding:.1rem .4rem;border-radius:4px;font-size:.7rem;font-weight:600">
+                {{ r.transaction }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-const CFG = {responsive:true,displayModeBar:false};
+const CFG = {responsive: true, displayModeBar: false};
 Plotly.newPlot('fig-dist',   {{ fig_dist|safe }}.data,   {{ fig_dist|safe }}.layout,   CFG);
 Plotly.newPlot('fig-pie',    {{ fig_pie|safe }}.data,    {{ fig_pie|safe }}.layout,    CFG);
 Plotly.newPlot('fig-cities', {{ fig_cities|safe }}.data, {{ fig_cities|safe }}.layout, CFG);
 Plotly.newPlot('fig-types',  {{ fig_types|safe }}.data,  {{ fig_types|safe }}.layout,  CFG);
+Plotly.newPlot('fig-trend',  {{ fig_trend|safe }}.data,  {{ fig_trend|safe }}.layout,  CFG);
 </script>
 {% endblock %}

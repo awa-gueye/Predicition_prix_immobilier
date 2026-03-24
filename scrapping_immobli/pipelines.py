@@ -461,3 +461,107 @@ class ImmoSenegalPostgreSQLPipeline:
             spider.logger.error(f"[IMMOSENEGAL] ERREUR {item['url']} : {exc}")
             raise
         return item
+
+class SimmobilierPipeline:
+    """
+    Pipeline PostgreSQL pour le spider simmobilier (2simmobilier.com).
+    Crée la table '2simmobilier_properties' et insère chaque annonce
+    en évitant les doublons sur l'URL.
+    """
+
+    def __init__(self, **db_params):
+        self.db_params = db_params
+        self.conn = None
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(**crawler.settings["DATABASE"])
+
+    def open_spider(self, spider):
+        self.conn = psycopg2.connect(**self.db_params)
+        with self.conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS simmobilier_properties (
+                    id            VARCHAR(32) PRIMARY KEY,
+                    url           TEXT UNIQUE,
+                    title         TEXT,
+                    price         BIGINT,
+                    surface_area  REAL,
+                    bedrooms      INTEGER,
+                    bathrooms     INTEGER,
+                    garage        INTEGER,
+                    city          VARCHAR(100),
+                    district      VARCHAR(100),
+                    property_type VARCHAR(100),
+                    statut        VARCHAR(50),
+                    description   TEXT,
+                    source        VARCHAR(50),
+                    latitude      REAL,
+                    longitude     REAL,
+                    images        TEXT,
+                    scraped_at    TIMESTAMP
+                );
+            """)
+        self.conn.commit()
+        spider.logger.info("[2SIMMOBILIER] Table simmobilier_properties prête.")
+
+    def close_spider(self, spider):
+        if self.conn and not self.conn.closed:
+            self.conn.close()
+            spider.logger.info("[2SIMMOBILIER] Connexion fermée.")
+
+    def process_item(self, item, spider):
+        import hashlib
+
+        # Générer un ID unique basé sur l'URL
+        url = item.get('url', '')
+        item['id'] = hashlib.md5(url.encode()).hexdigest()
+
+        # Nettoyer les champs
+        item['bedrooms']     = clean_int(item.get('bedrooms'))
+        item['bathrooms']    = clean_int(item.get('bathrooms'))
+        item['garage']       = clean_int(item.get('garage') or 0)
+        item['surface_area'] = clean_float(item.get('surface_area'))
+        item['price']        = clean_float(item.get('price'))
+        item['city']         = clean_list(item.get('city') or 'Dakar')
+        item['district']     = clean_list(item.get('district'))
+        item['property_type']= clean_list(item.get('property_type') or 'Bien')
+        item['statut']       = clean_list(item.get('statut') or 'Vente')
+
+        # Convertir la liste d'images en string JSON
+        images = item.get('images', [])
+        item['images'] = str(images[:5]) if images else None
+
+        item['scraped_at'] = datetime.utcnow()
+        item['source']     = '2simmobilier'
+
+        # Vérification minimale
+        if not item.get('price') or not item.get('title'):
+            from scrapy.exceptions import DropItem
+            raise DropItem(f"Annonce incomplète (prix ou titre manquant) : {url}")
+
+        try:
+            with self.conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO simmobilier_properties (
+                        id, url, title, price, surface_area, bedrooms, bathrooms,
+                        garage, city, district, property_type, statut,
+                        description, source, latitude, longitude, images, scraped_at
+                    ) VALUES (
+                        %(id)s, %(url)s, %(title)s, %(price)s,
+                        %(surface_area)s, %(bedrooms)s, %(bathrooms)s, %(garage)s,
+                        %(city)s, %(district)s, %(property_type)s, %(statut)s,
+                        %(description)s, %(source)s,
+                        %(latitude)s, %(longitude)s, %(images)s, %(scraped_at)s
+                    )
+                    ON CONFLICT (url) DO UPDATE SET
+                        price      = EXCLUDED.price,
+                        scraped_at = EXCLUDED.scraped_at;
+                """, dict(item))
+            self.conn.commit()
+            spider.logger.info(f"[2SIMMOBILIER] COMMIT {url}")
+        except Exception as exc:
+            self.conn.rollback()
+            spider.logger.error(f"[2SIMMOBILIER] ERREUR {url} : {exc}")
+            raise
+        return item

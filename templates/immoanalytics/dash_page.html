@@ -1,0 +1,16 @@
+{% extends 'immoanalytics/base.html' %}
+{% load static %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block page_title %}{{ page_title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .page-content { padding: 0; overflow: hidden; }
+  .dash-frame   { border: none; width: 100%; height: calc(100vh - 60px); display: block; }
+</style>
+{% endblock %}
+
+{% block content %}
+<iframe src="/dpd/app/{{ dash_app_id }}/" class="dash-frame"
+        title="{{ page_title }}" allowfullscreen></iframe>
+{% endblock %}
