@@ -716,3 +716,201 @@ tr:last-child td { border-bottom: none; }
 .p-2 { padding: .8rem; } .p-3 { padding: 1.2rem; }
 .rounded { border-radius: 8px; } .rounded-lg { border-radius: 12px; }
 .shadow { box-shadow: var(--shadow-md); }
+
+/* ═══════════════════════════════════════════════════════════
+   AMÉLIORATIONS DESIGN — Animations & Glassmorphism
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Fond de page avec gradient subtil ─────────────────────── */
+body {
+  background: linear-gradient(135deg, #F0F2F8 0%, #E8EBF5 100%);
+  background-attachment: fixed;
+}
+
+/* ── Navbar améliorée ──────────────────────────────────────── */
+.navbar {
+  background: linear-gradient(90deg, #0F2444 0%, #1A3560 100%);
+  box-shadow: 0 2px 24px rgba(15,36,68,.35);
+}
+
+/* ── Page content animations ───────────────────────────────── */
+.page-content > * {
+  animation: fade-slide-up 0.4s ease both;
+}
+.page-content > *:nth-child(1) { animation-delay: 0.05s; }
+.page-content > *:nth-child(2) { animation-delay: 0.1s; }
+.page-content > *:nth-child(3) { animation-delay: 0.15s; }
+.page-content > *:nth-child(4) { animation-delay: 0.2s; }
+.page-content > *:nth-child(5) { animation-delay: 0.25s; }
+
+@keyframes fade-slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Cards améliorées ──────────────────────────────────────── */
+.card, .chart-card, .kpi-card {
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+.card:hover, .chart-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(15,36,68,.1);
+}
+
+/* ── KPI cards avec gradient subtil ─────────────────────────── */
+.kpi-card {
+  background: linear-gradient(135deg, #FFFFFF 0%, #FAFBFF 100%);
+  position: relative; overflow: hidden;
+}
+.kpi-card::after {
+  content: '';
+  position: absolute; top: -20px; right: -20px;
+  width: 80px; height: 80px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,168,76,.08) 0%, transparent 70%);
+}
+
+/* ── Filter bar améliorée ──────────────────────────────────── */
+.filter-bar {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F8F9FF 100%);
+  border: 1px solid rgba(201,168,76,.2);
+  box-shadow: 0 2px 12px rgba(15,36,68,.06);
+}
+
+/* ── Chart cards avec header coloré ─────────────────────────── */
+.chart-header {
+  background: linear-gradient(135deg, #F8F9FF 0%, #FFFFFF 100%);
+  border-bottom: 2px solid rgba(201,168,76,.15);
+}
+
+/* ── Tableaux améliorés ────────────────────────────────────── */
+th {
+  background: linear-gradient(135deg, #F0F2F8 0%, #E8EBF5 100%);
+  font-weight: 700; letter-spacing: .08em;
+}
+tr:hover td {
+  background: rgba(201,168,76,.04);
+}
+
+/* ── Boutons améliorés ─────────────────────────────────────── */
+.btn-primary {
+  background: linear-gradient(135deg, #C9A84C 0%, #E2C47A 100%);
+  box-shadow: 0 4px 12px rgba(201,168,76,.3);
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #B8955A 0%, #C9A84C 100%);
+  box-shadow: 0 6px 18px rgba(201,168,76,.4);
+  transform: translateY(-1px);
+}
+
+/* ── Form controls améliorés ───────────────────────────────── */
+.form-control:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 4px rgba(201,168,76,.12);
+  background: #FEFDF8;
+}
+
+/* ── Hero pages About/Contact ──────────────────────────────── */
+.about-hero {
+  background: linear-gradient(135deg, #0F2444 0%, #0E6B4A 60%, #1A5C3A 100%);
+  position: relative; overflow: hidden;
+}
+.about-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    45deg, transparent, transparent 30px,
+    rgba(201,168,76,.03) 30px, rgba(201,168,76,.03) 31px
+  );
+}
+.about-hero > * { position: relative; z-index: 2; }
+.about-hero h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 700; color: #fff; }
+.about-hero h1 span { color: var(--gold); }
+.about-hero p { color: rgba(255,255,255,.65); }
+
+/* ── Auth pages ────────────────────────────────────────────── */
+.auth-left {
+  background: linear-gradient(160deg, #0F2444 0%, #0E6B4A 60%, #1A5C3A 100%);
+}
+
+/* ── Estimation result box ─────────────────────────────────── */
+.result-box {
+  background: linear-gradient(135deg, #0F2444 0%, #0E6B4A 100%);
+  position: relative; overflow: hidden;
+}
+.result-box::before {
+  content: '';
+  position: absolute; top: -30px; right: -30px;
+  width: 150px; height: 150px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,168,76,.15) 0%, transparent 70%);
+}
+
+/* ── ImmoAI button pulsing ─────────────────────────────────── */
+#immoai-btn {
+  background: linear-gradient(135deg, #C9A84C 0%, #E2C47A 100%);
+  box-shadow: 0 4px 20px rgba(201,168,76,.5);
+}
+
+/* ── Prop cards ────────────────────────────────────────────── */
+.prop-card {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.prop-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(15,36,68,.12);
+}
+
+/* ── Badge animations ──────────────────────────────────────── */
+.badge {
+  transition: all 0.18s ease;
+}
+
+/* ── Loading skeleton ──────────────────────────────────────── */
+.chart-loading {
+  background: linear-gradient(90deg, #F0F2F8 25%, #E8EBF5 50%, #F0F2F8 75%);
+  background-size: 400% 100%;
+  animation: shimmer-load 1.4s ease infinite;
+  border-radius: 8px; height: 260px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted); font-size: .82rem;
+}
+@keyframes shimmer-load {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Navbar tabs hover effects ─────────────────────────────── */
+.nav-tab {
+  position: relative; overflow: hidden;
+}
+.nav-tab::after {
+  content: '';
+  position: absolute; bottom: 0; left: 50%; right: 50%;
+  height: 2px; background: var(--gold);
+  transition: all 0.2s ease;
+}
+.nav-tab:hover::after, .nav-tab.active::after {
+  left: 0; right: 0;
+}
+
+/* ── Contact card hover ────────────────────────────────────── */
+.contact-item {
+  transition: all 0.2s ease;
+  border-radius: 10px; padding: .7rem;
+}
+.contact-item:hover {
+  background: rgba(201,168,76,.05);
+}
+
+/* ── Scroll to top button ──────────────────────────────────── */
+#scroll-top {
+  position: fixed; bottom: 5.5rem; left: 1.5rem;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--navy); color: var(--white);
+  border: none; cursor: pointer; opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .8rem; box-shadow: var(--shadow-md);
+  z-index: 998;
+}
+#scroll-top.visible { opacity: 1; }
+#scroll-top:hover { transform: translateY(-2px); background: var(--navy2); }

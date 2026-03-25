@@ -20,31 +20,25 @@
     <span class="navbar-brand-text">Immo<span>Predict</span> SN</span>
   </a>
 
-  <!-- Onglets de navigation -->
+  <!-- Onglets de navigation — accessibles à tous les connectés -->
   <div class="navbar-tabs" id="navTabs">
 
-    {% if user.is_staff or user.is_superuser %}
     <a href="/dashboard/"
        class="nav-tab {% if '/dashboard' in request.path %}active{% endif %}">
       <i class="fas fa-chart-line"></i>
       <span>Dashboard</span>
     </a>
+
     <a href="/analytics/"
        class="nav-tab {% if '/analytics' in request.path %}active{% endif %}">
       <i class="fas fa-chart-bar"></i>
-      <span>Analytics</span>
+      <span>Analyses</span>
     </a>
+
     <a href="/map/"
        class="nav-tab {% if '/map' in request.path %}active{% endif %}">
       <i class="fas fa-map-marked-alt"></i>
       <span>Carte</span>
-    </a>
-    {% endif %}
-
-    <a href="/viewer/"
-       class="nav-tab {% if '/viewer' in request.path %}active{% endif %}">
-      <i class="fas fa-search"></i>
-      <span>Recherche</span>
     </a>
 
     <a href="/estimation/"
@@ -73,7 +67,6 @@
       <span>Contact</span>
     </a>
 
-    <!-- API externe -->
     <a href="/api/properties/stats/" target="_blank" class="nav-tab">
       <i class="fas fa-server"></i>
       <span>API</span>
@@ -289,7 +282,18 @@ setTimeout(() => {
   const badge = document.getElementById('immoai-badge');
   if (badge) badge.style.display = 'flex';
 }, 3000);
+
+// Scroll to top
+window.addEventListener('scroll', () => {
+  const btn = document.getElementById('scroll-top');
+  if (btn) btn.classList.toggle('visible', window.scrollY > 300);
+});
 </script>
+
+<!-- Scroll to top button -->
+<button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Haut de page">
+  <i class="fas fa-chevron-up"></i>
+</button>
 
 {% block extra_js %}{% endblock %}
 </body>

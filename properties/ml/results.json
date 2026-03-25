@@ -1,25 +1,50 @@
 {
-  "best_model": "Random Forest",
-  "search_method": "GridSearchCV",
+  "best_model": "Stacking (XGB+LGB+RF+Ridge)",
   "metrics": {
-    "R2": 0.3654,
-    "MAE": 51752241.83,
-    "RMSE": 98189361.33,
-    "MAPE (%)": 149.46,
-    "pct_20": 23.7,
-    "pct_30": 34.8
+    "name": "Stacking (XGB+LGB+RF+Ridge)",
+    "r2": 0.5079,
+    "mae": 66760248.7134,
+    "rmse": 188076871.1326,
+    "mape": 282.1947,
+    "pct20": 27.2563,
+    "pct30": 38.8087
   },
-  "best_params": {
-    "model__max_depth": "20",
-    "model__max_features": "sqrt",
-    "model__min_samples_leaf": "1",
-    "model__min_samples_split": "10",
-    "model__n_estimators": "500"
-  },
-  "benchmark": {
-    "Abidoye_Lagos_2018_MAPE": 15.94,
-    "Ouchlif_Maroc_2025_R2": 0.926,
-    "Notre_MAPE": 149.46,
-    "Notre_R2": 0.3654
+  "all_models": {
+    "xgboost": {
+      "name": "XGBoost",
+      "r2": 0.4467,
+      "mae": 71687050.0296,
+      "rmse": 186623387.9524,
+      "mape": 467.203,
+      "pct20": 25.4513,
+      "pct30": 34.8375
+    },
+    "lightgbm": {
+      "name": "LightGBM",
+      "r2": 0.4539,
+      "mae": 74894883.5293,
+      "rmse": 198154585.6804,
+      "mape": 419.605,
+      "pct20": 25.2708,
+      "pct30": 34.4765
+    },
+    "random_forest": {
+      "name": "Random Forest",
+      "r2": 0.5008,
+      "mae": 68602619.745,
+      "rmse": 190585252.1325,
+      "mape": 236.8068,
+      "pct20": 22.0217,
+      "pct30": 33.0325
+    },
+    "stacking": {
+      "name": "Stacking (XGB+LGB+RF+Ridge)",
+      "r2": 0.5079,
+      "mae": 66760248.7134,
+      "rmse": 188076871.1326,
+      "mape": 282.1947,
+      "pct20": 27.2563,
+      "pct30": 38.8087
+    }
   }
 }

@@ -324,13 +324,32 @@ def _estimate(city, ptype, surface, bedrooms, bathrooms, transaction="vente"):
 
 
 def _get_cities():
+    """Charge les villes depuis toutes les sources DB avec fallback complet."""
+    FALLBACK = [
+        "Almadies","Dakar","Dieuppeul","Fann","Grand Yoff","Guediawaye",
+        "HLM","Hann","Keur Massar","Liberte","Mbao","Mbour","Medina",
+        "Mermoz","Ngor","Nord Foire","Ouakam","Parcelles Assainies","Patte d'Oie",
+        "Pikine","Plateau","Rufisque","Sacre-Coeur","Saly","Sicap","Thies",
+        "Thiaroye","VDN","Yeumbeul","Yoff","Diamniadio","Bargny","Kaolack",
+        "Saint-Louis","Ziguinchor","Touba","Biscuiterie",
+    ]
     try:
-        from properties.models import CoinAfriqueProperty
-        cs = CoinAfriqueProperty.objects.values_list('city',flat=True).distinct().order_by('city')[:60]
-        return sorted(set(c.strip() for c in cs if c and c.strip()))
+        from properties.models import (CoinAfriqueProperty, ExpatDakarProperty,
+            LogerDakarProperty, DakarVenteProperty)
+        cities = set()
+        for model in [CoinAfriqueProperty, ExpatDakarProperty,
+                      LogerDakarProperty, DakarVenteProperty]:
+            try:
+                for c in model.objects.values_list("city", flat=True).distinct()[:80]:
+                    if c and c.strip():
+                        city = c.strip().split(",")[0].strip().title()
+                        if city and len(city) > 1:
+                            cities.add(city)
+            except: pass
+        result = sorted(cities)
+        return result if len(result) >= 5 else sorted(FALLBACK)
     except:
-        return ['Almadies','Dakar','Fann','Guédiawaye','Mermoz','Ngor',
-                'Ouakam','Pikine','Plateau','Rufisque','Thiès','Yoff']
+        return sorted(FALLBACK)
 
 
 # ── Viewer ────────────────────────────────────────────────────────────────────
