@@ -20,8 +20,7 @@ from immoanalytics_dash.chatbot_groq import api_chatbot
 
 def index_view(request):
     if request.user.is_authenticated:
-        from immoanalytics_dash.views import get_user_redirect
-        return redirect(get_user_redirect(request.user))
+        return redirect('/dashboard/')
     return TemplateView.as_view(template_name='immoanalytics/welcome.html')(request)
 
 urlpatterns = [
@@ -43,4 +42,7 @@ urlpatterns = [
     path('map/',        map_page,        name='map'),
     path('estimation/', estimation_page, name='estimation'),
     path('immo-admin/', admin_panel_page, name='immo_admin'),
+    path('about/',   about_view,   name='about'),
+    path('contact/', contact_view, name='contact'),
+    path('api/stats/', api_stats_real, name='api_stats_real'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

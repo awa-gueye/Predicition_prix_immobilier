@@ -914,3 +914,187 @@ tr:hover td {
 }
 #scroll-top.visible { opacity: 1; }
 #scroll-top:hover { transform: translateY(-2px); background: var(--navy2); }
+
+/* ═══════════════════════════════════════════════════════════
+   ANIMATIONS AVANCÉES & DESIGN PREMIUM v3
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Animation d'entrée universelle ─────────────────────────── */
+[data-aos] { opacity: 0; transform: translateY(20px); transition: opacity .5s ease, transform .5s ease; }
+[data-aos].aos-animate { opacity: 1; transform: translateY(0); }
+
+/* ── Keyframes ───────────────────────────────────────────────── */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201,168,76,0); }
+  50%       { box-shadow: 0 0 20px 4px rgba(201,168,76,.2); }
+}
+@keyframes gradient-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes count-up {
+  from { opacity: 0; transform: scale(.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes slide-in-left  { from { opacity:0; transform:translateX(-30px); } to { opacity:1; transform:translateX(0); } }
+@keyframes slide-in-right { from { opacity:0; transform:translateX(30px);  } to { opacity:1; transform:translateX(0); } }
+@keyframes bounce-in {
+  0%   { transform: scale(.3);  opacity: 0; }
+  50%  { transform: scale(1.05); }
+  70%  { transform: scale(.9); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+@keyframes rotate-slow { to { transform: rotate(360deg); } }
+
+/* ── KPI cards animation au chargement ──────────────────────── */
+.kpi-card {
+  animation: count-up .4s ease both;
+}
+.kpi-card:nth-child(1) { animation-delay: .05s; }
+.kpi-card:nth-child(2) { animation-delay: .1s;  }
+.kpi-card:nth-child(3) { animation-delay: .15s; }
+.kpi-card:nth-child(4) { animation-delay: .2s;  }
+.kpi-card:nth-child(5) { animation-delay: .25s; }
+.kpi-card:nth-child(6) { animation-delay: .3s;  }
+
+/* ── Navbar avec gradient animé ─────────────────────────────── */
+.navbar {
+  background: linear-gradient(90deg, #0A1A32 0%, #0F2444 40%, #0D2040 100%);
+  background-size: 200% 200%;
+}
+
+/* ── Glow sur bouton ImmoAI ──────────────────────────────────── */
+#immoai-btn {
+  animation: pulse-btn 2.5s infinite, glow-pulse 3s infinite 1.25s;
+}
+
+/* ── Nav tabs avec underline animé ──────────────────────────── */
+.nav-tab { position: relative; }
+.nav-tab::before {
+  content: '';
+  position: absolute; bottom: -2px; left: 50%; right: 50%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-lt));
+  transition: left .25s ease, right .25s ease;
+  border-radius: 2px;
+}
+.nav-tab:hover::before, .nav-tab.active::before {
+  left: 8px; right: 8px;
+}
+
+/* ── Chart cards avec hover glow ────────────────────────────── */
+.chart-card {
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.chart-card:hover {
+  border-color: rgba(201,168,76,.3);
+  box-shadow: 0 8px 32px rgba(201,168,76,.08), 0 2px 8px rgba(15,36,68,.08);
+}
+
+/* ── Gradient text pour les titres importants ───────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Section dividers avec gradient ─────────────────────────── */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin: 2rem 0;
+}
+
+/* ── Skeleton loader amélioré ───────────────────────────────── */
+.chart-skeleton {
+  background: linear-gradient(90deg, #F0F2F8 25%, #E8EBF5 50%, #F0F2F8 75%);
+  background-size: 400% 100%;
+  animation: shimmer-load 1.5s ease infinite;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: .5rem;
+  color: var(--muted); font-size: .8rem;
+}
+.chart-skeleton i { font-size: 1.5rem; color: var(--border); }
+
+/* ── Scroll reveal ───────────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .55s cubic-bezier(.4,0,.2,1), transform .55s cubic-bezier(.4,0,.2,1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Property cards avec image hover zoom ───────────────────── */
+.prop-img { overflow: hidden; }
+.prop-img img { transition: transform .4s ease; }
+.prop-card:hover .prop-img img { transform: scale(1.08); }
+
+/* ── Filter bar animation ───────────────────────────────────── */
+.filter-bar {
+  animation: slide-in-left .35s ease both;
+}
+
+/* ── Tableau hover amélioré ──────────────────────────────────── */
+tr {
+  transition: background .15s ease;
+}
+tr:hover td {
+  background: linear-gradient(90deg, rgba(201,168,76,.03), rgba(201,168,76,.06), rgba(201,168,76,.03));
+}
+
+/* ── Animated underline pour les liens ──────────────────────── */
+.animated-link {
+  position: relative; text-decoration: none;
+}
+.animated-link::after {
+  content: ''; position: absolute;
+  bottom: -2px; left: 0; width: 0; height: 1.5px;
+  background: var(--gold);
+  transition: width .25s ease;
+}
+.animated-link:hover::after { width: 100%; }
+
+/* ── Page transitions ────────────────────────────────────────── */
+.page-content {
+  animation: fade-slide-up .4s cubic-bezier(.4,0,.2,1) both;
+}
+
+/* ── ImmoAI panel slide animation ───────────────────────────── */
+#immoai-panel {
+  transition: all .35s cubic-bezier(.34,1.56,.64,1);
+}
+
+/* ── Contact form focus effects ──────────────────────────────── */
+.form-control:focus {
+  transform: none;
+  box-shadow: 0 0 0 4px rgba(201,168,76,.1), 0 2px 8px rgba(15,36,68,.08);
+}
+.form-group {
+  position: relative;
+}
+
+/* ── About hero parallax effect ──────────────────────────────── */
+.about-hero-section img {
+  transition: transform .1s ease-out;
+}
+
+/* ── Source cards color accent ───────────────────────────────── */
+.source-card {
+  position: relative; overflow: hidden;
+}
+.source-card::after {
+  content: ''; position: absolute;
+  top: 0; right: 0; width: 40px; height: 40px;
+  background: radial-gradient(circle, var(--color, var(--gold)) 0%, transparent 70%);
+  opacity: .1;
+}

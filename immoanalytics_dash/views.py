@@ -19,7 +19,7 @@ def get_user_role(user):
     return 'viewer'
 
 def get_user_redirect(user):
-    return '/dashboard/' if user.is_superuser else '/viewer/'
+    return '/dashboard/'
 
 def _ctx(request, extra=None):
     d = {'user': request.user, 'role': get_user_role(request.user)}

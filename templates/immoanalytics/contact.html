@@ -1,81 +1,209 @@
 {% extends 'immoanalytics/base.html' %}
 {% load static %}
-{% block title %}Contact — ImmoPredict SN{% endblock %}
+{% block title %}Contact{% endblock %}
+
+{% block extra_css %}
+<style>
+.contact-hero {
+  position: relative; min-height: 280px; overflow: hidden;
+  background: linear-gradient(135deg, #0F2444 0%, #0E6B4A 100%);
+  display: flex; align-items: flex-end;
+}
+.contact-hero img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; opacity: .25;
+}
+.contact-hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(15,36,68,.9) 0%, rgba(15,36,68,.4) 100%);
+}
+.contact-hero-text {
+  position: relative; z-index: 2;
+  padding: 2.5rem 5% 3rem;
+  width: 100%;
+}
+.contact-hero-text h1 {
+  font-family: var(--serif); font-size: clamp(2rem,4vw,3rem);
+  font-weight: 700; color: #fff; margin-bottom: .5rem;
+}
+.contact-hero-text h1 span { color: var(--gold); }
+.contact-hero-text p { color: rgba(255,255,255,.6); font-size: .95rem; }
+.contact-wave {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 50px; background: var(--bg);
+  clip-path: ellipse(55% 100% at 50% 100%);
+  z-index: 3;
+}
+
+.contact-layout {
+  display: grid; grid-template-columns: 1fr 1.6fr;
+  gap: 2rem; max-width: 1100px; margin: 0 auto;
+  padding: 3rem 5%;
+}
+
+/* Infos contact */
+.contact-info-card {
+  background: #fff; border-radius: 16px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(15,36,68,.07);
+}
+.contact-info-header {
+  background: linear-gradient(135deg, #0F2444, #0E6B4A);
+  padding: 2rem; color: #fff;
+}
+.contact-info-header h3 { font-family: var(--serif); font-size: 1.3rem; font-weight: 700; }
+.contact-info-header p { color: rgba(255,255,255,.6); font-size: .85rem; margin-top: .3rem; }
+.contact-info-body { padding: 1.5rem; }
+.contact-item {
+  display: flex; align-items: flex-start; gap: 1rem;
+  padding: .9rem 0;
+  border-bottom: 1px solid var(--border);
+  transition: all .2s;
+}
+.contact-item:last-child { border-bottom: none; }
+.contact-item:hover { padding-left: .4rem; }
+.contact-item-icon {
+  width: 42px; height: 42px; flex-shrink: 0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(201,168,76,.15), rgba(201,168,76,.05));
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gold); font-size: .95rem;
+  border: 1px solid rgba(201,168,76,.2);
+}
+.contact-item-label { font-weight: 600; font-size: .82rem; color: var(--navy); }
+.contact-item-value { font-size: .8rem; color: var(--muted); margin-top: .15rem; line-height: 1.5; }
+
+.contact-hours {
+  margin-top: 1.5rem; padding: 1rem;
+  background: linear-gradient(135deg, rgba(15,36,68,.04), rgba(14,107,74,.04));
+  border-radius: 10px; border: 1px solid var(--border);
+}
+.contact-hours-title { font-size: .72rem; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: .08em; font-family: var(--mono); margin-bottom: .7rem; }
+.contact-hour-row { display: flex; justify-content: space-between; font-size: .78rem; padding: .25rem 0; }
+.contact-hour-row .day { color: var(--muted); }
+.contact-hour-row .time { font-weight: 600; color: var(--navy); }
+
+/* Formulaire */
+.contact-form-card {
+  background: #fff; border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 20px rgba(15,36,68,.07);
+  overflow: hidden;
+}
+.contact-form-header {
+  padding: 1.2rem 1.5rem;
+  border-bottom: 2px solid rgba(201,168,76,.15);
+  background: linear-gradient(135deg, #F8F9FF, #fff);
+}
+.contact-form-header h3 { font-weight: 700; font-size: .95rem; color: var(--navy); display: flex; align-items: center; gap: .5rem; }
+.contact-form-body { padding: 1.5rem; }
+
+.success-box {
+  background: linear-gradient(135deg, rgba(14,107,74,.08), rgba(14,107,74,.04));
+  border: 1px solid rgba(14,107,74,.2);
+  border-radius: 12px; padding: 2rem; text-align: center;
+}
+.success-box i { font-size: 3rem; color: var(--green); margin-bottom: 1rem; display: block; }
+.success-box h4 { font-family: var(--serif); font-size: 1.3rem; color: var(--navy); margin-bottom: .5rem; }
+.success-box p { color: var(--muted); font-size: .85rem; }
+
+@media(max-width:768px) { .contact-layout { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="page-content fade-in" style="max-width:900px">
 
-  <div class="about-hero" style="margin-bottom:1.5rem">
+<!-- Hero -->
+<div class="contact-hero">
+  <img src="{% static 'immoanalytics/img/contact-hero.jpg' %}"
+       alt="Contact ImmoPredict SN"
+       onerror="this.style.display='none'">
+  <div class="contact-hero-overlay"></div>
+  <div class="contact-hero-text fade-up">
     <h1><span>Contactez</span>-nous</h1>
-    <p style="color:rgba(255,255,255,.6);margin-top:.5rem;font-size:.9rem">
-      Une question sur la plateforme, un partenariat ou un retour d'expérience ?
-    </p>
+    <p>Une question, un partenariat ou un retour d'expérience ? Nous sommes à votre écoute.</p>
   </div>
+  <div class="contact-wave"></div>
+</div>
 
-  <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:1.5rem;align-items:start">
+<!-- Layout -->
+<div class="contact-layout">
 
-    <!-- Infos contact -->
-    <div>
-      <div class="card mb-3">
-        <div class="card-header"><i class="fas fa-address-card"></i> Nos coordonnées</div>
-        <div class="card-body">
-          {% for c in contacts %}
-          <div style="display:flex;align-items:flex-start;gap:.8rem;padding:.7rem 0;border-bottom:1px solid var(--border)">
-            <div class="contact-icon" style="margin-bottom:0;width:38px;height:38px;border-radius:9px">
-              <i class="{{ c.icon }}" style="font-size:.9rem"></i>
-            </div>
-            <div>
-              <div style="font-weight:600;font-size:.82rem;color:var(--dark)">{{ c.label }}</div>
-              <div style="font-size:.8rem;color:var(--muted)">{{ c.value }}</div>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
+  <!-- Infos -->
+  <div class="fade-up d1">
+    <div class="contact-info-card">
+      <div class="contact-info-header">
+        <h3>ImmoPredict SN</h3>
+        <p>Plateforme d'intelligence immobilière — Sénégal</p>
       </div>
-
-      <div class="card">
-        <div class="card-header"><i class="fas fa-clock"></i> Disponibilité</div>
-        <div class="card-body">
-          <div style="font-size:.83rem;color:var(--muted);line-height:1.8">
-            <div><strong style="color:var(--dark)">Lundi – Vendredi</strong><br>08h00 – 18h00</div>
-            <div style="margin-top:.5rem"><strong style="color:var(--dark)">Samedi</strong><br>09h00 – 14h00</div>
-            <div style="margin-top:.5rem;color:var(--red)"><strong>Dimanche</strong><br>Fermé</div>
+      <div class="contact-info-body">
+        {% for c in contacts %}
+        <div class="contact-item">
+          <div class="contact-item-icon"><i class="{{ c.icon }}"></i></div>
+          <div>
+            <div class="contact-item-label">{{ c.label }}</div>
+            <div class="contact-item-value">{{ c.value }}</div>
           </div>
+        </div>
+        {% endfor %}
+
+        <div class="contact-hours">
+          <div class="contact-hours-title"><i class="fas fa-clock"></i> Horaires</div>
+          <div class="contact-hour-row"><span class="day">Lundi – Vendredi</span><span class="time">08h – 18h</span></div>
+          <div class="contact-hour-row"><span class="day">Samedi</span><span class="time">09h – 14h</span></div>
+          <div class="contact-hour-row"><span class="day" style="color:var(--red)">Dimanche</span><span class="time" style="color:var(--red)">Fermé</span></div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Formulaire -->
-    <div class="card">
-      <div class="card-header"><i class="fas fa-paper-plane"></i> Envoyer un message</div>
-      <div class="card-body">
+  <!-- Formulaire -->
+  <div class="fade-up d2">
+    <div class="contact-form-card">
+      <div class="contact-form-header">
+        <h3><i class="fas fa-paper-plane" style="color:var(--gold)"></i> Envoyer un message</h3>
+      </div>
+      <div class="contact-form-body">
         {% if sent %}
-        <div class="alert alert-success">
+        <div class="success-box">
           <i class="fas fa-check-circle"></i>
-          Message envoyé avec succès ! Nous vous répondrons dans les plus brefs délais.
+          <h4>Message envoyé !</h4>
+          <p>Nous avons bien reçu votre message et vous répondrons dans les meilleurs délais.</p>
+          <a href="/contact/" class="btn btn-primary" style="margin-top:1rem;display:inline-flex">
+            <i class="fas fa-redo"></i> Nouveau message
+          </a>
         </div>
         {% else %}
         {% if error %}
-        <div class="alert alert-error">
+        <div class="alert alert-error" style="margin-bottom:1rem">
           <i class="fas fa-exclamation-circle"></i> {{ error }}
         </div>
         {% endif %}
+
         <form method="POST" action="/contact/">
           {% csrf_token %}
-          <div class="form-row">
+          <div class="form-row" style="margin-bottom:0">
             <div class="form-group">
               <label class="form-label">Prénom *</label>
-              <input type="text" name="first_name" class="form-control" placeholder="Jean" required>
+              <input type="text" name="first_name" class="form-control" placeholder="Entrez votre prénom" required>
             </div>
             <div class="form-group">
               <label class="form-label">Nom *</label>
-              <input type="text" name="last_name" class="form-control" placeholder="Dupont" required>
+              <input type="text" name="last_name" class="form-control" placeholder="Entrez votre nom" required>
             </div>
           </div>
+
           <div class="form-group">
             <label class="form-label">Email *</label>
-            <input type="email" name="email" class="form-control" placeholder="jean@exemple.sn" required>
+            <input type="email" name="email" class="form-control" placeholder="Email" required>
           </div>
+
+          <div class="form-group">
+            <label class="form-label">Téléphone</label>
+            <input type="tel" name="phone" class="form-control" placeholder="+221 XX XXX XX XX">
+          </div>
+
           <div class="form-group">
             <label class="form-label">Objet</label>
             <select name="subject" class="form-control form-select">
@@ -83,15 +211,18 @@
               <option>Partenariat commercial</option>
               <option>Signaler un bug</option>
               <option>Demande d'accès analytique</option>
+              <option>Presse / Médias</option>
               <option>Autre</option>
             </select>
           </div>
+
           <div class="form-group">
             <label class="form-label">Message *</label>
             <textarea name="message" class="form-control" rows="5"
-                      placeholder="Votre message..." required
-                      style="resize:vertical;min-height:120px"></textarea>
+                      placeholder="Nous sommes à votre disposition pour toutes questions concernant notre plateforme."
+                      required style="resize:vertical;min-height:130px"></textarea>
           </div>
+
           <button type="submit" class="btn btn-primary w-full btn-lg" style="justify-content:center">
             <i class="fas fa-paper-plane"></i> Envoyer le message
           </button>
@@ -100,5 +231,7 @@
       </div>
     </div>
   </div>
+
 </div>
+
 {% endblock %}

@@ -1,115 +1,326 @@
 {% extends 'immoanalytics/base.html' %}
 {% load static %}
-{% block title %}À propos — ImmoPredict SN{% endblock %}
+{% block title %}À propos{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Hero about ─────────────────────────────────────────────── */
+.about-hero-section {
+  position: relative; min-height: 340px;
+  background: linear-gradient(135deg, #0F2444 0%, #0E6B4A 60%, #1A3560 100%);
+  display: flex; align-items: center;
+  overflow: hidden;
+}
+.about-hero-section::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 80% at 80% 50%, rgba(201,168,76,.12) 0%, transparent 60%),
+    repeating-linear-gradient(135deg, transparent, transparent 40px, rgba(255,255,255,.02) 40px, rgba(255,255,255,.02) 41px);
+}
+.about-hero-section::after {
+  content: ''; position: absolute;
+  bottom: -1px; left: 0; right: 0; height: 60px;
+  background: var(--bg);
+  clip-path: ellipse(60% 100% at 50% 100%);
+}
+.about-hero-inner {
+  position: relative; z-index: 2;
+  padding: 4rem 5%;
+  max-width: 1200px; margin: 0 auto; width: 100%;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center;
+}
+.about-hero-text h1 {
+  font-family: var(--serif); font-size: clamp(2rem,4vw,3rem);
+  font-weight: 700; color: #fff; line-height: 1.15; margin-bottom: 1rem;
+}
+.about-hero-text h1 span { color: var(--gold); }
+.about-hero-text p { color: rgba(255,255,255,.6); font-size: .95rem; line-height: 1.8; }
+.about-hero-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.about-stat {
+  background: rgba(255,255,255,.08); border: 1px solid rgba(201,168,76,.2);
+  border-radius: 12px; padding: 1.2rem; text-align: center;
+  backdrop-filter: blur(10px);
+  transition: all .2s;
+}
+.about-stat:hover { background: rgba(255,255,255,.12); transform: translateY(-2px); }
+.about-stat-n { font-family: var(--serif); font-size: 2rem; font-weight: 700; color: var(--gold); }
+.about-stat-l { font-size: .7rem; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: .1em; font-family: var(--mono); margin-top: .2rem; }
+
+/* ── Sections ────────────────────────────────────────────────── */
+.about-section { padding: 4rem 5%; max-width: 1200px; margin: 0 auto; }
+.section-tag {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: rgba(201,168,76,.1); border: 1px solid rgba(201,168,76,.25);
+  color: var(--gold-dk); font-size: .7rem; font-weight: 700;
+  padding: .25rem .75rem; border-radius: 20px;
+  text-transform: uppercase; letter-spacing: .1em; font-family: var(--mono);
+  margin-bottom: 1rem;
+}
+.section-title {
+  font-family: var(--serif); font-size: clamp(1.5rem,2.5vw,2.2rem);
+  font-weight: 700; color: var(--navy); margin-bottom: 1rem; line-height: 1.2;
+}
+.section-title span { color: var(--gold); }
+.section-text { color: var(--muted); line-height: 1.8; font-size: .92rem; }
+
+/* ── Mission grid ────────────────────────────────────────────── */
+.mission-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 3rem; align-items: center; margin-bottom: 5rem; }
+.mission-image {
+  position: relative; border-radius: 16px; overflow: hidden;
+  box-shadow: 0 20px 60px rgba(15,36,68,.15);
+}
+.mission-image img { width: 100%; height: 320px; object-fit: cover; display: block; }
+.mission-image-ph {
+  width: 100%; height: 320px;
+  background: linear-gradient(135deg, #0F2444, #0E6B4A);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  color: rgba(255,255,255,.3); font-size: 4rem;
+}
+.mission-image-ph span { font-size: .85rem; margin-top: .8rem; color: rgba(255,255,255,.2); font-family: var(--mono); }
+.mission-image::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(45deg, rgba(201,168,76,.15) 0%, transparent 60%);
+  z-index: 1; pointer-events: none;
+}
+.mission-image .img-badge {
+  position: absolute; bottom: 1rem; left: 1rem; z-index: 2;
+  background: rgba(201,168,76,.9); color: var(--navy);
+  padding: .4rem .9rem; border-radius: 20px;
+  font-size: .72rem; font-weight: 700; font-family: var(--mono);
+}
+
+/* ── Values cards ────────────────────────────────────────────── */
+.values-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 2.5rem; }
+.value-card {
+  background: #fff; border-radius: 14px;
+  border: 1px solid var(--border);
+  padding: 1.8rem 1.5rem;
+  box-shadow: 0 2px 16px rgba(15,36,68,.06);
+  transition: all .25s; position: relative; overflow: hidden;
+}
+.value-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-lt));
+}
+.value-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(15,36,68,.1); }
+.value-icon {
+  width: 52px; height: 52px; border-radius: 14px;
+  background: linear-gradient(135deg, rgba(201,168,76,.12), rgba(201,168,76,.06));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; color: var(--gold); margin-bottom: 1rem;
+}
+.value-title { font-weight: 700; font-size: .9rem; color: var(--navy); margin-bottom: .4rem; }
+.value-desc { font-size: .8rem; color: var(--muted); line-height: 1.6; }
+
+/* ── Tech stack ──────────────────────────────────────────────── */
+.about-tech-bg {
+  background: linear-gradient(135deg, #F0F2F8, #E8EBF5);
+  padding: 4rem 5%;
+}
+.tech-inner { max-width: 1200px; margin: 0 auto; }
+.tech-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: 1rem; margin-top: 2.5rem; }
+.tech-card {
+  background: #fff; border-radius: 12px; border: 1px solid var(--border);
+  padding: 1.2rem; text-align: center;
+  transition: all .22s;
+  box-shadow: 0 2px 8px rgba(15,36,68,.05);
+}
+.tech-card:hover { border-color: var(--gold); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(15,36,68,.1); }
+.tech-card i { font-size: 1.8rem; color: var(--gold); display: block; margin-bottom: .6rem; }
+.tech-card .tname { font-weight: 600; font-size: .82rem; color: var(--navy); }
+.tech-card .tdesc { font-size: .7rem; color: var(--muted); margin-top: .2rem; }
+
+/* ── Sources ─────────────────────────────────────────────────── */
+.sources-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 1rem; margin-top: 2rem; }
+.source-card {
+  background: #fff; border-radius: 12px;
+  border-left: 4px solid var(--color, var(--gold));
+  border-top: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 1.2rem;
+  transition: all .2s;
+}
+.source-card:hover { transform: translateX(4px); }
+.source-name { font-weight: 700; font-size: .85rem; color: var(--navy); }
+.source-desc { font-size: .75rem; color: var(--muted); margin-top: .3rem; }
+.source-count { font-family: var(--mono); font-size: .68rem; color: var(--color,var(--gold)); margin-top: .5rem; font-weight: 600; }
+
+/* ── Team ────────────────────────────────────────────────────── */
+.team-section { padding: 4rem 5%; max-width: 1200px; margin: 0 auto; }
+.team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 1.5rem; margin-top: 2rem; }
+.team-card {
+  background: #fff; border-radius: 14px; border: 1px solid var(--border);
+  padding: 2rem 1.5rem; text-align: center;
+  box-shadow: 0 2px 12px rgba(15,36,68,.06);
+  transition: all .25s;
+}
+.team-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(15,36,68,.1); }
+.team-avatar {
+  width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 1rem;
+  background: linear-gradient(135deg, var(--navy), var(--green));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--serif); font-size: 1.6rem; font-weight: 700; color: var(--gold);
+  border: 3px solid rgba(201,168,76,.2);
+}
+.team-name { font-weight: 700; font-size: .9rem; color: var(--navy); }
+.team-role { font-size: .75rem; color: var(--gold); font-family: var(--mono); margin-top: .2rem; }
+.team-desc { font-size: .77rem; color: var(--muted); margin-top: .6rem; line-height: 1.6; }
+
+@media(max-width:768px) {
+  .about-hero-inner, .mission-grid { grid-template-columns: 1fr; }
+  .values-grid { grid-template-columns: 1fr 1fr; }
+  .about-hero-stats { grid-template-columns: 1fr 1fr; }
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="page-content fade-in">
 
-  <!-- Hero -->
-  <div class="about-hero">
-    <h1>À propos d'<span>ImmoPredict</span> SN</h1>
-    <p style="color:rgba(255,255,255,.65);margin-top:.8rem;font-size:.95rem;max-width:600px;margin-inline:auto">
-      La plateforme d'intelligence immobilière de référence au Sénégal —
-      données réelles, analyses avancées, prédiction ML.
-    </p>
+<!-- ══════ HERO ══════ -->
+<div class="about-hero-section">
+  <div class="about-hero-inner">
+    <div class="about-hero-text fade-up">
+      <div style="display:inline-flex;align-items:center;gap:.5rem;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);padding:.3rem .8rem;border-radius:20px;margin-bottom:1rem">
+        <i class="fas fa-info-circle" style="color:var(--gold);font-size:.8rem"></i>
+        <span style="font-size:.7rem;color:rgba(255,255,255,.7);font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase">À propos</span>
+      </div>
+      <h1>La plateforme d'IA<br>immobilière du <span>Sénégal</span></h1>
+      <p>ImmoPredict SN agrège les données de 4 grandes plateformes immobilières sénégalaises pour offrir des analyses de marché en temps réel, des estimations de prix précises et un assistant IA conversationnel.</p>
+    </div>
+    <div class="about-hero-stats fade-up d2">
+      {% for stat in stats %}
+      <div class="about-stat">
+        <div class="about-stat-n">{{ stat.value }}</div>
+        <div class="about-stat-l">{{ stat.label }}</div>
+      </div>
+      {% endfor %}
+    </div>
   </div>
+</div>
 
-  <!-- Contenu -->
-  <div style="display:grid;grid-template-columns:2fr 1fr;gap:1.5rem">
-
+<!-- ══════ MISSION ══════ -->
+<div class="about-section" style="padding-top:4rem">
+  <div class="mission-grid fade-up">
     <div>
-      <!-- Mission -->
-      <div class="card mb-3">
-        <div class="card-header"><i class="fas fa-bullseye"></i> Notre mission</div>
-        <div class="card-body">
-          <p style="color:var(--muted);line-height:1.75;margin-bottom:1rem">
-            ImmoPredict SN est une plateforme d'intelligence immobilière développée pour
-            démocratiser l'accès aux données du marché immobilier sénégalais. Nous agrégeons
-            les annonces de 5 sources majeures et appliquons des algorithmes de machine learning
-            pour fournir des estimations de prix précises et des analyses de marché en temps réel.
-          </p>
-          <p style="color:var(--muted);line-height:1.75">
-            Notre objectif est d'aider les acheteurs, vendeurs, investisseurs et professionnels
-            de l'immobilier à prendre des décisions éclairées grâce à des données fiables et
-            des outils analytiques de pointe.
-          </p>
-        </div>
-      </div>
-
-      <!-- Technologies -->
-      <div class="card mb-3">
-        <div class="card-header"><i class="fas fa-code"></i> Stack technologique</div>
-        <div class="card-body">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
-            {% for tech in technologies %}
-            <div style="display:flex;align-items:center;gap:.7rem;padding:.6rem;background:var(--bg);border-radius:8px">
-              <i class="{{ tech.icon }}" style="color:var(--gold);width:20px;text-align:center"></i>
-              <div>
-                <div style="font-weight:600;font-size:.83rem">{{ tech.name }}</div>
-                <div class="text-xs text-muted">{{ tech.desc }}</div>
-              </div>
-            </div>
-            {% endfor %}
-          </div>
-        </div>
-      </div>
-
-      <!-- Sources de données -->
-      <div class="card">
-        <div class="card-header"><i class="fas fa-database"></i> Sources de données</div>
-        <div class="card-body">
-          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.8rem">
-            {% for src in data_sources %}
-            <div style="background:var(--bg);border-radius:8px;padding:.8rem;border-left:3px solid {{ src.color }}">
-              <div style="font-weight:600;font-size:.83rem;color:var(--dark)">{{ src.name }}</div>
-              <div class="text-xs text-muted mt-1">{{ src.desc }}</div>
-              <div style="font-size:.72rem;color:{{ src.color }};font-family:var(--mono);margin-top:.3rem">{{ src.count }}</div>
-            </div>
-            {% endfor %}
-          </div>
-        </div>
+      <div class="section-tag"><i class="fas fa-bullseye"></i> Notre mission</div>
+      <h2 class="section-title">Démocratiser l'accès aux données du marché <span>immobilier</span></h2>
+      <p class="section-text">
+        ImmoPredict SN est née d'un constat simple : au Sénégal, les données immobilières sont fragmentées, éparpillées sur de nombreuses plateformes, et difficiles d'accès pour les particuliers comme pour les professionnels.
+      </p>
+      <p class="section-text" style="margin-top:1rem">
+        Notre plateforme centralise les annonces de <strong>4 sources majeures</strong>, applique des algorithmes de <strong>machine learning avancés</strong> (XGBoost, LightGBM) et offre des outils analytiques professionnels pour que chacun puisse prendre des décisions immobilières éclairées.
+      </p>
+      <div style="display:flex;gap:1rem;margin-top:1.5rem;flex-wrap:wrap">
+        <a href="/estimation/" class="btn btn-primary">
+          <i class="fas fa-calculator"></i> Estimer un bien
+        </a>
+        <a href="/dashboard/" class="btn btn-outline">
+          <i class="fas fa-chart-line"></i> Voir les analyses
+        </a>
       </div>
     </div>
-
-    <!-- Sidebar -->
-    <div>
-      <!-- Stats clés -->
-      <div class="card mb-3">
-        <div class="card-header"><i class="fas fa-chart-line"></i> Statistiques</div>
-        <div class="card-body">
-          {% for stat in stats %}
-          <div style="padding:.6rem 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-            <span class="text-sm text-muted">{{ stat.label }}</span>
-            <span style="font-weight:700;color:var(--gold);font-family:var(--serif)">{{ stat.value }}</span>
-          </div>
-          {% endfor %}
-        </div>
+    <div class="mission-image">
+      <img src="{% static 'immoanalytics/img/about-mission.jpg' %}"
+           alt="Marché immobilier sénégalais"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="mission-image-ph" style="display:none">
+        <i class="fas fa-city"></i>
+        <span>Dakar, Sénégal</span>
       </div>
+      <div class="img-badge"><i class="fas fa-map-pin"></i> Dakar, Sénégal</div>
+    </div>
+  </div>
+</div>
 
-      <!-- Modèle ML -->
-      <div class="card mb-3">
-        <div class="card-header"><i class="fas fa-brain"></i> Modèle ML</div>
-        <div class="card-body">
-          <div style="background:var(--navy);border-radius:8px;padding:1rem;color:var(--light)">
-            <div style="font-family:var(--mono);font-size:.72rem;color:var(--gold)">XGBoost + LightGBM</div>
-            <div style="font-size:.78rem;color:rgba(255,255,255,.6);margin-top:.4rem;line-height:1.6">
-              Modèle entraîné sur 10 000+ annonces avec 46 features incluant distances POI,
-              target encoding, NLP sur descriptions.
-            </div>
-          </div>
-        </div>
+<!-- ══════ VALEURS ══════ -->
+<div style="background:linear-gradient(135deg,#F8F9FF,var(--bg));padding:3rem 5%">
+  <div style="max-width:1200px;margin:0 auto">
+    <div style="text-align:center;margin-bottom:1rem" class="fade-up">
+      <div class="section-tag" style="margin:0 auto 1rem"><i class="fas fa-star"></i> Nos valeurs</div>
+      <h2 class="section-title" style="text-align:center">Ce qui nous guide</h2>
+    </div>
+    <div class="values-grid">
+      <div class="value-card fade-up d1">
+        <div class="value-icon"><i class="fas fa-chart-line"></i></div>
+        <div class="value-title">Données réelles</div>
+        <div class="value-desc">Toutes nos statistiques proviennent d'annonces réelles, jamais inventées. Transparence totale sur nos sources.</div>
       </div>
-
-      <!-- Contact rapide -->
-      <div class="card">
-        <div class="card-header"><i class="fas fa-envelope"></i> Contact rapide</div>
-        <div class="card-body">
-          <a href="/contact/" class="btn btn-primary w-full" style="justify-content:center">
-            <i class="fas fa-paper-plane"></i> Nous contacter
-          </a>
-        </div>
+      <div class="value-card fade-up d2">
+        <div class="value-icon"><i class="fas fa-brain"></i></div>
+        <div class="value-title">Intelligence artificielle</div>
+        <div class="value-desc">Modèles XGBoost et LightGBM entraînés sur des milliers d'annonces pour des estimations précises.</div>
+      </div>
+      <div class="value-card fade-up d3">
+        <div class="value-icon"><i class="fas fa-shield-alt"></i></div>
+        <div class="value-title">Fiabilité</div>
+        <div class="value-desc">Données filtrées, nettoyées et validées. Aucune annonce aberrante ne pollue nos analyses.</div>
+      </div>
+      <div class="value-card fade-up d1">
+        <div class="value-icon"><i class="fas fa-users"></i></div>
+        <div class="value-title">Accessibilité</div>
+        <div class="value-desc">Interface intuitive pour tous — particuliers, agents immobiliers, investisseurs, chercheurs.</div>
+      </div>
+      <div class="value-card fade-up d2">
+        <div class="value-icon"><i class="fas fa-sync"></i></div>
+        <div class="value-title">Mise à jour continue</div>
+        <div class="value-desc">Scrapers automatisés qui collectent les nouvelles annonces en continu sur 4 sources majeures.</div>
+      </div>
+      <div class="value-card fade-up d3">
+        <div class="value-icon"><i class="fas fa-flag"></i></div>
+        <div class="value-title">Focus Sénégal</div>
+        <div class="value-desc">Plateforme conçue spécifiquement pour le marché sénégalais, avec les spécificités locales.</div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- ══════ TECH STACK ══════ -->
+<div class="about-tech-bg">
+  <div class="tech-inner">
+    <div class="section-tag fade-up"><i class="fas fa-code"></i> Stack technologique</div>
+    <h2 class="section-title fade-up">Technologies utilisées</h2>
+    <div class="tech-grid">
+      {% for tech in technologies %}
+      <div class="tech-card fade-up">
+        <i class="{{ tech.icon }}"></i>
+        <div class="tname">{{ tech.name }}</div>
+        <div class="tdesc">{{ tech.desc }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- ══════ SOURCES ══════ -->
+<div class="about-section">
+  <div class="section-tag fade-up"><i class="fas fa-database"></i> Sources de données</div>
+  <h2 class="section-title fade-up">4 plateformes agrégées</h2>
+  <p class="section-text fade-up">Nous collectons les annonces depuis les principales plateformes immobilières sénégalaises.</p>
+  <div class="sources-grid">
+    {% for src in data_sources %}
+    <div class="source-card fade-up" style="--color:{{ src.color }}">
+      <div class="source-name">{{ src.name }}</div>
+      <div class="source-desc">{{ src.desc }}</div>
+      <div class="source-count">{{ src.count }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- ══════ CTA ══════ -->
+<div style="background:linear-gradient(135deg,#0F2444,#0E6B4A);padding:4rem 5%;text-align:center;margin-bottom:0">
+  <div style="max-width:600px;margin:0 auto" class="fade-up">
+    <h2 style="font-family:var(--serif);font-size:2rem;color:#fff;margin-bottom:1rem">Prêt à analyser le marché ?</h2>
+    <p style="color:rgba(255,255,255,.6);margin-bottom:2rem">Accédez au dashboard en temps réel et estimez n'importe quel bien en quelques secondes.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+      <a href="/dashboard/" class="btn btn-primary btn-lg"><i class="fas fa-chart-line"></i> Dashboard</a>
+      <a href="/contact/" class="btn" style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2);padding:.8rem 2rem"><i class="fas fa-envelope"></i> Nous contacter</a>
+    </div>
+  </div>
+</div>
+
 {% endblock %}

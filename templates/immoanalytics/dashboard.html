@@ -154,12 +154,43 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Données Plotly encodées en JSON -->
+<script id="d-fig-dist"   type="application/json">{{ fig_dist|safe }}</script>
+<script id="d-fig-pie"    type="application/json">{{ fig_pie|safe }}</script>
+<script id="d-fig-cities" type="application/json">{{ fig_cities|safe }}</script>
+<script id="d-fig-types"  type="application/json">{{ fig_types|safe }}</script>
+<script id="d-fig-trend"  type="application/json">{{ fig_trend|safe }}</script>
+
 <script>
-const CFG = {responsive: true, displayModeBar: false};
-Plotly.newPlot('fig-dist',   {{ fig_dist|safe }}.data,   {{ fig_dist|safe }}.layout,   CFG);
-Plotly.newPlot('fig-pie',    {{ fig_pie|safe }}.data,    {{ fig_pie|safe }}.layout,    CFG);
-Plotly.newPlot('fig-cities', {{ fig_cities|safe }}.data, {{ fig_cities|safe }}.layout, CFG);
-Plotly.newPlot('fig-types',  {{ fig_types|safe }}.data,  {{ fig_types|safe }}.layout,  CFG);
-Plotly.newPlot('fig-trend',  {{ fig_trend|safe }}.data,  {{ fig_trend|safe }}.layout,  CFG);
+document.addEventListener('DOMContentLoaded', function() {
+  var CFG = {responsive: true, displayModeBar: false, locale: 'fr'};
+
+  function renderPlot(divId, dataId) {
+    var el = document.getElementById(divId);
+    var src = document.getElementById(dataId);
+    if (!el || !src) return;
+    try {
+      var fig = JSON.parse(src.textContent);
+      var layout = Object.assign({
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor:  'rgba(0,0,0,0)',
+        font: {family: 'Inter, sans-serif', size: 11, color: '#374151'},
+        margin: {l:40, r:20, t:20, b:40},
+        legend: {orientation: 'h', y: -0.2}
+      }, fig.layout || {});
+      Plotly.newPlot(divId, fig.data || [], layout, CFG);
+    } catch(e) {
+      el.innerHTML = '<div style="height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#9CA3AF">' +
+        '<i class="fas fa-chart-bar" style="font-size:2rem;margin-bottom:.5rem;color:#DDE1EE"></i>' +
+        '<span style="font-size:.8rem">Données insuffisantes pour ce graphe</span></div>';
+    }
+  }
+
+  renderPlot('fig-dist',   'd-fig-dist');
+  renderPlot('fig-pie',    'd-fig-pie');
+  renderPlot('fig-cities', 'd-fig-cities');
+  renderPlot('fig-types',  'd-fig-types');
+  renderPlot('fig-trend',  'd-fig-trend');
+});
 </script>
 {% endblock %}

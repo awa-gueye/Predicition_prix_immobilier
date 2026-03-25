@@ -134,13 +134,44 @@
 {% endblock %}
 
 {% block extra_js %}
+<script id="a-fig-box"  type="application/json">{{ fig_box|safe }}</script>
+<script id="a-fig-sc"   type="application/json">{{ fig_sc|safe }}</script>
+<script id="a-fig-bar"  type="application/json">{{ fig_bar|safe }}</script>
+<script id="a-fig-src"  type="application/json">{{ fig_src|safe }}</script>
+<script id="a-fig-m2"   type="application/json">{{ fig_m2|safe }}</script>
+<script id="a-fig-beds" type="application/json">{{ fig_beds|safe }}</script>
+
 <script>
-const CFG = {responsive: true, displayModeBar: false};
-Plotly.newPlot('fig-box',  {{ fig_box|safe }}.data,  {{ fig_box|safe }}.layout,  CFG);
-Plotly.newPlot('fig-sc',   {{ fig_sc|safe }}.data,   {{ fig_sc|safe }}.layout,   CFG);
-Plotly.newPlot('fig-bar',  {{ fig_bar|safe }}.data,  {{ fig_bar|safe }}.layout,  CFG);
-Plotly.newPlot('fig-src',  {{ fig_src|safe }}.data,  {{ fig_src|safe }}.layout,  CFG);
-Plotly.newPlot('fig-m2',   {{ fig_m2|safe }}.data,   {{ fig_m2|safe }}.layout,   CFG);
-Plotly.newPlot('fig-beds', {{ fig_beds|safe }}.data, {{ fig_beds|safe }}.layout, CFG);
+document.addEventListener('DOMContentLoaded', function() {
+  var CFG = {responsive: true, displayModeBar: false, locale: 'fr'};
+
+  function renderPlot(divId, dataId) {
+    var el = document.getElementById(divId);
+    var src = document.getElementById(dataId);
+    if (!el || !src) return;
+    try {
+      var fig = JSON.parse(src.textContent);
+      var layout = Object.assign({
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor:  'rgba(0,0,0,0)',
+        font: {family: 'Inter, sans-serif', size: 11, color: '#374151'},
+        margin: {l:40, r:20, t:20, b:40},
+        legend: {orientation: 'h', y: -0.2}
+      }, fig.layout || {});
+      Plotly.newPlot(divId, fig.data || [], layout, CFG);
+    } catch(e) {
+      el.innerHTML = '<div style="height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#9CA3AF">' +
+        '<i class="fas fa-chart-bar" style="font-size:2rem;margin-bottom:.5rem;color:#DDE1EE"></i>' +
+        '<span style="font-size:.8rem">Données insuffisantes</span></div>';
+    }
+  }
+
+  renderPlot('fig-box',  'a-fig-box');
+  renderPlot('fig-sc',   'a-fig-sc');
+  renderPlot('fig-bar',  'a-fig-bar');
+  renderPlot('fig-src',  'a-fig-src');
+  renderPlot('fig-m2',   'a-fig-m2');
+  renderPlot('fig-beds', 'a-fig-beds');
+});
 </script>
 {% endblock %}
