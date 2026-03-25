@@ -14,7 +14,7 @@ from immoanalytics_dash.views import (
     about_view, contact_view,
 )
 from immoanalytics_dash.chart_views import (
-    dashboard_page, analytics_page, api_stats_real,
+    dashboard_page, analytics_page, api_stats_real, api_debug_db,
 )
 from immoanalytics_dash.chatbot_groq import api_chatbot
 
@@ -45,4 +45,5 @@ urlpatterns = [
     path('about/',   about_view,   name='about'),
     path('contact/', contact_view, name='contact'),
     path('api/stats/', api_stats_real, name='api_stats_real'),
+    path('api/debug-db/', api_debug_db, name='api_debug_db'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

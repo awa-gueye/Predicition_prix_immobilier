@@ -149,11 +149,11 @@ def map_page(request):
 
 def _load_geo():
     try:
-        from properties.models import CoinAfriqueProperty, DakarVenteProperty, ImmoSenegalProperty
+        from properties.models import CoinAfriqueProperty, DakarVenteProperty
         props = []
         for model, src in [(CoinAfriqueProperty,'coinafrique'),
                             (DakarVenteProperty,'dakarvente'),
-                            (ImmoSenegalProperty,'immosenegal')]:
+                            ]:
             for p in model.objects.filter(
                 latitude__isnull=False, longitude__isnull=False, price__gte=PRICE_MIN
             ).values('title','price','city','property_type','latitude','longitude')[:600]:
@@ -418,10 +418,10 @@ def _amt(t, unit=""):
 def _search(crit):
     try:
         from properties.models import (CoinAfriqueProperty, ExpatDakarProperty,
-            LogerDakarProperty, DakarVenteProperty, ImmoSenegalProperty)
+            LogerDakarProperty, DakarVenteProperty)
         MODELS = [(CoinAfriqueProperty,"coinafrique"),(ExpatDakarProperty,"expat_dakar"),
                   (LogerDakarProperty,"loger_dakar"),(DakarVenteProperty,"dakarvente"),
-                  (ImmoSenegalProperty,"immosenegal")]
+                  ]
         results = []
         for model, src in MODELS:
             qs = model.objects.filter(price__gte=10_000, price__lte=5_000_000_000)
@@ -506,20 +506,20 @@ def about_view(request):
     stats_data = []
     try:
         from properties.models import (CoinAfriqueProperty, ExpatDakarProperty,
-            LogerDakarProperty, DakarVenteProperty, ImmoSenegalProperty)
+            LogerDakarProperty, DakarVenteProperty)
         total = sum(m.objects.count() for m in [
             CoinAfriqueProperty, ExpatDakarProperty,
-            LogerDakarProperty, DakarVenteProperty, ImmoSenegalProperty])
+            LogerDakarProperty, DakarVenteProperty])
         stats_data = [
             {"label":"Annonces indexées",   "value":f"{total:,}"},
-            {"label":"Sources de données",  "value":"5"},
+            {"label":"Sources de données",  "value":"4"},
             {"label":"Quartiers couverts",  "value":"80+"},
             {"label":"Modèle ML",           "value":"XGBoost"},
         ]
     except:
         stats_data = [
             {"label":"Annonces indexées",   "value":"10K+"},
-            {"label":"Sources de données",  "value":"5"},
+            {"label":"Sources de données",  "value":"4"},
             {"label":"Quartiers couverts",  "value":"80+"},
             {"label":"Modèle ML",           "value":"XGBoost"},
         ]

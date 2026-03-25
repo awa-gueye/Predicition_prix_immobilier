@@ -135,9 +135,9 @@ def _get_db_data():
     """Charge les données de la DB."""
     try:
         from properties.models import (CoinAfriqueProperty, ExpatDakarProperty,
-            LogerDakarProperty, DakarVenteProperty, ImmoSenegalProperty)
+            LogerDakarProperty, DakarVenteProperty)
         MODELS = [CoinAfriqueProperty, ExpatDakarProperty,
-                  LogerDakarProperty, DakarVenteProperty, ImmoSenegalProperty]
+                  LogerDakarProperty, DakarVenteProperty]
         results = []
         for model in MODELS:
             for p in model.objects.filter(
@@ -154,10 +154,10 @@ def _search(crit):
     """Recherche dans toutes les tables."""
     try:
         from properties.models import (CoinAfriqueProperty, ExpatDakarProperty,
-            LogerDakarProperty, DakarVenteProperty, ImmoSenegalProperty)
+            LogerDakarProperty, DakarVenteProperty)
         MODELS = [(CoinAfriqueProperty,"coinafrique"),(ExpatDakarProperty,"expat_dakar"),
                   (LogerDakarProperty,"loger_dakar"),(DakarVenteProperty,"dakarvente"),
-                  (ImmoSenegalProperty,"immosenegal")]
+                  ]
         results = []
         for model, src in MODELS:
             qs = model.objects.filter(price__gte=PRICE_MIN, price__lte=PRICE_MAX)

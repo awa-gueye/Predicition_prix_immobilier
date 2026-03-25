@@ -21,7 +21,7 @@ C = {
     "red":"#C0392B","purple":"#7C3AED","muted":"#8B8680",
     "bg":"#F4F5F7","white":"#FFFFFF","border":"#E8EAF0",
     "src":{"coinafrique":"#F39C12","expat_dakar":"#2563EB",
-           "loger_dakar":"#1A5C3A","dakarvente":"#C0392B","immosenegal":"#7C3AED"},
+           "loger_dakar":"#1A5C3A","dakarvente":"#C0392B"},
 }
 PAL = [C["gold"],C["blue"],C["green"],C["red"],C["purple"],"#F39C12","#16A085","#2C3E50"]
 
@@ -39,62 +39,104 @@ def _txn(row):
     return "Autre"
 
 
-def _load_data():
-    """Charge les données depuis la DB avec filtres prix valides."""
+def _load_data(max_per_source=5000):
+    """Charge les données depuis les 4 sources actives (sans immosenegal)."""
     try:
         from properties.models import (CoinAfriqueProperty, ExpatDakarProperty,
-            LogerDakarProperty, DakarVenteProperty, ImmoSenegalProperty)
+            LogerDakarProperty, DakarVenteProperty)
+        # SEULEMENT les 4 sources actives — immosenegal retiré
         SRCS = [
             (CoinAfriqueProperty, "coinafrique", ["latitude","longitude"]),
             (ExpatDakarProperty,  "expat_dakar", []),
             (LogerDakarProperty,  "loger_dakar", []),
             (DakarVenteProperty,  "dakarvente",  ["latitude","longitude"]),
-            (ImmoSenegalProperty, "immosenegal", ["transaction"]),
         ]
         BASE = ["id","price","surface_area","bedrooms","city","property_type","statut","title"]
         dfs = []
         for model, src, extra in SRCS:
-            avail  = [f.name for f in model._meta.get_fields()]
-            fields = [f for f in BASE + extra if f in avail]
-            rows   = list(model.objects.filter(
-                price__gte=PRICE_MIN, price__lte=5_000_000_000
-            ).values(*fields)[:2000])
-            if not rows: continue
-            df = pd.DataFrame(rows); df["source"] = src; dfs.append(df)
-        if not dfs: return _demo()
+            try:
+                avail  = [f.name for f in model._meta.get_fields()]
+                fields = [f for f in BASE + extra if f in avail]
+                # Pas de filtre prix ici — on filtre côté pandas après conversion
+                rows = list(model.objects.filter(
+                    price__isnull=False
+                ).values(*fields)[:max_per_source])
+                if not rows:
+                    continue
+                df = pd.DataFrame(rows)
+                df["source"] = src
+                dfs.append(df)
+                logger.info(f"Chargé {src}: {len(rows)} lignes")
+            except Exception as e:
+                logger.warning(f"Source {src}: {e}")
+                continue
+
+        if not dfs:
+            logger.warning("Toutes les sources ont échoué → _demo()")
+            return _demo()
+
         df = pd.concat(dfs, ignore_index=True)
+
+        # Nettoyage
         df["price"]        = pd.to_numeric(df["price"], errors="coerce")
         df["surface_area"] = pd.to_numeric(df["surface_area"], errors="coerce")
+        df["bedrooms"]     = pd.to_numeric(df.get("bedrooms", pd.Series(dtype=float)), errors="coerce")
         df["city"]         = (df["city"].fillna("Inconnu").astype(str)
                               .str.split(",").str[0].str.strip().str.title())
-        df["property_type"]= df["property_type"].fillna("Autre").astype(str).str.strip()
-        df = df[df["price"].notna() & (df["price"] >= PRICE_MIN)].copy()
-        df["transaction"]  = df.apply(_txn, axis=1)
-        df["prix_m2"]      = df.apply(
-            lambda r: r["price"]/r["surface_area"]
-            if pd.notna(r.get("surface_area")) and r["surface_area"]>0 else None, axis=1)
+        df["property_type"] = df["property_type"].fillna("Autre").astype(str).str.strip().str.title()
+
+        # Filtrer prix aberrants APRÈS conversion numérique
+        df = df[df["price"].notna()].copy()
+        df = df[df["price"] > 0].copy()
+
+        # Seuil minimum adaptatif : si moins de 50% des prix >= 1M, le seuil est peut-être trop haut
+        n_total   = len(df)
+        n_above_1m = (df["price"] >= 1_000_000).sum()
+        if n_above_1m < n_total * 0.3:
+            # Les prix semblent être dans une autre unité ou très bas
+            # Utiliser le 5e percentile comme seuil minimum
+            price_floor = float(df["price"].quantile(0.05))
+            price_ceil  = float(df["price"].quantile(0.99))
+        else:
+            price_floor = 500_000       # 500K FCFA minimum (couvre loyers)
+            price_ceil  = 5_000_000_000 # 5 milliards max
+
+        df = df[df["price"].between(price_floor, price_ceil)].copy()
+        df["transaction"] = df.apply(_txn, axis=1)
+        df["prix_m2"]     = df.apply(
+            lambda r: r["price"] / r["surface_area"]
+            if pd.notna(r.get("surface_area")) and r["surface_area"] > 10 else None, axis=1)
+
+        logger.info(f"_load_data: {len(df)} annonces valides sur {n_total} brutes")
         return df
+
     except Exception as e:
-        logger.warning(f"DB: {e}"); return _demo()
+        logger.error(f"_load_data error: {e}")
+        import traceback; traceback.print_exc()
+        return _demo()
 
 
 def _demo():
+    """Données de démo réalistes — 4 sources, sans immosenegal."""
     rng = np.random.default_rng(42)
-    cities  = ["Dakar","Almadies","Ngor","Ouakam","Mermoz","Pikine","Fann","Yoff","Plateau","Sicap"]
-    types   = ["Villa","Appartement","Terrain","Duplex","Studio"]
-    sources = ["coinafrique","expat_dakar","loger_dakar","dakarvente","immosenegal"]
-    n = 600
+    cities  = ["Dakar","Almadies","Ngor","Ouakam","Mermoz","Pikine","Fann",
+               "Yoff","Plateau","Sicap","Guediawaye","Rufisque","HLM",
+               "Grand Yoff","Medina","Liberte","Thies","Mbour","Saly"]
+    types   = ["Villa","Appartement","Terrain","Duplex","Studio","Maison"]
+    # SEULEMENT les 4 sources actives
+    sources = ["coinafrique","expat_dakar","loger_dakar","dakarvente"]
+    n = 2000  # 2000 en démo (la vraie DB a 8000+)
     df = pd.DataFrame({
-        "price":        np.clip(rng.lognormal(17.5,1.1,n), 2e6, 8e8),
-        "surface_area": np.clip(rng.lognormal(4.5,.8,n), 20, 2000),
-        "bedrooms":     rng.integers(1,8,n).astype(float),
-        "city":         rng.choice(cities, n),
-        "property_type":rng.choice(types, n),
-        "source":       rng.choice(sources, n),
-        "transaction":  rng.choice(["Vente","Location"], n, p=[.6,.4]),
-        "title":        ["Annonce"]*n,
+        "price":         np.clip(rng.lognormal(17.8, 1.2, n), 500_000, 2_000_000_000),
+        "surface_area":  np.clip(rng.lognormal(4.5, .9, n), 20, 3000),
+        "bedrooms":      rng.integers(1, 7, n).astype(float),
+        "city":          rng.choice(cities, n),
+        "property_type": rng.choice(types, n),
+        "source":        rng.choice(sources, n),
+        "transaction":   rng.choice(["Vente","Location"], n, p=[.6,.4]),
+        "title":         ["Annonce"]*n,
     })
-    df["prix_m2"] = df["price"]/df["surface_area"]
+    df["prix_m2"] = df["price"] / df["surface_area"]
     return df
 
 
@@ -398,7 +440,7 @@ def api_stats_real(request):
     try:
         from properties.models import (
             CoinAfriqueProperty, ExpatDakarProperty,
-            LogerDakarProperty, DakarVenteProperty, ImmoSenegalProperty,
+            LogerDakarProperty, DakarVenteProperty,
         )
         import statistics as _stats
 
@@ -407,7 +449,7 @@ def api_stats_real(request):
             "expat_dakar":  ExpatDakarProperty,
             "loger_dakar":  LogerDakarProperty,
             "dakarvente":   DakarVenteProperty,
-            "immosenegal":  ImmoSenegalProperty,
+
         }
         total = 0
         all_prices = []
@@ -439,3 +481,36 @@ def api_stats_real(request):
             "price_med": 0, "price_avg": 0,
             "price_med_fmt": "—", "price_avg_fmt": "—",
         })
+
+
+@login_required(login_url='/immo/login/')
+def api_debug_db(request):
+    """Debug : compte le nombre réel d'annonces par source (admin seulement)."""
+    if not request.user.is_superuser:
+        return _JsonResponse({"error": "Admin seulement"}, status=403)
+    try:
+        from properties.models import (CoinAfriqueProperty, ExpatDakarProperty,
+            LogerDakarProperty, DakarVenteProperty)
+        result = {}
+        for name, model in [
+            ("coinafrique",  CoinAfriqueProperty),
+            ("expat_dakar",  ExpatDakarProperty),
+            ("loger_dakar",  LogerDakarProperty),
+            ("dakarvente",   DakarVenteProperty),
+        ]:
+            total     = model.objects.count()
+            with_price = model.objects.filter(price__isnull=False).count()
+            # Échantillon de prix pour vérifier les valeurs
+            sample = list(model.objects.filter(
+                price__isnull=False
+            ).values_list("price", flat=True).order_by("?")[:5])
+            result[name] = {
+                "total": total,
+                "with_price": with_price,
+                "sample_prices": [float(p) for p in sample if p],
+            }
+        result["_load_data_count"] = len(_load_data())
+        return _JsonResponse(result, json_dumps_params={"indent": 2})
+    except Exception as e:
+        import traceback
+        return _JsonResponse({"error": str(e), "trace": traceback.format_exc()})
