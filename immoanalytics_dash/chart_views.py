@@ -15,8 +15,8 @@ from django.contrib.auth.decorators import login_required
 
 logger = logging.getLogger(__name__)
 
-PRICE_MIN = 10_000
-PRICE_MAX = 10_000_000_000
+PRICE_MIN = 1_000_000
+PRICE_MAX = 5_000_000_000
 C = {
     "gold":"#B8955A","dark":"#1A1A2E","green":"#1A5C3A","blue":"#2563EB",
     "red":"#C0392B","purple":"#7C3AED","muted":"#8B8680",
@@ -31,13 +31,17 @@ KW_VTE = ["vendre","vente","achat","cession"]
 
 
 def _txn(row):
+    # Détection via statut/title si disponibles
     t = str(row.get("statut") or row.get("transaction") or "").lower()
-    if any(k in t for k in ["vente","vendre"]): return "Vente"
-    if any(k in t for k in ["locat","louer"]):  return "Location"
+    if any(k in t for k in ["vente","vendre","cession"]): return "Vente"
+    if any(k in t for k in ["locat","louer","bail","mensuel"]): return "Location"
     txt = str(row.get("title") or "").lower()
     if any(k in txt for k in KW_LOC): return "Location"
     if any(k in txt for k in KW_VTE): return "Vente"
-    return "Autre"
+    # Fallback par prix : location < 2M FCFA/mois
+    price = row.get("price", 0) or 0
+    if 10_000 <= price <= 2_000_000: return "Location"
+    return "Vente"
 
 
 def _load_data(max_per_source=5000):
@@ -52,8 +56,7 @@ def _load_data(max_per_source=5000):
             (LogerDakarProperty,  "loger_dakar"),
             (DakarVenteProperty,  "dakarvente"),
         ]
-        BASE = ["id","price","surface_area","bedrooms","city",
-                "property_type","statut","title"]
+        BASE = ["id","price","surface_area","bedrooms","city","property_type"]
         dfs = []
 
         for model, src in SRCS:
