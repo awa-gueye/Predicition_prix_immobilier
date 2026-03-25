@@ -8,12 +8,12 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .models import (
     CoinAfriqueProperty, ExpatDakarProperty, LogerDakarProperty,
-    DakarVenteProperty, ImmoSenegalProperty,
+    DakarVenteProperty,
     PrixMedianQuartier, TendanceMensuelle,
 )
 from .serializers import (
     CoinAfriqueSerializer, ExpatDakarSerializer, LogerDakarSerializer,
-    DakarVenteSerializer, ImmoSenegalSerializer, PropertyUnifiedSerializer,
+    DakarVenteSerializer, PropertyUnifiedSerializer,
 )
 
 
@@ -124,29 +124,6 @@ class DakarVenteDetailView(generics.RetrieveAPIView):
     serializer_class = DakarVenteSerializer
 
 
-# ── ImmoSenegal ───────────────────────────────────────────────────────────────
-
-class ImmoSenegalListView(generics.ListAPIView):
-    """Liste toutes les annonces ImmoSenegal."""
-    serializer_class = ImmoSenegalSerializer
-    filter_backends  = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['city', 'property_type', 'statut', 'transaction']
-    search_fields    = ['title', 'adresse']
-    ordering_fields  = ['price', 'surface_area', 'scraped_at']
-    ordering         = ['-scraped_at']
-
-    def get_queryset(self):
-        qs = ImmoSenegalProperty.objects.exclude(price__isnull=True)
-        mp = self.request.query_params.get('min_price')
-        xp = self.request.query_params.get('max_price')
-        if mp: qs = qs.filter(price__gte=mp)
-        if xp: qs = qs.filter(price__lte=xp)
-        return qs
-
-
-class ImmoSenegalDetailView(generics.RetrieveAPIView):
-    queryset         = ImmoSenegalProperty.objects.all()
-    serializer_class = ImmoSenegalSerializer
 
 
 # ── Vue unifiée — toutes les sources ─────────────────────────────────────────
@@ -182,14 +159,16 @@ class AllPropertiesView(APIView):
             'expat_dakar': (ExpatDakarProperty,  'expat_dakar'),
             'loger_dakar': (LogerDakarProperty,  'loger_dakar'),
             'dakarvente':  (DakarVenteProperty,  'dakarvente'),
-            'immosenegal': (ImmoSenegalProperty, 'immosenegal'),
         }
 
         results = []
         for key, (model, label) in SOURCES.items():
             if source in ('all', key):
-                for obj in model.objects.exclude(price__isnull=True)[:1000]:
-                    results.append(extract(obj, label))
+                try:
+                    for obj in model.objects.exclude(price__isnull=True)[:1000]:
+                        results.append(extract(obj, label))
+                except Exception:
+                    pass
 
         return Response({'count': len(results), 'results': results})
 
@@ -203,23 +182,26 @@ class StatsView(APIView):
     """
     def get(self, request):
 
-        def stats(model):
-            qs = model.objects.exclude(price__isnull=True)
-            return qs.aggregate(
-                total           = Count('id'),
-                prix_moyen      = Avg('price'),
-                prix_min        = Min('price'),
-                prix_max        = Max('price'),
-                surface_moyenne = Avg('surface_area'),
-            )
+        def stats(model, name):
+            try:
+                qs = model.objects.exclude(price__isnull=True)
+                return qs.aggregate(
+                    total           = Count('id'),
+                    prix_moyen      = Avg('price'),
+                    prix_min        = Min('price'),
+                    prix_max        = Max('price'),
+                    surface_moyenne = Avg('surface_area'),
+                )
+            except Exception as e:
+                return {'error': str(e).split("\n")[0], 'total': 0}
 
-        return Response({
-            'coinafrique': stats(CoinAfriqueProperty),
-            'expat_dakar': stats(ExpatDakarProperty),
-            'loger_dakar': stats(LogerDakarProperty),
-            'dakarvente':  stats(DakarVenteProperty),
-            'immosenegal': stats(ImmoSenegalProperty),
-        })
+        sources = [
+            ('coinafrique', CoinAfriqueProperty),
+            ('expat_dakar', ExpatDakarProperty),
+            ('loger_dakar', LogerDakarProperty),
+            ('dakarvente',  DakarVenteProperty),
+        ]
+        return Response({name: stats(model, name) for name, model in sources})
 
 
 # ── Prédiction ML ─────────────────────────────────────────────────────────────
@@ -357,12 +339,15 @@ class DashboardStatsView(APIView):
         - Prix médian global par type de bien
     """
     def get(self, request):
+        def safe_count(model):
+            try: return model.objects.exclude(price__isnull=True).count()
+            except: return 0
+
         sources = {
-            'coinafrique': CoinAfriqueProperty.objects.exclude(price__isnull=True).count(),
-            'expat_dakar': ExpatDakarProperty.objects.exclude(price__isnull=True).count(),
-            'loger_dakar': LogerDakarProperty.objects.exclude(price__isnull=True).count(),
-            'dakarvente':  DakarVenteProperty.objects.exclude(price__isnull=True).count(),
-            'immosenegal': ImmoSenegalProperty.objects.exclude(price__isnull=True).count(),
+            'coinafrique': safe_count(CoinAfriqueProperty),
+            'expat_dakar': safe_count(ExpatDakarProperty),
+            'loger_dakar': safe_count(LogerDakarProperty),
+            'dakarvente':  safe_count(DakarVenteProperty),
         }
 
         top_chers = list(
@@ -396,3 +381,4 @@ class DashboardStatsView(APIView):
             'top_quartiers_abordables': top_abordables,
             'prix_par_type_bien':       prix_par_type,
         })
+        
