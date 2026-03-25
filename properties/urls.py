@@ -18,9 +18,6 @@ urlpatterns = [
     path('dakarvente/',          views.DakarVenteListView.as_view(),     name='dakarvente-list'),
     path('dakarvente/<str:pk>/', views.DakarVenteDetailView.as_view(),   name='dakarvente-detail'),
 
-    # ── ImmoSenegal ───────────────────────────────────────────────────────────
-    path('immosenegal/',          views.ImmoSenegalListView.as_view(),   name='immosenegal-list'),
-    path('immosenegal/<str:pk>/', views.ImmoSenegalDetailView.as_view(), name='immosenegal-detail'),
 
     # ── Vues agrégées ─────────────────────────────────────────────────────────
     path('all/',   views.AllPropertiesView.as_view(), name='all-properties'),
