@@ -16,6 +16,7 @@ from django.contrib.auth.decorators import login_required
 logger = logging.getLogger(__name__)
 
 PRICE_MIN = 1_000_000
+PRICE_MAX = 5_000_000_000
 C = {
     "gold":"#B8955A","dark":"#1A1A2E","green":"#1A5C3A","blue":"#2563EB",
     "red":"#C0392B","purple":"#7C3AED","muted":"#8B8680",
@@ -40,78 +41,75 @@ def _txn(row):
 
 
 def _load_data(max_per_source=5000):
-    """Charge les données depuis les 4 sources actives (sans immosenegal)."""
+    """Charge les données depuis les 4 sources actives."""
     try:
         from properties.models import (CoinAfriqueProperty, ExpatDakarProperty,
             LogerDakarProperty, DakarVenteProperty)
-        # SEULEMENT les 4 sources actives — immosenegal retiré
+
         SRCS = [
-            (CoinAfriqueProperty, "coinafrique", ["latitude","longitude"]),
-            (ExpatDakarProperty,  "expat_dakar", []),
-            (LogerDakarProperty,  "loger_dakar", []),
-            (DakarVenteProperty,  "dakarvente",  ["latitude","longitude"]),
+            (CoinAfriqueProperty, "coinafrique"),
+            (ExpatDakarProperty,  "expat_dakar"),
+            (LogerDakarProperty,  "loger_dakar"),
+            (DakarVenteProperty,  "dakarvente"),
         ]
-        BASE = ["id","price","surface_area","bedrooms","city","property_type","statut","title"]
+        BASE = ["id","price","surface_area","bedrooms","city",
+                "property_type","statut","title"]
         dfs = []
-        for model, src, extra in SRCS:
+
+        for model, src in SRCS:
             try:
                 avail  = [f.name for f in model._meta.get_fields()]
-                fields = [f for f in BASE + extra if f in avail]
-                # Pas de filtre prix ici — on filtre côté pandas après conversion
-                rows = list(model.objects.filter(
-                    price__isnull=False
-                ).values(*fields)[:max_per_source])
+                fields = [f for f in BASE if f in avail]
+                # Charger SANS filtre prix — on filtre après
+                rows = list(model.objects.values(*fields)[:max_per_source])
                 if not rows:
+                    logger.warning(f"{src}: 0 lignes retournées")
                     continue
                 df = pd.DataFrame(rows)
                 df["source"] = src
                 dfs.append(df)
-                logger.info(f"Chargé {src}: {len(rows)} lignes")
+                logger.info(f"{src}: {len(rows)} lignes chargées")
             except Exception as e:
-                logger.warning(f"Source {src}: {e}")
+                logger.error(f"Erreur source {src}: {e}")
                 continue
 
         if not dfs:
-            logger.warning("Toutes les sources ont échoué → _demo()")
+            logger.warning("Aucune source disponible -> démo")
             return _demo()
 
         df = pd.concat(dfs, ignore_index=True)
 
-        # Nettoyage
+        # Conversions
         df["price"]        = pd.to_numeric(df["price"], errors="coerce")
-        df["surface_area"] = pd.to_numeric(df["surface_area"], errors="coerce")
-        df["bedrooms"]     = pd.to_numeric(df.get("bedrooms", pd.Series(dtype=float)), errors="coerce")
+        df["surface_area"] = pd.to_numeric(df.get("surface_area",
+                             pd.Series(dtype=float)), errors="coerce")
+        df["bedrooms"]     = pd.to_numeric(df.get("bedrooms",
+                             pd.Series(dtype=float)), errors="coerce")
         df["city"]         = (df["city"].fillna("Inconnu").astype(str)
                               .str.split(",").str[0].str.strip().str.title())
-        df["property_type"] = df["property_type"].fillna("Autre").astype(str).str.strip().str.title()
+        df["property_type"] = (df["property_type"].fillna("Autre")
+                               .astype(str).str.strip().str.title())
 
-        # Filtrer prix aberrants APRÈS conversion numérique
-        df = df[df["price"].notna()].copy()
-        df = df[df["price"] > 0].copy()
+        # Filtrer uniquement les prix nuls/négatifs
+        df = df[df["price"].notna() & (df["price"] > 0)].copy()
 
-        # Seuil minimum adaptatif : si moins de 50% des prix >= 1M, le seuil est peut-être trop haut
-        n_total   = len(df)
-        n_above_1m = (df["price"] >= 1_000_000).sum()
-        if n_above_1m < n_total * 0.3:
-            # Les prix semblent être dans une autre unité ou très bas
-            # Utiliser le 5e percentile comme seuil minimum
-            price_floor = float(df["price"].quantile(0.05))
-            price_ceil  = float(df["price"].quantile(0.99))
-        else:
-            price_floor = 500_000       # 500K FCFA minimum (couvre loyers)
-            price_ceil  = 5_000_000_000 # 5 milliards max
+        # Filtrer les prix aberrants : garder entre le 2e et 99e percentile
+        if len(df) > 10:
+            p_low  = df["price"].quantile(0.02)
+            p_high = df["price"].quantile(0.99)
+            df = df[df["price"].between(p_low, p_high)].copy()
 
-        df = df[df["price"].between(price_floor, price_ceil)].copy()
         df["transaction"] = df.apply(_txn, axis=1)
         df["prix_m2"]     = df.apply(
             lambda r: r["price"] / r["surface_area"]
-            if pd.notna(r.get("surface_area")) and r["surface_area"] > 10 else None, axis=1)
+            if pd.notna(r.get("surface_area")) and r["surface_area"] > 10
+            else None, axis=1)
 
-        logger.info(f"_load_data: {len(df)} annonces valides sur {n_total} brutes")
+        logger.info(f"_load_data: {len(df)} annonces valides")
         return df
 
     except Exception as e:
-        logger.error(f"_load_data error: {e}")
+        logger.error(f"_load_data erreur globale: {e}")
         import traceback; traceback.print_exc()
         return _demo()
 
@@ -458,8 +456,8 @@ def api_stats_real(request):
         for src, model in models_map.items():
             total += model.objects.count()
             for p in model.objects.filter(
-                price__gte=PRICE_MIN, price__lte=PRICE_MAX
-            ).values_list("price", flat=True)[:500]:
+                price__isnull=False, price__gt=0
+            ).values_list("price", flat=True)[:1000]:
                 if p: all_prices.append(float(p))
             for c in model.objects.values_list("city", flat=True).distinct()[:20]:
                 if c and c.strip():
