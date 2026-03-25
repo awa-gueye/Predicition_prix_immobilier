@@ -485,32 +485,52 @@ def api_stats_real(request):
 
 @login_required(login_url='/immo/login/')
 def api_debug_db(request):
-    """Debug : compte le nombre réel d'annonces par source (admin seulement)."""
+    """Debug : etat de la DB — tables, comptages, echantillons de prix."""
     if not request.user.is_superuser:
         return _JsonResponse({"error": "Admin seulement"}, status=403)
-    try:
-        from properties.models import (CoinAfriqueProperty, ExpatDakarProperty,
-            LogerDakarProperty, DakarVenteProperty)
-        result = {}
-        for name, model in [
-            ("coinafrique",  CoinAfriqueProperty),
-            ("expat_dakar",  ExpatDakarProperty),
-            ("loger_dakar",  LogerDakarProperty),
-            ("dakarvente",   DakarVenteProperty),
-        ]:
-            total     = model.objects.count()
+
+    from properties.models import (CoinAfriqueProperty, ExpatDakarProperty,
+        LogerDakarProperty, DakarVenteProperty)
+
+    result = {"sources": {}, "tables_manquantes": [], "_load_data_count": 0}
+
+    for name, model in [
+        ("coinafrique", CoinAfriqueProperty),
+        ("expat_dakar", ExpatDakarProperty),
+        ("loger_dakar", LogerDakarProperty),
+        ("dakarvente",  DakarVenteProperty),
+    ]:
+        try:
+            total      = model.objects.count()
             with_price = model.objects.filter(price__isnull=False).count()
-            # Échantillon de prix pour vérifier les valeurs
-            sample = list(model.objects.filter(
+            sample     = list(model.objects.filter(
                 price__isnull=False
-            ).values_list("price", flat=True).order_by("?")[:5])
-            result[name] = {
-                "total": total,
-                "with_price": with_price,
+            ).values_list("price", flat=True)[:5])
+            result["sources"][name] = {
+                "status":        "OK",
+                "total":         total,
+                "with_price":    with_price,
                 "sample_prices": [float(p) for p in sample if p],
             }
-        result["_load_data_count"] = len(_load_data())
-        return _JsonResponse(result, json_dumps_params={"indent": 2})
+        except Exception as e:
+            result["sources"][name] = {
+                "status": "TABLE MANQUANTE",
+                "detail": str(e).split("\n")[0],
+            }
+            result["tables_manquantes"].append(name)
+
+    try:
+        df = _load_data()
+        result["_load_data_count"] = len(df)
+        if len(df) > 0:
+            result["_load_data_sources"] = df["source"].value_counts().to_dict()
     except Exception as e:
-        import traceback
-        return _JsonResponse({"error": str(e), "trace": traceback.format_exc()})
+        result["_load_data_error"] = str(e)
+
+    if result["tables_manquantes"]:
+        result["conseil"] = (
+            "Tables manquantes: " + str(result["tables_manquantes"]) +
+            ". Lancez les scrapers correspondants."
+        )
+
+    return _JsonResponse(result, json_dumps_params={"indent": 2})
