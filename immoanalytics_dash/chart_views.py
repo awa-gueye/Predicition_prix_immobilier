@@ -15,8 +15,8 @@ from django.contrib.auth.decorators import login_required
 
 logger = logging.getLogger(__name__)
 
-PRICE_MIN = 1_000_000
-PRICE_MAX = 5_000_000_000
+PRICE_MIN = 10_000
+PRICE_MAX = 10_000_000_000
 C = {
     "gold":"#B8955A","dark":"#1A1A2E","green":"#1A5C3A","blue":"#2563EB",
     "red":"#C0392B","purple":"#7C3AED","muted":"#8B8680",
