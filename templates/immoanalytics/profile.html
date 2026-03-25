@@ -39,11 +39,11 @@
     <div class="card mb-3">
       <div class="card-header"><i class="fas fa-shield-alt"></i> Permissions</div>
       <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
-        {% for icon, label, has in perms %}
-        <div style="display:flex;align-items:center;gap:.6rem;padding:.5rem .7rem;border-radius:6px;background:{% if has %}rgba(26,92,58,.07){% else %}#F7F8FA{% endif %}">
-          <i class="fas {{ icon }}" style="width:14px;font-size:.78rem;color:{% if has %}#1A5C3A{% else %}#ccc{% endif %}"></i>
-          <span style="font-size:.8rem;color:{% if has %}#333{% else %}#aaa{% endif %}">{{ label }}</span>
-          <i class="fas fa-{% if has %}check{% else %}times{% endif %} ms-auto" style="margin-left:auto;font-size:.65rem;color:{% if has %}#1A5C3A{% else %}#ccc{% endif %}"></i>
+        {% for perm in user_perms %}
+        <div style="display:flex;align-items:center;gap:.6rem;padding:.5rem .7rem;border-radius:6px;background:{% if perm.has %}rgba(14,107,74,.07){% else %}#F7F8FA{% endif %}">
+          <i class="fas {{ perm.icon }}" style="width:14px;font-size:.78rem;color:{% if perm.has %}#0E6B4A{% else %}#ccc{% endif %}"></i>
+          <span style="font-size:.8rem;color:{% if perm.has %}#333{% else %}#aaa{% endif %}">{{ perm.label }}</span>
+          <i class="fas fa-{% if perm.has %}check{% else %}times{% endif %}" style="margin-left:auto;font-size:.65rem;color:{% if perm.has %}#0E6B4A{% else %}#ccc{% endif %}"></i>
         </div>
         {% endfor %}
       </div>

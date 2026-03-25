@@ -90,7 +90,20 @@ def logout_view(request):
 
 @login_required(login_url='/immo/login/')
 def profile_view(request):
-    return render(request, 'immoanalytics/profile.html', _ctx(request))
+    u = request.user
+    # Liste des permissions — ne pas itérer sur perms Django (incompatible Django 6)
+    user_perms = [
+        {"icon": "fa-chart-line",    "label": "Dashboard",          "has": True},
+        {"icon": "fa-chart-bar",     "label": "Analyses",           "has": True},
+        {"icon": "fa-map-marked-alt","label": "Carte",              "has": True},
+        {"icon": "fa-calculator",    "label": "Estimation",         "has": True},
+        {"icon": "fa-crown",         "label": "Admin Panel",        "has": u.is_superuser},
+        {"icon": "fa-database",      "label": "Données complètes",  "has": u.is_superuser},
+        {"icon": "fa-robot",         "label": "ImmoAI Chatbot",     "has": True},
+        {"icon": "fa-server",        "label": "Accès API",          "has": True},
+    ]
+    return render(request, 'immoanalytics/profile.html',
+                  _ctx(request, {"user_perms": user_perms}))
 
 
 @login_required(login_url='/immo/login/')
