@@ -385,3 +385,57 @@ def analytics_page(request):
         "city_filter":  city_filter,
     })
     return render(request, "immoanalytics/analytics.html", ctx)
+
+
+# ═══════════════════════════════════════════════════════════
+# API : statistiques réelles (landing page + about)
+# ═══════════════════════════════════════════════════════════
+
+from django.http import JsonResponse as _JsonResponse
+
+def api_stats_real(request):
+    """Statistiques réelles de la DB pour la page d'accueil."""
+    try:
+        from properties.models import (
+            CoinAfriqueProperty, ExpatDakarProperty,
+            LogerDakarProperty, DakarVenteProperty, ImmoSenegalProperty,
+        )
+        import statistics as _stats
+
+        models_map = {
+            "coinafrique":  CoinAfriqueProperty,
+            "expat_dakar":  ExpatDakarProperty,
+            "loger_dakar":  LogerDakarProperty,
+            "dakarvente":   DakarVenteProperty,
+            "immosenegal":  ImmoSenegalProperty,
+        }
+        total = 0
+        all_prices = []
+        cities_set = set()
+
+        for src, model in models_map.items():
+            total += model.objects.count()
+            for p in model.objects.filter(
+                price__gte=PRICE_MIN, price__lte=PRICE_MAX
+            ).values_list("price", flat=True)[:500]:
+                if p: all_prices.append(float(p))
+            for c in model.objects.values_list("city", flat=True).distinct()[:20]:
+                if c and c.strip():
+                    cities_set.add(c.strip().split(",")[0].strip().title())
+
+        p_med = _stats.median(all_prices) if all_prices else 0
+        p_moy = _stats.mean(all_prices)   if all_prices else 0
+
+        return _JsonResponse({
+            "total": total, "sources": len(models_map),
+            "cities": len(cities_set),
+            "price_med": round(p_med), "price_avg": round(p_moy),
+            "price_med_fmt": _fmt(p_med), "price_avg_fmt": _fmt(p_moy),
+        })
+    except Exception as e:
+        logger.warning(f"api_stats_real: {e}")
+        return _JsonResponse({
+            "total": 0, "sources": 5, "cities": 0,
+            "price_med": 0, "price_avg": 0,
+            "price_med_fmt": "—", "price_avg_fmt": "—",
+        })
