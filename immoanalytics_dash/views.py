@@ -551,27 +551,30 @@ def about_view(request):
 def contact_view(request):
     sent = error = None
     ctx = {}
-    if request.user.is_authenticated:
-        ctx = _ctx(request)
+    try:
+        if request.user.is_authenticated:
+            ctx = _ctx(request)
+    except Exception:
+        pass  # Connexion DB fermée — continuer sans contexte
 
     contacts = [
-        {"icon":"fas fa-envelope",  "label":"Email",      "value":"contact@immopredict.sn"},
-        {"icon":"fas fa-phone",     "label":"Téléphone",  "value":"+221 XX XXX XX XX"},
-        {"icon":"fas fa-map-pin",   "label":"Adresse",    "value":"Dakar, Sénégal"},
-        {"icon":"fab fa-linkedin",  "label":"LinkedIn",   "value":"ImmoPredict SN"},
+        {"icon":"fas fa-envelope",  "label":"Email",     "value":"contact@immopredict.sn"},
+        {"icon":"fas fa-phone",     "label":"Téléphone", "value":"+221 XX XXX XX XX"},
+        {"icon":"fas fa-map-pin",   "label":"Adresse",   "value":"Dakar, Sénégal"},
+        {"icon":"fab fa-linkedin",  "label":"LinkedIn",  "value":"ImmoPredict SN"},
     ]
 
     if request.method == 'POST':
         fname   = request.POST.get('first_name','').strip()
+        lname   = request.POST.get('last_name','').strip()
         email   = request.POST.get('email','').strip()
-        subject = request.POST.get('subject','')
         msg_txt = request.POST.get('message','').strip()
-        if not fname or not email or not msg_txt:
-            error = "Veuillez remplir tous les champs obligatoires."
+        if not (fname or lname) or not msg_txt:
+            error = "Veuillez remplir les champs obligatoires."
         else:
-            sent = True  # En production : envoyer un email via Django
+            sent = True
 
-    template = 'immoanalytics/contact.html' if request.user.is_authenticated else 'immoanalytics/contact_public.html'
+    template = 'immoanalytics/contact.html'
     return render(request, template, {**ctx, 'sent':sent, 'error':error, 'contacts':contacts})
 
 

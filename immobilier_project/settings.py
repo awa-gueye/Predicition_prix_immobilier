@@ -5,15 +5,13 @@ Django settings for immobilier_project project.
 from pathlib import Path
 from urllib.parse import urlparse
 from decouple import config
-import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ── Sécurité ──────────────────────────────────────────────────────────────────
 SECRET_KEY = config("SECRET_KEY", default="django-insecure-changez-moi")
 DEBUG = config("DEBUG", default=True, cast=bool)
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1").split(",")
-
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1,.onrender.com").split(",")
 
 # ── Applications ──────────────────────────────────────────────────────────────
 INSTALLED_APPS = [
@@ -38,7 +36,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django_plotly_dash.middleware.BaseMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -82,14 +80,31 @@ DATABASES = {
         'PASSWORD': _parsed.password,
         'HOST': _parsed.hostname,
         'PORT': _parsed.port or 5432,
+        'CONN_MAX_AGE': 0,          # Nouvelle connexion à chaque requête (Neon serverless)
+        'CONN_HEALTH_CHECKS': True, # Vérifier la connexion avant utilisation
         'OPTIONS': {
-            'sslmode': 'require',
+            'sslmode':         'require',
+            'connect_timeout': 10,
+            'keepalives':      1,
+            'keepalives_idle': 30,
+            'keepalives_interval': 5,
+            'keepalives_count': 3,
         },
     }
 }
 
 # ── Django REST Framework ─────────────────────────────────────────────────────
-CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://localhost:8000']
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+    'https://*.onrender.com',
+]
+
+# ── Production (Render) ───────────────────────────────────────────────────────
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE   = True
+    CSRF_COOKIE_SECURE      = True
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [],
@@ -106,6 +121,7 @@ USE_TZ = True
 
 # ── Static files ──────────────────────────────────────────────────────────────
 STATIC_URL = '/static/'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
@@ -139,35 +155,3 @@ CHANNEL_LAYERS = {
 }
 
 LOGIN_URL = '/immo/login/'
-
-##--------------
-
-# ── Base de données (Neon PostgreSQL via DATABASE_URL) ────────────────────────
-DATABASE_URL = config(
-    'DATABASE_URL',
-    default="postgresql://neondb_owner:npg_ciyfh8H9bZdj@ep-frosty-wind-a4aoph5q-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require"
-)
-
-DATABASES = {
-    'default': dj_database_url.parse(
-        DATABASE_URL,
-        conn_max_age=600,
-        ssl_require=True,
-    )
-}
-
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-
-# ── Sécurité HTTPS ────────────────────────────────────────────────────────────
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT      = True
-SESSION_COOKIE_SECURE    = True
-CSRF_COOKIE_SECURE       = True
-
-# CSRF pour le domaine Render
-CSRF_TRUSTED_ORIGINS = [
-    'https://*.onrender.com',
-    'http://localhost:8000',
-    'http://127.0.0.1:8000',
-]
