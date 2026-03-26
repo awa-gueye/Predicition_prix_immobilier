@@ -8,3 +8,5 @@ logs/
 *.csv
 *.db
 .DS_Store
+properties/ml/model.pkl
+properties/ml/models_by_txn.pkl
