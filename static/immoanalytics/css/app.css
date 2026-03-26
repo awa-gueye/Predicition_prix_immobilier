@@ -1385,3 +1385,18 @@ tbody tr:hover {
 .prop-img { overflow: hidden; }
 .prop-img img { transition: transform .4s ease; }
 .prop-card:hover .prop-img img { transform: scale(1.07); }
+
+/* Qualité des images */
+img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+.carousel-slide img,
+.contact-hero img,
+.about-hero img,
+.mission-image img {
+  image-rendering: auto;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
