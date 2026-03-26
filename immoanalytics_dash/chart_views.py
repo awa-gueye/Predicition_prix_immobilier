@@ -33,6 +33,9 @@ KW_VTE = ["vendre","vente","achat","cession"]
 
 
 def _txn(row):
+    # Vérifier property_type brut pour dakarvente
+    pt = str(row.get("property_type") or "").lower()
+    if any(k in pt for k in ["louer","location","locat"]): return "Location"
     t = str(row.get("statut") or row.get("transaction") or "").lower()
     if any(k in t for k in ["vente","vendre","cession"]): return "Vente"
     if any(k in t for k in ["locat","louer","bail","mensuel"]): return "Location"
@@ -75,8 +78,41 @@ def _load_data(max_per_source=5000):
         df["bedrooms"]     = pd.to_numeric(df.get("bedrooms", pd.Series(dtype=float)), errors="coerce")
         df["city"]         = (df["city"].fillna("Inconnu").astype(str)
                               .str.split(",").str[0].str.strip().str.title())
-        df["property_type"] = (df["property_type"].fillna("Autre")
-                               .astype(str).str.strip().str.title())
+
+        # Nettoyer property_type — retirer les adresses et valeurs aberrantes
+        VALID_TYPES = {
+            "villa": "Villa",
+            "appartement": "Appartement",
+            "terrain": "Terrain",
+            "duplex": "Duplex",
+            "studio": "Studio",
+            "maison": "Maison",
+            "bureau": "Bureau",
+            "local": "Local",
+            "chambre": "Chambre",
+            "immeuble": "Immeuble",
+        }
+        def clean_ptype(val):
+            if not val or pd.isna(val): return "Autre"
+            v = str(val).lower().strip()
+            # Retirer les adresses (contiennent virgule + Sénégal ou Dakar)
+            if "sénégal" in v or "senegal" in v or "dakar" in v: return "Autre"
+            # Détecter le type réel
+            for key, label in VALID_TYPES.items():
+                if key in v: return label
+            # Si trop long (adresse), retourner Autre
+            if len(v) > 30: return "Autre"
+            return str(val).strip().title()
+
+        df["property_type"] = df["property_type"].apply(clean_ptype)
+
+        # Corriger transaction pour dakarvente :
+        # property_type "Appartements  À Louer" → Location
+        def fix_txn(row):
+            pt = str(row.get("property_type_raw","") or "").lower()
+            if "louer" in pt or "location" in pt: return "Location"
+            return row.get("transaction", "Vente")
+
         df = df[df["price"].notna() & (df["price"] > 0)].copy()
         if len(df) > 10:
             p_low  = df["price"].quantile(0.02)

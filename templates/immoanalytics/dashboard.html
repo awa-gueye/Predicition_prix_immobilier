@@ -171,18 +171,21 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!el || !src) return;
     try {
       var fig = JSON.parse(src.textContent);
-      var layout = Object.assign({
-        paper_bgcolor: 'rgba(0,0,0,0)',
-        plot_bgcolor:  'rgba(0,0,0,0)',
-        font: {family: 'Inter, sans-serif', size: 11, color: '#374151'},
-        margin: {l:40, r:20, t:20, b:40},
-        legend: {orientation: 'h', y: -0.2}
-      }, fig.layout || {});
-      Plotly.newPlot(divId, fig.data || [], layout, CFG);
+      var layout = fig.layout || {};
+      // Appliquer styles sans écraser les données
+      layout.paper_bgcolor = 'rgba(0,0,0,0)';
+      layout.plot_bgcolor  = 'rgba(0,0,0,0)';
+      layout.font = {family: 'Inter, sans-serif', size: 11, color: '#374151'};
+      if (!layout.margin) layout.margin = {l:50, r:30, t:20, b:50};
+      if (layout.legend === undefined) layout.legend = {orientation: 'h', y: -0.2, bgcolor: 'rgba(0,0,0,0)'};
+      if (fig.data && fig.data.length > 0) {
+        Plotly.newPlot(divId, fig.data, layout, CFG);
+      } else {
+        el.innerHTML = '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:.82rem"><i class="fas fa-chart-bar" style="margin-right:.4rem;color:#DDE1EE"></i>Données insuffisantes</div>';
+      }
     } catch(e) {
-      el.innerHTML = '<div style="height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#9CA3AF">' +
-        '<i class="fas fa-chart-bar" style="font-size:2rem;margin-bottom:.5rem;color:#DDE1EE"></i>' +
-        '<span style="font-size:.8rem">Données insuffisantes pour ce graphe</span></div>';
+      console.error('Plotly error on ' + divId + ':', e);
+      el.innerHTML = '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:.82rem">Erreur de rendu</div>';
     }
   }
 
