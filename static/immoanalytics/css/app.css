@@ -1098,3 +1098,290 @@ tr:hover td {
   background: radial-gradient(circle, var(--color, var(--gold)) 0%, transparent 70%);
   opacity: .1;
 }
+
+
+/* ═══════════════════════════════════════════════════
+   ANIMATIONS DÉFINITIVES — ImmoPredict SN
+   ═══════════════════════════════════════════════════ */
+
+/* fade-slide-up : animation d'entrée principale */
+@keyframes fade-slide-up {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* Slide depuis la gauche */
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-32px); }
+  to   { opacity: 1; transform: translateX(0);     }
+}
+
+/* Slide depuis la droite */
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(32px); }
+  to   { opacity: 1; transform: translateX(0);    }
+}
+
+/* Bounce in pour icônes de succès */
+@keyframes bounce-in {
+  0%   { transform: scale(.3);  opacity: 0; }
+  60%  { transform: scale(1.08); }
+  80%  { transform: scale(.96); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+/* Float pour éléments décoratifs */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0);   }
+  50%       { transform: translateY(-8px); }
+}
+
+/* Pulse pour le bouton ImmoAI */
+@keyframes pulse-btn {
+  0%, 100% { box-shadow: 0 4px 20px rgba(201,168,76,.4); }
+  50%       { box-shadow: 0 4px 30px rgba(201,168,76,.7), 0 0 0 8px rgba(201,168,76,.1); }
+}
+
+/* Shimmer pour les skeletons */
+@keyframes shimmer-load {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Classes utilitaires d'animation */
+.fade-up   { animation: fade-slide-up .5s ease both; opacity: 0; }
+.fade-in   { animation: fade-in .4s ease both; opacity: 0; }
+.slide-left  { animation: slide-in-left .5s ease both; opacity: 0; }
+.slide-right { animation: slide-in-right .5s ease both; opacity: 0; }
+
+/* Délais d'animation */
+.d1 { animation-delay: .08s; }
+.d2 { animation-delay: .16s; }
+.d3 { animation-delay: .24s; }
+.d4 { animation-delay: .32s; }
+.d5 { animation-delay: .40s; }
+
+/* KPI cards : entrée en cascade */
+.kpi-card { animation: fade-slide-up .45s ease both; opacity: 0; }
+.kpi-card:nth-child(1) { animation-delay: .05s; }
+.kpi-card:nth-child(2) { animation-delay: .10s; }
+.kpi-card:nth-child(3) { animation-delay: .15s; }
+.kpi-card:nth-child(4) { animation-delay: .20s; }
+.kpi-card:nth-child(5) { animation-delay: .25s; }
+.kpi-card:nth-child(6) { animation-delay: .30s; }
+
+/* Hover lift universel */
+.card:hover, .chart-card:hover, .kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(15,36,68,.10);
+}
+
+/* Nav tab underline animé */
+.nav-tab { position: relative; }
+.nav-tab::after {
+  content: '';
+  position: absolute; bottom: -1px; left: 50%; right: 50%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-lt));
+  transition: left .22s ease, right .22s ease;
+  border-radius: 2px;
+}
+.nav-tab:hover::after, .nav-tab.active::after { left: 6px; right: 6px; }
+
+/* Chart card hover glow */
+.chart-card {
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+.chart-card:hover { border-color: rgba(201,168,76,.3); }
+
+/* Bouton principal gradient animé */
+.btn-primary {
+  background: linear-gradient(135deg, #C9A84C 0%, #E2C47A 50%, #C9A84C 100%);
+  background-size: 200% auto;
+  transition: background-position .4s ease, transform .2s, box-shadow .2s;
+}
+.btn-primary:hover {
+  background-position: right center;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(201,168,76,.35);
+}
+
+/* Page content fade in */
+.page-content { animation: fade-slide-up .4s ease both; }
+
+/* Scroll reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .55s cubic-bezier(.4,0,.2,1), transform .55s cubic-bezier(.4,0,.2,1);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* Form input focus animation */
+.form-control, .cf-input {
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+
+/* Prop card image zoom */
+.prop-img { overflow: hidden; }
+.prop-img img { transition: transform .4s ease; }
+.prop-card:hover .prop-img img { transform: scale(1.06); }
+
+/* Table row hover */
+tr { transition: background .15s ease; }
+tr:hover td { background: rgba(201,168,76,.04); }
+
+/* ═══════════════════════════════════════════════════════
+   ANIMATIONS PREMIUM v4 — ImmoPredict SN
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Entrée des éléments ─────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-left {
+  from { opacity: 0; transform: translateX(-22px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes fade-right {
+  from { opacity: 0; transform: translateX(22px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes float {
+  0%,100% { transform: translateY(0px); }
+  50%     { transform: translateY(-10px); }
+}
+
+/* ── KPI cards ───────────────────────────────────────── */
+.kpi-card { animation: scale-in .45s cubic-bezier(.34,1.56,.64,1) both; }
+.kpi-card:nth-child(1){animation-delay:.05s} .kpi-card:nth-child(2){animation-delay:.10s}
+.kpi-card:nth-child(3){animation-delay:.15s} .kpi-card:nth-child(4){animation-delay:.20s}
+.kpi-card:nth-child(5){animation-delay:.25s} .kpi-card:nth-child(6){animation-delay:.30s}
+.kpi-card:hover { transform: translateY(-4px) scale(1.01); }
+
+/* ── Chart cards stagger ─────────────────────────────── */
+.chart-card { animation: fade-up .4s ease both; }
+.charts-row .chart-wrap:nth-child(1) .chart-card { animation-delay: .1s; }
+.charts-row .chart-wrap:nth-child(2) .chart-card { animation-delay: .2s; }
+
+/* ── Filter bar ──────────────────────────────────────── */
+.filter-bar { animation: fade-up .3s ease both; }
+
+/* ── Navbar brand pulse ──────────────────────────────── */
+.navbar-logo-icon {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* ── Nav tab underline slide ─────────────────────────── */
+.nav-tab {
+  position: relative;
+  transition: color .2s, background .2s;
+}
+.nav-tab::after {
+  content: '';
+  position: absolute; bottom: 0; left: 50%; right: 50%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-lt));
+  transition: left .25s ease, right .25s ease;
+}
+.nav-tab:hover::after, .nav-tab.active::after { left: 6px; right: 6px; }
+
+/* ── Boutons ripple effect ───────────────────────────── */
+.btn { position: relative; overflow: hidden; }
+.btn::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: rgba(255,255,255,.15);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .3s ease;
+}
+.btn:hover::after { transform: scaleX(1); }
+
+/* ── ImmoAI chatbot ──────────────────────────────────── */
+#immoai-btn {
+  animation: pulse-btn 2.5s infinite;
+}
+@keyframes pulse-btn {
+  0%,100% { box-shadow: 0 4px 20px rgba(201,168,76,.4); }
+  50%     { box-shadow: 0 4px 30px rgba(201,168,76,.7), 0 0 0 10px rgba(201,168,76,.08); }
+}
+
+/* ── Tables row hover ────────────────────────────────── */
+tbody tr {
+  transition: background .15s ease, transform .15s ease;
+}
+tbody tr:hover {
+  background: linear-gradient(90deg, rgba(201,168,76,.03), rgba(201,168,76,.06), rgba(201,168,76,.03)) !important;
+}
+
+/* ── Cards hover lift ────────────────────────────────── */
+.card, .chart-card, .contact-card {
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(15,36,68,.1);
+}
+.chart-card:hover {
+  border-color: rgba(201,168,76,.25);
+  box-shadow: 0 6px 24px rgba(201,168,76,.08);
+}
+
+/* ── Scroll reveal ───────────────────────────────────── */
+.reveal {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity .55s cubic-bezier(.4,0,.2,1), transform .55s cubic-bezier(.4,0,.2,1);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Source cards ────────────────────────────────────── */
+.src-card { transition: transform .2s, box-shadow .2s; }
+.src-card:hover { transform: translateX(4px); box-shadow: 0 4px 16px rgba(15,36,68,.1); }
+
+/* ── Admin stats ─────────────────────────────────────── */
+.admin-stat {
+  transition: transform .2s, box-shadow .2s;
+}
+.admin-stat:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(15,36,68,.1);
+}
+
+/* ── Gradient text ───────────────────────────────────── */
+.text-gradient {
+  background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Page transition ─────────────────────────────────── */
+.app-main { animation: fade-up .35s ease both; }
+
+/* ── Form focus glow ─────────────────────────────────── */
+.form-control:focus, .contact-input:focus {
+  transform: none;
+  box-shadow: 0 0 0 4px rgba(201,168,76,.12);
+}
+
+/* ── Scroll to top ───────────────────────────────────── */
+#scroll-top {
+  transition: opacity .3s, transform .3s, background .2s;
+}
+#scroll-top:hover { transform: translateY(-2px) !important; }
+
+/* ── Prop cards ──────────────────────────────────────── */
+.prop-card { transition: all .25s cubic-bezier(.4,0,.2,1); }
+.prop-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(15,36,68,.14);
+  border-color: var(--gold);
+}
+.prop-img { overflow: hidden; }
+.prop-img img { transition: transform .4s ease; }
+.prop-card:hover .prop-img img { transform: scale(1.07); }
