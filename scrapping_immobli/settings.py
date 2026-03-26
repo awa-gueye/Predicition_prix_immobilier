@@ -34,6 +34,7 @@ NEON_DATABASE_URL = os.getenv(
     "postgresql://neondb_owner:npg_4nOWqTAk0RCF@ep-lively-shape-anjt1g2k-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
 )
 
+
 # Parse l'URL
 parsed = urlparse(NEON_DATABASE_URL)
 query_params = parse_qs(parsed.query)
