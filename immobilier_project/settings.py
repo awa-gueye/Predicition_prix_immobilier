@@ -31,6 +31,8 @@ INSTALLED_APPS = [
     'properties',
     # ImmoAnalytics dashboards
     'immoanalytics_dash.apps.ImmoAnalyticsDashConfig',
+    # Annonces vendeurs + Profils
+    'listings.apps.ListingsConfig',
 ]
 
 MIDDLEWARE = [
@@ -155,3 +157,10 @@ CHANNEL_LAYERS = {
 }
 
 LOGIN_URL = '/immo/login/'
+
+# ── Fichiers uploadés (avatars, images annonces) ──────────────
+MEDIA_URL  = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024   # 10 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024   # 10 MB
