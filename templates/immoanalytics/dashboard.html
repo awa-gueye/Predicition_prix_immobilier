@@ -150,6 +150,62 @@
     </div>
   </div>
 
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION ANALYSES (fusionnées depuis analytics_page) -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div style="max-width:1200px;margin:2rem auto;padding:0 2rem">
+
+  <!-- Filtres Analytics -->
+  <div style="background:#fff;border-radius:12px;border:1px solid #DDE1EE;padding:1rem 1.5rem;margin-bottom:1.5rem;display:flex;gap:.8rem;align-items:center;flex-wrap:wrap">
+    <span style="font-size:.82rem;font-weight:700;color:#374151"><i class="fas fa-filter" style="color:#C9A84C;margin-right:.4rem"></i>Filtres analyses :</span>
+    <form method="GET" style="display:flex;gap:.6rem;flex-wrap:wrap;flex:1">
+      <input type="hidden" name="txn" value="{{ txn_filter }}">
+      <input type="hidden" name="src" value="{{ src_filter }}">
+      <select name="type" onchange="this.form.submit()" style="padding:.35rem .7rem;border:1.5px solid #DDE1EE;border-radius:7px;font-size:.8rem;outline:none">
+        <option value="all">Tous les types</option>
+        {% for t in types %}<option value="{{ t }}"{% if type_filter == t %} selected{% endif %}>{{ t }}</option>{% endfor %}
+      </select>
+      <select name="city" onchange="this.form.submit()" style="padding:.35rem .7rem;border:1.5px solid #DDE1EE;border-radius:7px;font-size:.8rem;outline:none">
+        <option value="">Toutes les villes</option>
+        {% for c in cities %}<option value="{{ c }}"{% if city_filter == c %} selected{% endif %}>{{ c }}</option>{% endfor %}
+      </select>
+    </form>
+  </div>
+
+  <!-- Ligne 1 : Box plot + Scatter -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1.2rem">
+    <div style="background:#fff;border-radius:12px;border:1px solid #DDE1EE;padding:1.2rem;box-shadow:0 2px 8px rgba(15,36,68,.05)">
+      <div style="font-size:.8rem;font-weight:700;color:#374151;margin-bottom:.8rem"><i class="fas fa-box" style="color:#C9A84C;margin-right:.4rem"></i>Distribution des prix par type</div>
+      <div id="fig-box" style="height:280px"></div>
+    </div>
+    <div style="background:#fff;border-radius:12px;border:1px solid #DDE1EE;padding:1.2rem;box-shadow:0 2px 8px rgba(15,36,68,.05)">
+      <div style="font-size:.8rem;font-weight:700;color:#374151;margin-bottom:.8rem"><i class="fas fa-braille" style="color:#2563EB;margin-right:.4rem"></i>Prix vs Superficie</div>
+      <div id="fig-sc" style="height:280px"></div>
+    </div>
+  </div>
+
+  <!-- Ligne 2 : Sources + Chambres + Stats -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 280px;gap:1.2rem;margin-bottom:2rem">
+    <div style="background:#fff;border-radius:12px;border:1px solid #DDE1EE;padding:1.2rem;box-shadow:0 2px 8px rgba(15,36,68,.05)">
+      <div style="font-size:.8rem;font-weight:700;color:#374151;margin-bottom:.8rem"><i class="fas fa-layer-group" style="color:#0E6B4A;margin-right:.4rem"></i>Prix médian / moyen par source</div>
+      <div id="fig-src" style="height:250px"></div>
+    </div>
+    <div style="background:#fff;border-radius:12px;border:1px solid #DDE1EE;padding:1.2rem;box-shadow:0 2px 8px rgba(15,36,68,.05)">
+      <div style="font-size:.8rem;font-weight:700;color:#374151;margin-bottom:.8rem"><i class="fas fa-bed" style="color:#7C3AED;margin-right:.4rem"></i>Prix médian par nb chambres</div>
+      <div id="fig-beds" style="height:250px"></div>
+    </div>
+    <div style="background:#fff;border-radius:12px;border:1px solid #DDE1EE;padding:1.2rem;box-shadow:0 2px 8px rgba(15,36,68,.05)">
+      <div style="font-size:.8rem;font-weight:700;color:#374151;margin-bottom:.8rem"><i class="fas fa-table" style="color:#0891B2;margin-right:.4rem"></i>Statistiques descriptives</div>
+      {% for label,val in stats %}
+      <div style="display:flex;justify-content:space-between;padding:.3rem 0;border-bottom:1px solid #F0F2F8;font-size:.78rem">
+        <span style="color:#6B7280">{{ label }}</span>
+        <span style="font-weight:600;color:#0F2444">{{ val }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
 </div>
 {% endblock %}
 
@@ -160,6 +216,10 @@
 <script id="d-fig-cities" type="application/json">{{ fig_cities|safe }}</script>
 <script id="d-fig-types"  type="application/json">{{ fig_types|safe }}</script>
 <script id="d-fig-trend"  type="application/json">{{ fig_trend|safe }}</script>
+<script id="d-fig-box"    type="application/json">{{ fig_box|safe }}</script>
+<script id="d-fig-sc"     type="application/json">{{ fig_sc|safe }}</script>
+<script id="d-fig-src"    type="application/json">{{ fig_src|safe }}</script>
+<script id="d-fig-beds"   type="application/json">{{ fig_beds|safe }}</script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -194,6 +254,10 @@ document.addEventListener('DOMContentLoaded', function() {
   renderPlot('fig-cities', 'd-fig-cities');
   renderPlot('fig-types',  'd-fig-types');
   renderPlot('fig-trend',  'd-fig-trend');
+  renderPlot('fig-box',    'd-fig-box');
+  renderPlot('fig-sc',     'd-fig-sc');
+  renderPlot('fig-src',    'd-fig-src');
+  renderPlot('fig-beds',   'd-fig-beds');
 });
 </script>
 {% endblock %}

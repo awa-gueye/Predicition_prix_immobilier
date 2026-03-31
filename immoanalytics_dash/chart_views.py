@@ -285,13 +285,100 @@ def dashboard_page(request):
         r["city"]      = str(r.get("city","") or "—")
         r["prop_type"] = str(r.get("property_type","") or "—")
     ctx = _ctx(request)
+    # ── Analytics fusionnées dans le dashboard ──────────────────
+    type_f  = request.GET.get("type", "all")
+    city_f  = request.GET.get("city", "")
+    types   = sorted(df_full["property_type"].dropna().unique().tolist())
+    cities  = sorted(df_full["city"].dropna().unique().tolist())
+    dfa = df.copy()
+    if type_f != "all": dfa = dfa[dfa["property_type"] == type_f]
+    if city_f:          dfa = dfa[dfa["city"] == city_f]
+    # Box plot prix par type
+    top5 = dfa["property_type"].value_counts().head(5).index.tolist()
+    fig_box = go.Figure()
+    for i, t in enumerate(top5):
+        sub = dfa[dfa["property_type"] == t]["price"]
+        if len(sub) >= 3:
+            fig_box.add_trace(go.Box(y=sub/1e6, name=t,
+                marker_color=PAL[i % len(PAL)], boxmean=True, boxpoints=False))
+    if not fig_box.data: fig_box = _empty("Pas assez de données")
+    else: fig_box.update_layout(showlegend=False); fig_box.update_yaxes(title_text="Prix (M FCFA)")
+    # Scatter prix vs surface
+    dfs2 = dfa[dfa["surface_area"].between(15, 3000) & dfa["price"].notna()].copy()
+    if len(dfs2) > 5:
+        dfs2["prix_M"] = dfs2["price"] / 1e6
+        fig_sc = px.scatter(dfs2.head(600), x="surface_area", y="prix_M",
+            color="property_type", color_discrete_sequence=PAL, opacity=0.55,
+            labels={"surface_area": "Superficie (m²)", "prix_M": "Prix (M FCFA)"})
+        fig_sc.update_traces(marker_size=4)
+    else:
+        fig_sc = _empty("Surface non renseignée")
+    # Prix médian par source
+    ss = dfa.groupby("source")["price"].agg(["median","mean","count"]).reset_index()
+    ss = ss[ss["count"] >= 3]
+    if len(ss) > 0:
+        lbl = ss["source"].str.replace("_", " ").str.title()
+        fig_src = go.Figure()
+        fig_src.add_trace(go.Bar(name="Médiane", x=lbl, y=ss["median"]/1e6,
+            marker_color=C["gold"], text=[f"{v:.0f}M" for v in ss["median"]/1e6], textposition="outside"))
+        fig_src.add_trace(go.Bar(name="Moyenne", x=lbl, y=ss["mean"]/1e6,
+            marker_color=C["blue"], text=[f"{v:.0f}M" for v in ss["mean"]/1e6], textposition="outside"))
+        fig_src.update_layout(barmode="group", legend=dict(orientation="h", y=-0.2))
+        fig_src.update_yaxes(title_text="Prix (M FCFA)")
+    else:
+        fig_src = _empty()
+    # Prix médian par nb chambres
+    dbc = dfa[dfa["bedrooms"].between(1, 8) & dfa["price"].notna()]
+    if len(dbc) > 5:
+        bs = dbc.groupby("bedrooms")["price"].agg(["median","count"]).reset_index().query("count>=3")
+        if len(bs) > 0:
+            fig_beds = go.Figure(go.Bar(
+                x=[f"{int(b)} ch." for b in bs["bedrooms"]], y=bs["median"]/1e6,
+                marker_color=PAL[:len(bs)],
+                text=[f"{v:.0f}M" for v in bs["median"]/1e6], textposition="outside"))
+            fig_beds.update_yaxes(title_text="Prix médian (M FCFA)")
+        else: fig_beds = _empty()
+    else: fig_beds = _empty()
+    # Stats descriptives
+    stats_data = []
+    if len(dfa) > 0:
+        s = dfa["price"].describe()
+        stats_data = [
+            ("Annonces",     f"{int(s.get('count',0)):,}"),
+            ("Prix minimum", _fmt(s.get("min",  0))),
+            ("1er quartile", _fmt(s.get("25%",  0))),
+            ("Médiane",      _fmt(s.get("50%",  0))),
+            ("Moyenne",      _fmt(s.get("mean", 0))),
+            ("3e quartile",  _fmt(s.get("75%",  0))),
+            ("Prix maximum", _fmt(s.get("max",  0))),
+        ]
+    ctx = _ctx(request)
     ctx.update({
-        "page_title":"Dashboard","kpis":kpis,
-        "fig_dist":_fig_json(fig_dist),"fig_pie":_fig_json(fig_pie),
-        "fig_cities":_fig_json(fig_cities),"fig_types":_fig_json(fig_types),
-        "fig_trend":_fig_json(fig_trend),"recent":recent,"sources":sources,
-        "txn_filter":txn_f,"src_filter":src_f,"total":total,"nv":nv,"nl":nl,
-        "headers":["Bien","Prix","Ville","Type","Source","Transaction"],
+        "page_title": "Dashboard",
+        "kpis": kpis,
+        # Graphes dashboard
+        "fig_dist":   _fig_json(fig_dist),
+        "fig_pie":    _fig_json(fig_pie),
+        "fig_cities": _fig_json(fig_cities),
+        "fig_types":  _fig_json(fig_types),
+        "fig_trend":  _fig_json(fig_trend),
+        # Graphes analytics (fusionnés)
+        "fig_box":    _fig_json(fig_box),
+        "fig_sc":     _fig_json(fig_sc),
+        "fig_src":    _fig_json(fig_src),
+        "fig_beds":   _fig_json(fig_beds),
+        "stats":      stats_data,
+        # Données
+        "recent":      recent,
+        "sources":     sources,
+        "types":       types,
+        "cities":      cities,
+        "txn_filter":  txn_f,
+        "src_filter":  src_f,
+        "type_filter": type_f,
+        "city_filter": city_f,
+        "total": total, "nv": nv, "nl": nl,
+        "headers": ["Bien","Prix","Ville","Type","Source","Transaction"],
     })
     return render(request, "immoanalytics/dashboard.html", ctx)
 

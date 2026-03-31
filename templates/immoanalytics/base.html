@@ -1,323 +1,251 @@
-{% load static %}<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>ImmoPredict SN — {% block title %}{% endblock %}</title>
-<meta name="description" content="ImmoPredict SN — Plateforme d'intelligence immobilière au Sénégal">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏢</text></svg>">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-<link href="{% static 'immoanalytics/css/app.css' %}" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>{% block title %}ImmoPredict SN{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Georgia&display=swap">
+<style>
+:root{
+  --navy:#0F2444;--navy2:#1A3560;--gold:#C9A84C;--gold2:#E2C47A;
+  --green:#0E6B4A;--blue:#2563EB;--red:#C0392B;--purple:#7C3AED;
+  --bg:#F0F2F8;--white:#fff;--border:#DDE1EE;
+  --dark:#111827;--muted:#6B7280;--light:#FAFBFE;
+  --font:'Inter',sans-serif;--serif:'Georgia',serif;--mono:'Consolas',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--dark);min-height:100vh;display:flex;flex-direction:column}
+a{color:inherit;text-decoration:none}
+
+/* ── NAVBAR ─────────────────────────────────────────────────── */
+.navbar{
+  background:var(--navy);
+  border-bottom:3px solid var(--gold);
+  padding:0 1.5rem;
+  height:58px;
+  display:flex;
+  align-items:center;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 16px rgba(0,0,0,.25);
+}
+.nav-brand{display:flex;align-items:center;gap:.55rem;text-decoration:none;margin-right:1.5rem;flex-shrink:0}
+.nav-logo{width:30px;height:30px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.9rem}
+.nav-title{font-family:var(--serif);font-weight:700;font-size:1.05rem;color:var(--white)}
+.nav-title span{color:var(--gold)}
+
+.nav-links{display:flex;align-items:center;gap:.1rem;flex:1}
+.nav-link{
+  display:flex;align-items:center;gap:.35rem;
+  padding:.45rem .85rem;border-radius:7px;
+  font-size:.78rem;font-weight:500;color:rgba(255,255,255,.65);
+  text-decoration:none;transition:all .2s;white-space:nowrap;
+}
+.nav-link:hover{background:rgba(255,255,255,.08);color:var(--white)}
+.nav-link.active{background:rgba(201,168,76,.15);color:var(--gold);font-weight:600}
+.nav-link i{font-size:.72rem;opacity:.8}
+
+/* Badges Vente/Location */
+.nav-link.vente-link.active{background:rgba(201,168,76,.18);color:var(--gold)}
+.nav-link.location-link.active{background:rgba(14,107,74,.2);color:#6EE7B7}
+
+.nav-divider{width:1px;height:20px;background:rgba(255,255,255,.1);margin:0 .3rem;flex-shrink:0}
+
+.nav-right{display:flex;align-items:center;gap:.6rem;margin-left:auto;flex-shrink:0}
+
+/* User menu */
+.user-menu{position:relative}
+.user-btn{
+  display:flex;align-items:center;gap:.5rem;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:8px;padding:.38rem .75rem;
+  cursor:pointer;color:var(--white);font-size:.78rem;
+  transition:all .2s;
+}
+.user-btn:hover{background:rgba(255,255,255,.14)}
+.user-avatar-sm{width:24px;height:24px;border-radius:50%;object-fit:cover;border:1.5px solid var(--gold)}
+.dropdown{
+  position:absolute;right:0;top:calc(100% + 6px);
+  background:var(--white);border:1px solid var(--border);
+  border-radius:10px;min-width:190px;z-index:200;
+  box-shadow:0 8px 28px rgba(15,36,68,.15);
+  overflow:hidden;display:none;
+}
+.dropdown.open{display:block}
+.dropdown a,.dropdown button{
+  display:flex;align-items:center;gap:.6rem;
+  padding:.65rem 1rem;font-size:.8rem;color:var(--dark);
+  text-decoration:none;width:100%;text-align:left;
+  background:none;border:none;cursor:pointer;
+  transition:background .15s;font-family:var(--font);
+}
+.dropdown a:hover,.dropdown button:hover{background:var(--bg)}
+.dropdown .sep{height:1px;background:var(--border);margin:.2rem 0}
+
+/* Seller CTA */
+.add-btn{
+  display:flex;align-items:center;gap:.4rem;
+  background:var(--gold);color:var(--navy);
+  border-radius:7px;padding:.4rem .9rem;
+  font-size:.75rem;font-weight:700;
+  text-decoration:none;transition:all .2s;
+  border:none;cursor:pointer;
+}
+.add-btn:hover{background:var(--gold2);transform:translateY(-1px)}
+
+/* Mobile menu toggle */
+.nav-toggle{display:none;background:none;border:none;color:var(--white);font-size:1.1rem;cursor:pointer;padding:.3rem}
+
+/* ── MAIN ────────────────────────────────────────────────────── */
+main{flex:1}
+.fade-up{animation:fadeUp .4s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── FOOTER ─────────────────────────────────────────────────── */
+footer{background:var(--navy);border-top:3px solid var(--gold);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+footer span{font-size:.72rem;color:rgba(255,255,255,.35)}
+footer a{font-size:.72rem;color:var(--gold);text-decoration:none}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media(max-width:900px){
+  .nav-links{display:none;flex-direction:column;position:absolute;top:58px;left:0;right:0;background:var(--navy);border-top:1px solid rgba(255,255,255,.08);padding:.5rem 1rem;gap:.2rem;z-index:99}
+  .nav-links.open{display:flex}
+  .nav-toggle{display:block}
+  .nav-divider{display:none}
+  .nav-link{padding:.6rem .8rem}
+}
+
 {% block extra_css %}{% endblock %}
+</style>
 </head>
 <body>
 
-<!-- ══════════════════ NAVBAR HORIZONTALE ══════════════════ -->
 <nav class="navbar">
-  <!-- Logo -->
-  <a href="/" class="navbar-brand">
-    <div class="navbar-logo-icon"><i class="fas fa-building"></i></div>
-    <span class="navbar-brand-text">Immo<span>Predict</span> SN</span>
+  <a href="{% url 'home' %}" class="nav-brand">
+    <div class="nav-logo">🏠</div>
+    <span class="nav-title">Immo<span>Predict</span> SN</span>
   </a>
 
-  <!-- Onglets de navigation — accessibles à tous les connectés -->
-  <div class="navbar-tabs" id="navTabs">
+  <button class="nav-toggle" id="navToggle"><i class="fas fa-bars"></i></button>
 
-    <a href="/dashboard/"
-       class="nav-tab {% if '/dashboard' in request.path %}active{% endif %}">
-      <i class="fas fa-chart-line"></i>
-      <span>Dashboard</span>
+  <div class="nav-links" id="navLinks">
+    <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' or request.resolver_match.url_name == 'home' %}active{% endif %}">
+      <i class="fas fa-chart-line"></i>Dashboard
     </a>
 
-    <a href="/analytics/"
-       class="nav-tab {% if '/analytics' in request.path %}active{% endif %}">
-      <i class="fas fa-chart-bar"></i>
-      <span>Analyses</span>
+    <a href="{% url 'vente' %}" class="nav-link vente-link {% if request.resolver_match.url_name == 'vente' %}active{% endif %}">
+      <i class="fas fa-home"></i>Vente
     </a>
 
-    <a href="/map/"
-       class="nav-tab {% if '/map' in request.path %}active{% endif %}">
-      <i class="fas fa-map-marked-alt"></i>
-      <span>Carte</span>
+    <a href="{% url 'location' %}" class="nav-link location-link {% if request.resolver_match.url_name == 'location' %}active{% endif %}">
+      <i class="fas fa-key"></i>Location
     </a>
 
-    <a href="/estimation/"
-       class="nav-tab {% if '/estimation' in request.path %}active{% endif %}">
-      <i class="fas fa-calculator"></i>
-      <span>Estimation</span>
+    <a href="{% url 'map' %}" class="nav-link {% if request.resolver_match.url_name == 'map' %}active{% endif %}">
+      <i class="fas fa-map-marked-alt"></i>Carte
+    </a>
+
+    <a href="{% url 'estimation' %}" class="nav-link {% if request.resolver_match.url_name == 'estimation' %}active{% endif %}">
+      <i class="fas fa-calculator"></i>Estimation
+    </a>
+
+    <div class="nav-divider"></div>
+
+    <a href="{% url 'about' %}" class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">
+      <i class="fas fa-info-circle"></i>À propos
+    </a>
+    <a href="{% url 'contact' %}" class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}">
+      <i class="fas fa-envelope"></i>Contact
     </a>
 
     {% if user.is_superuser %}
-    <a href="/immo-admin/"
-       class="nav-tab {% if '/immo-admin' in request.path %}active{% endif %}">
-      <i class="fas fa-crown"></i>
-      <span>Admin</span>
+    <div class="nav-divider"></div>
+    <a href="{% url 'dash_page' %}" class="nav-link {% if request.resolver_match.url_name == 'dash_page' %}active{% endif %}" style="color:rgba(201,168,76,.75)">
+      <i class="fas fa-crown"></i>Admin
     </a>
     {% endif %}
-
-    <a href="/about/"
-       class="nav-tab {% if '/about' in request.path %}active{% endif %}">
-      <i class="fas fa-info-circle"></i>
-      <span>À propos</span>
-    </a>
-
-    <a href="/contact/"
-       class="nav-tab {% if '/contact' in request.path %}active{% endif %}">
-      <i class="fas fa-envelope"></i>
-      <span>Contact</span>
-    </a>
-
-    <a href="/api/properties/stats/" target="_blank" class="nav-tab">
-      <i class="fas fa-server"></i>
-      <span>API</span>
-    </a>
-
   </div>
 
-  <!-- Utilisateur + déconnexion -->
-  <div class="navbar-right">
-    {% if messages %}
-      {% for m in messages %}
-      <div class="alert alert-{% if m.tags == 'success' %}success{% else %}error{% endif %}"
-           style="margin:0;padding:.3rem .6rem;font-size:.75rem;border-radius:6px">
-        {{ m }}
-      </div>
-      {% endfor %}
-    {% endif %}
+  <div class="nav-right">
+    {% if user.is_authenticated %}
 
-    <div class="navbar-user">
-      <div class="navbar-avatar">
-        {% if user.get_full_name %}{{ user.first_name|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}{% else %}{{ user.username|slice:":2"|upper }}{% endif %}
+    <!-- Bouton Ajouter si vendeur -->
+    {% with profile=user.profile %}
+    {% if profile.role == 'seller' %}
+    <a href="{% url 'add_listing' %}" class="add-btn">
+      <i class="fas fa-plus"></i><span style="display:none;display:inline">Annonce</span>
+    </a>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Menu utilisateur -->
+    <div class="user-menu">
+      <div class="user-btn" id="userBtn">
+        {% if user.profile.avatar %}
+        <img src="{{ user.profile.avatar.url }}" alt="" class="user-avatar-sm">
+        {% else %}
+        <i class="fas fa-user-circle" style="font-size:1rem;opacity:.7"></i>
+        {% endif %}
+        <span>{{ user.get_full_name|default:user.username|truncatechars:14 }}</span>
+        <i class="fas fa-chevron-down" style="font-size:.6rem;opacity:.5"></i>
       </div>
-      <div style="line-height:1.2">
-        <div style="font-size:.8rem;color:rgba(255,255,255,.85);font-weight:500">
-          {{ user.get_full_name|default:user.username }}
-        </div>
-        <div style="font-size:.65rem;color:rgba(255,255,255,.4);font-family:var(--mono)">
-          {% if user.is_superuser %}Admin{% else %}Viewer{% endif %}
-        </div>
+      <div class="dropdown" id="userDropdown">
+        <a href="{% url 'profile' %}"><i class="fas fa-user" style="color:var(--gold)"></i>Mon profil</a>
+        <a href="{% url 'edit_profile' %}"><i class="fas fa-edit" style="color:var(--blue)"></i>Modifier le profil</a>
+        {% with profile=user.profile %}
+        {% if profile.role == 'seller' %}
+        <a href="{% url 'my_listings' %}"><i class="fas fa-list" style="color:var(--green)"></i>Mes annonces</a>
+        <a href="{% url 'add_listing' %}"><i class="fas fa-plus-circle" style="color:var(--gold)"></i>Publier un bien</a>
+        {% endif %}
+        {% endwith %}
+        <div class="sep"></div>
+        <form method="POST" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit"><i class="fas fa-sign-out-alt" style="color:var(--red)"></i>Déconnexion</button>
+        </form>
       </div>
     </div>
-
-    <a href="/immo/profile/" title="Profil"
-       style="color:rgba(255,255,255,.5);font-size:.85rem;transition:color .18s"
-       onmouseover="this.style.color='#C9A84C'" onmouseout="this.style.color='rgba(255,255,255,.5)'">
-      <i class="fas fa-user-circle"></i>
+    {% else %}
+    <a href="{% url 'login' %}" class="nav-link" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)">
+      <i class="fas fa-sign-in-alt"></i>Connexion
     </a>
-    <a href="/immo/logout/" class="btn-nav-logout">
-      <i class="fas fa-sign-out-alt"></i>
+    <a href="{% url 'register' %}" class="add-btn">
+      <i class="fas fa-user-plus"></i>S'inscrire
     </a>
+    {% endif %}
   </div>
 </nav>
 
-<!-- ══════════════════ CONTENU PRINCIPAL ══════════════════ -->
-<div class="app-main">
-  {% block content %}{% endblock %}
-</div>
+<main>{% block content %}{% endblock %}</main>
 
-<!-- ══════════════════ IMMOAI — CHATBOT FLOTTANT ══════════════════ -->
-<button id="immoai-btn" onclick="toggleImmoAI()" title="ImmoAI — Assistant Immobilier">
-  <i class="fas fa-robot" id="immoai-icon"></i>
-  <span class="immoai-badge" id="immoai-badge" style="display:none">1</span>
-</button>
-
-<div id="immoai-panel">
-  <!-- Header -->
-  <div class="immoai-header">
-    <div class="immoai-title">
-      <div class="immoai-avatar">AI</div>
-      <div>
-        <div class="immoai-name">ImmoAI</div>
-        <div style="display:flex;align-items:center;gap:.3rem">
-          <div class="immoai-online"></div>
-          <span class="immoai-status">Assistant immobilier intelligent</span>
-        </div>
-      </div>
-    </div>
-    <button class="immoai-close" onclick="toggleImmoAI()">
-      <i class="fas fa-times"></i>
-    </button>
+<footer>
+  <span>© 2025 ImmoPredict SN — Données immobilières Sénégal</span>
+  <div style="display:flex;gap:1rem">
+    <a href="{% url 'about' %}">À propos</a>
+    <a href="{% url 'contact' %}">Contact</a>
+    <a href="{% url 'estimation' %}">Estimation</a>
   </div>
+</footer>
 
-  <!-- Messages -->
-  <div class="immoai-messages" id="immoai-messages">
-    <div class="immoai-msg bot">
-      Bonjour ! Je suis <strong>ImmoAI</strong>, votre assistant immobilier intelligent.<br>
-      Je peux analyser les prix, comparer les quartiers, estimer un bien, ou répondre à toutes vos questions sur le marché immobilier sénégalais.
-    </div>
-  </div>
-
-  <!-- Suggestions rapides -->
-  <div class="immoai-suggestions" id="immoai-suggestions">
-    <button class="immoai-sug" onclick="sendSuggestion('Que vaut une villa à Almadies ?')">
-      Villa Almadies ?
-    </button>
-    <button class="immoai-sug" onclick="sendSuggestion('Quel quartier est le moins cher ?')">
-      Quartier abordable ?
-    </button>
-    <button class="immoai-sug" onclick="sendSuggestion('État du marché immobilier à Dakar')">
-      Marché Dakar
-    </button>
-    <button class="immoai-sug" onclick="sendSuggestion('Avec 50M que puis-je acheter ?')">
-      Budget 50M ?
-    </button>
-  </div>
-
-  <!-- Input -->
-  <div class="immoai-input">
-    <input type="text" id="immoai-input" placeholder="Posez votre question..."
-           onkeydown="if(event.key==='Enter' && !event.shiftKey) sendImmoAI()">
-    <button class="immoai-send" id="immoai-send-btn" onclick="sendImmoAI()">
-      <i class="fas fa-paper-plane"></i>
-    </button>
-  </div>
-</div>
-
-<!-- ══════════════════ SCRIPTS ══════════════════ -->
 <script>
-const CSRF = '{{ csrf_token }}';
-
-// ── Toggle ImmoAI panel ──────────────────────────────────────
-function toggleImmoAI() {
-  const panel = document.getElementById('immoai-panel');
-  const icon  = document.getElementById('immoai-icon');
-  const badge = document.getElementById('immoai-badge');
-  const isOpen = panel.classList.contains('open');
-
-  panel.classList.toggle('open');
-  icon.className = isOpen ? 'fas fa-robot' : 'fas fa-times';
-  badge.style.display = 'none';
-
-  if (!isOpen) {
-    setTimeout(() => document.getElementById('immoai-input').focus(), 300);
-  }
-}
-
-// ── Ajouter un message ───────────────────────────────────────
-function addMsg(text, type, isHtml) {
-  const box = document.getElementById('immoai-messages');
-  const d   = document.createElement('div');
-  d.className = 'immoai-msg ' + type;
-  if (isHtml) d.innerHTML = text; else d.textContent = text;
-  if (text.includes('fa-')) d.innerHTML = text;
-  box.appendChild(d);
-  box.scrollTop = box.scrollHeight;
-  return d;
-}
-
-function addTyping() {
-  const box = document.getElementById('immoai-messages');
-  const d   = document.createElement('div');
-  d.className = 'immoai-typing'; d.id = 'immoai-typing';
-  d.innerHTML = '<span></span><span></span><span></span>';
-  box.appendChild(d);
-  box.scrollTop = box.scrollHeight;
-}
-
-function removeTyping() {
-  const t = document.getElementById('immoai-typing');
-  if (t) t.remove();
-}
-
-// ── Envoyer message ──────────────────────────────────────────
-async function sendImmoAI() {
-  const input = document.getElementById('immoai-input');
-  const btn   = document.getElementById('immoai-send-btn');
-  const msg   = input.value.trim();
-  if (!msg) return;
-
-  // Masquer suggestions
-  document.getElementById('immoai-suggestions').style.display = 'none';
-
-  addMsg(msg, 'user', false);
-  input.value = ''; btn.disabled = true;
-  addTyping();
-
-  try {
-    const resp = await fetch('/immo/api/chatbot/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
-      body: JSON.stringify({ message: msg })
-    });
-    const data = await resp.json();
-    removeTyping();
-
-    if (data.error) {
-      addMsg('<i class="fas fa-exclamation-triangle" style="color:#e74c3c"></i> ' + data.error, 'bot', true);
-    } else {
-      addMsg('<i class="fas fa-robot" style="color:#C9A84C;margin-right:.3rem"></i>' + data.response, 'bot', true);
-
-      // Afficher les biens trouvés
-      if (data.properties && data.properties.length > 0) {
-        const box = document.getElementById('immoai-messages');
-        const grid = document.createElement('div');
-        grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-top:.3rem';
-        data.properties.slice(0, 4).forEach(p => {
-          const card = document.createElement('div');
-          card.style.cssText = 'background:#F9FAFB;border:1px solid #DDE1EE;border-radius:8px;padding:.5rem .6rem;font-size:.72rem';
-          card.innerHTML = `
-            <div style="font-weight:600;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${(p.title||'Bien').substring(0,30)}</div>
-            <div style="color:#C9A84C;font-weight:700;font-size:.78rem">${p.price_fmt||'—'}</div>
-            <div style="color:#6B7280">${p.city||''} · ${p.type||''}</div>`;
-          grid.appendChild(card);
-        });
-        box.appendChild(grid);
-        box.scrollTop = box.scrollHeight;
-      }
-    }
-  } catch(e) {
-    removeTyping();
-    addMsg('<i class="fas fa-wifi-slash"></i> Erreur de connexion. Réessayez.', 'bot', true);
-  }
-  btn.disabled = false;
-}
-
-function sendSuggestion(txt) {
-  document.getElementById('immoai-input').value = txt;
-  sendImmoAI();
-}
-
-// Badge au chargement
-setTimeout(() => {
-  const badge = document.getElementById('immoai-badge');
-  if (badge) badge.style.display = 'flex';
-}, 3000);
-
-// Scroll to top
-window.addEventListener('scroll', () => {
-  const btn = document.getElementById('scroll-top');
-  if (btn) btn.classList.toggle('visible', window.scrollY > 300);
+// Toggle mobile nav
+document.getElementById('navToggle')?.addEventListener('click', () => {
+  document.getElementById('navLinks').classList.toggle('open');
 });
 
-// Scroll reveal — observe les éléments .reveal et .fade-up
-(function() {
-  var observer = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-
-  function initReveal() {
-    document.querySelectorAll('.reveal, .fade-up').forEach(function(el) {
-      observer.observe(el);
-    });
-  }
-  // Lancer au chargement ET sur les changements DOM dynamiques
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initReveal);
-  } else {
-    initReveal();
-  }
-})();
+// User dropdown
+const userBtn = document.getElementById('userBtn');
+const userDd  = document.getElementById('userDropdown');
+if (userBtn && userDd) {
+  userBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    userDd.classList.toggle('open');
+  });
+  document.addEventListener('click', () => userDd.classList.remove('open'));
+}
 </script>
-
-<!-- Scroll to top button -->
-<button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Haut de page">
-  <i class="fas fa-chevron-up"></i>
-</button>
 
 {% block extra_js %}{% endblock %}
 </body>

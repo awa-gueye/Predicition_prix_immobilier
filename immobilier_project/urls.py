@@ -1,49 +1,28 @@
+"""immobilier_project/urls.py"""
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic import TemplateView
-from django.shortcuts import redirect
-
-from immoanalytics_dash.views import (
-    login_view, logout_view, register_view,
-    profile_view, settings_view,
-    viewer_page, map_page, estimation_page,
-    admin_panel_page,
-    api_current_user, api_check_auth,
-    about_view, contact_view,
-)
-from immoanalytics_dash.chart_views import (
-    dashboard_page, analytics_page, api_stats_real, api_debug_db,
-)
-from immoanalytics_dash.chatbot_groq import api_chatbot
-
-def index_view(request):
-    if request.user.is_authenticated:
-        return redirect('/dashboard/')
-    return TemplateView.as_view(template_name='immoanalytics/welcome.html')(request)
+from immoanalytics_dash import views as auth_views
+from immoanalytics_dash import chart_views
 
 urlpatterns = [
-    path('',             index_view,     name='index'),
-    path('admin/',       admin.site.urls),
+    path('admin/', admin.site.urls),
+    path('immo/login/',    auth_views.login_view,    name='login'),
+    path('immo/logout/',   auth_views.logout_view,   name='logout'),
+    path('immo/register/', auth_views.register_view, name='register'),
+    path('',           chart_views.dashboard_page, name='dashboard'),
+    path('dashboard/', chart_views.dashboard_page, name='dashboard_named'),
+    path('map/',        auth_views.map_page,        name='map'),
+    path('estimation/', auth_views.estimation_page, name='estimation'),
+    path('contact/',   auth_views.contact_view, name='contact'),
+    path('about/',     auth_views.about_view,   name='about'),
+    path('immo-admin/', auth_views.dash_page, name='dash_page'),
+    path('', include('listings.urls')),
     path('api/properties/', include('properties.urls')),
-    path('immo/login/',    login_view,    name='immo_login'),
-    path('immo/logout/',   logout_view,   name='immo_logout'),
-    path('immo/register/', register_view, name='immo_register'),
-    path('immo/profile/',  profile_view,  name='immo_profile'),
-    path('immo/settings/', settings_view, name='immo_settings'),
-    path('immo/api/me/',      api_current_user, name='immo_api_me'),
-    path('immo/api/check/',   api_check_auth,   name='immo_api_check'),
-    path('immo/api/chatbot/', api_chatbot,      name='immo_api_chatbot'),
-    path('dpd/', include('django_plotly_dash.urls')),
-    path('dashboard/',  dashboard_page,  name='dashboard'),
-    path('analytics/',  analytics_page,  name='analytics'),
-    path('viewer/',     viewer_page,     name='viewer'),
-    path('map/',        map_page,        name='map'),
-    path('estimation/', estimation_page, name='estimation'),
-    path('immo-admin/', admin_panel_page, name='immo_admin'),
-    path('about/',   about_view,   name='about'),
-    path('contact/', contact_view, name='contact'),
-    path('api/stats/', api_stats_real, name='api_stats_real'),
-    path('api/debug-db/', api_debug_db, name='api_debug_db'),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    path('api/stats/',    chart_views.api_stats_real, name='api_stats'),
+    path('api/debug-db/', chart_views.api_debug_db,   name='api_debug_db'),
+    path('immo/api/chatbot/', include('immoanalytics_dash.chatbot_urls')),
+]
+urlpatterns += static(settings.MEDIA_URL,  document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

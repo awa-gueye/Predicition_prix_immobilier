@@ -1,0 +1,122 @@
+{% extends 'immoanalytics/base.html' %}
+{% load static %}
+{% block title %}{{ listing.title }} — ImmoPredict SN{% endblock %}
+{% block extra_css %}
+<style>
+.det-hero{background:linear-gradient(135deg,#0F2444,#1A3560);padding:1.5rem 2rem;color:#fff}
+.det-hero h1{font-family:Georgia,serif;font-size:clamp(1.3rem,2.5vw,2rem);margin:0 0 .3rem}
+.det-price{font-family:Georgia,serif;font-size:2rem;font-weight:700;color:#C9A84C}
+.det-price-unit{font-size:.9rem;color:rgba(255,255,255,.6)}
+.det-body{max-width:1100px;margin:2rem auto;padding:0 1.5rem;display:grid;grid-template-columns:1fr 360px;gap:2rem}
+@media(max-width:768px){.det-body{grid-template-columns:1fr}}
+.det-gallery{border-radius:12px;overflow:hidden;background:#F0F2F8}
+.det-main-img{height:340px;width:100%;object-fit:cover}
+.det-main-ph{height:340px;display:flex;align-items:center;justify-content:center;font-size:5rem;color:#DDE1EE}
+.det-thumbs{display:flex;gap:.5rem;padding:.7rem;overflow-x:auto}
+.det-thumbs img{width:70px;height:55px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all .2s}
+.det-thumbs img:hover,.det-thumbs img.active{border-color:#C9A84C}
+.det-card{background:#fff;border:1px solid #DDE1EE;border-radius:12px;overflow:hidden}
+.det-card-hdr{background:#0F2444;padding:1rem 1.2rem;color:#fff;font-weight:700;font-size:.9rem}
+.det-card-body{padding:1.2rem}
+.det-specs{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:1.2rem}
+.det-spec{text-align:center;background:#F0F2F8;border-radius:10px;padding:.8rem .5rem}
+.det-spec i{color:#C9A84C;font-size:1.1rem;display:block;margin-bottom:.3rem}
+.det-spec .sv{font-size:1.1rem;font-weight:700;color:#0F2444}
+.det-spec .sl{font-size:.7rem;color:#6B7280}
+.det-seller{display:flex;align-items:center;gap:.8rem;padding:.8rem;background:#F8F9FC;border-radius:10px;margin-bottom:1rem}
+.det-seller img,.det-seller .av-ph{width:48px;height:48px;border-radius:50%;object-fit:cover}
+.det-seller .av-ph{background:linear-gradient(135deg,#0F2444,#C9A84C);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem}
+.det-desc{font-size:.88rem;color:#374151;line-height:1.65}
+.det-section-t{font-size:.82rem;font-weight:800;color:#6B7280;text-transform:uppercase;letter-spacing:.06em;margin:1.2rem 0 .6rem}
+.tag{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .6rem;border-radius:20px;font-size:.72rem;font-weight:700;margin:.15rem}
+</style>
+{% endblock %}
+{% block content %}
+<div class="det-hero">
+  <div style="max-width:1100px;margin:0 auto">
+    <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;font-size:.8rem;color:rgba(255,255,255,.5)">
+      <a href="{% if listing.transaction == 'vente' %}{% url 'vente' %}{% else %}{% url 'location' %}{% endif %}" style="color:rgba(255,255,255,.5);text-decoration:none">← Retour aux annonces</a>
+    </div>
+    <h1>{{ listing.title }}</h1>
+    <div class="det-price">{{ listing.price_formatted }}<span class="det-price-unit"> {{ listing.price_unit }}</span></div>
+    <div style="display:flex;gap:.8rem;flex-wrap:wrap;margin-top:.8rem">
+      <span class="tag" style="background:{% if listing.transaction == 'vente' %}#C9A84C;color:#0F2444{% else %}#0E6B4A;color:#fff{% endif %}">
+        <i class="fas fa-{% if listing.transaction == 'vente' %}home{% else %}key{% endif %}"></i>{{ listing.get_transaction_display }}
+      </span>
+      <span class="tag" style="background:rgba(255,255,255,.15);color:#fff"><i class="fas fa-building"></i>{{ listing.get_property_type_display }}</span>
+      {% if listing.city %}<span class="tag" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.8)"><i class="fas fa-map-pin"></i>{% if listing.neighborhood %}{{ listing.neighborhood }}, {% endif %}{{ listing.city }}</span>{% endif %}
+      <span class="tag" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.7)"><i class="fas fa-eye"></i>{{ listing.views_count }} vue{{ listing.views_count|pluralize }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="det-body">
+  <div>
+    <div class="det-gallery">
+      {% with img=listing.main_image %}
+        {% if img %}
+          <img src="{{ img.image.url }}" alt="{{ listing.title }}" class="det-main-img" id="mainImg">
+        {% else %}
+          <div class="det-main-ph">🏠</div>
+        {% endif %}
+      {% endwith %}
+      {% if images.count > 1 %}
+      <div class="det-thumbs">
+        {% for img in images %}
+        <img src="{{ img.image.url }}" alt="" onclick="document.getElementById('mainImg').src='{{ img.image.url }}'" {% if forloop.first %}class="active"{% endif %}>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="det-section-t">Description</div>
+    <div class="det-desc">{{ listing.description|linebreaks }}</div>
+
+    <div class="det-section-t">Localisation</div>
+    <div style="background:#F0F2F8;border-radius:10px;padding:1rem;font-size:.88rem;color:#374151">
+      <i class="fas fa-map-marker-alt" style="color:#C9A84C;margin-right:.4rem"></i>
+      {% if listing.address %}{{ listing.address }}, {% endif %}
+      {% if listing.neighborhood %}{{ listing.neighborhood }}, {% endif %}{{ listing.city }}
+    </div>
+
+    {% if request.user == listing.seller %}
+    <div style="margin-top:1.2rem;display:flex;gap:.8rem">
+      <a href="{% url 'edit_listing' listing.pk %}" style="padding:.6rem 1.2rem;background:#C9A84C;color:#0F2444;border-radius:8px;text-decoration:none;font-size:.85rem;font-weight:700"><i class="fas fa-edit" style="margin-right:.3rem"></i>Modifier</a>
+      <form method="POST" action="{% url 'delete_listing' listing.pk %}" style="display:inline" onsubmit="return confirm('Supprimer cette annonce ?')">
+        {% csrf_token %}<button type="submit" style="padding:.6rem 1.2rem;background:#FEF2F2;color:#991B1B;border:1px solid #FECACA;border-radius:8px;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit"><i class="fas fa-trash" style="margin-right:.3rem"></i>Supprimer</button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <div class="det-card">
+      <div class="det-card-hdr"><i class="fas fa-chart-bar" style="color:#C9A84C;margin-right:.4rem"></i>Caractéristiques</div>
+      <div class="det-card-body">
+        <div class="det-specs">
+          {% if listing.surface_area %}<div class="det-spec"><i class="fas fa-ruler-combined"></i><div class="sv">{{ listing.surface_area|floatformat:0 }} m²</div><div class="sl">Superficie</div></div>{% endif %}
+          {% if listing.bedrooms %}<div class="det-spec"><i class="fas fa-bed"></i><div class="sv">{{ listing.bedrooms }}</div><div class="sl">Chambre{{ listing.bedrooms|pluralize }}</div></div>{% endif %}
+          {% if listing.bathrooms %}<div class="det-spec"><i class="fas fa-bath"></i><div class="sv">{{ listing.bathrooms }}</div><div class="sl">Salle{{ listing.bathrooms|pluralize }} de bain</div></div>{% endif %}
+          <div class="det-spec"><i class="fas fa-building"></i><div class="sv" style="font-size:.85rem">{{ listing.get_property_type_display }}</div><div class="sl">Type</div></div>
+        </div>
+
+        <div class="det-section-t" style="margin-top:.5rem">Vendeur</div>
+        <div class="det-seller">
+          {% if seller_profile.avatar %}
+            <img src="{{ seller_profile.avatar.url }}" alt="{{ listing.seller.username }}">
+          {% else %}
+            <div class="av-ph"><i class="fas fa-user"></i></div>
+          {% endif %}
+          <div>
+            <div style="font-weight:700;font-size:.88rem;color:#0F2444">{{ listing.seller.get_full_name|default:listing.seller.username }}</div>
+            {% if seller_profile.city %}<div style="font-size:.75rem;color:#6B7280"><i class="fas fa-map-pin" style="color:#C9A84C;margin-right:.3rem"></i>{{ seller_profile.city }}</div>{% endif %}
+            <div style="font-size:.72rem;color:#9CA3AF;margin-top:.2rem">Membre depuis {{ listing.seller.date_joined|date:"M Y" }}</div>
+          </div>
+        </div>
+
+        <div style="font-size:.78rem;color:#9CA3AF;margin-top:.8rem"><i class="fas fa-clock" style="margin-right:.3rem"></i>Publiée le {{ listing.created_at|date:"d M Y" }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
