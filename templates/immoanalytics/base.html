@@ -123,7 +123,7 @@ footer a{font-size:.72rem;color:var(--gold);text-decoration:none}
 <body>
 
 <nav class="navbar">
-  <a href="{% url 'home' %}" class="nav-brand">
+  <a href="{% url 'dashboard' %}" class="nav-brand">
     <div class="nav-logo">🏠</div>
     <span class="nav-title">Immo<span>Predict</span> SN</span>
   </a>
@@ -131,7 +131,7 @@ footer a{font-size:.72rem;color:var(--gold);text-decoration:none}
   <button class="nav-toggle" id="navToggle"><i class="fas fa-bars"></i></button>
 
   <div class="nav-links" id="navLinks">
-    <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' or request.resolver_match.url_name == 'home' %}active{% endif %}">
+    <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' or request.resolver_match.url_name == 'dashboard_named' %}active{% endif %}">
       <i class="fas fa-chart-line"></i>Dashboard
     </a>
 
