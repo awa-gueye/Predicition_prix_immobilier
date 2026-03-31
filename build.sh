@@ -1,8 +1,8 @@
-#!/usr/bin/env bash
 set -o errexit
 
 pip install -r requirement.txt
 python manage.py collectstatic --noinput
+python manage.py makemigrations listings --noinput
 python manage.py migrate
 python manage.py shell -c "
 from django.contrib.auth.models import User
