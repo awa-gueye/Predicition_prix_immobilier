@@ -3,69 +3,90 @@
 {% block title %}Biens en Location — ImmoPredict SN{% endblock %}
 {% block extra_css %}
 <style>
-.lh{background:linear-gradient(135deg,#0E6B4A,#155f3e);padding:2rem 2rem 0;overflow:hidden;position:relative}
+
+.lh{padding:2rem 2rem 0;overflow:hidden;position:relative}
 .lh::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(201,168,76,.04) 40px,rgba(201,168,76,.04) 41px)}
 .lh-in{position:relative;z-index:2;max-width:1200px;margin:0 auto}
 .lh h1{font-family:Georgia,serif;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;color:#fff;margin:0 0 .3rem}
-.lh p{color:rgba(255,255,255,.5);font-size:.85rem;margin:0 0 1.5rem}
-.lh-wave{width:100%;height:32px;background:#F0F2F8;clip-path:ellipse(60% 100% at 50% 100%);position:relative;z-index:2}
-.fb{background:#fff;border-bottom:1px solid #DDE1EE;padding:.7rem 2rem;display:flex;gap:.7rem;align-items:center;flex-wrap:wrap}
-.fb input,.fb select{padding:.42rem .8rem;border:1.5px solid #DDE1EE;border-radius:8px;font-size:.82rem;font-family:inherit;outline:none;color:#374151;background:#fff}
-.fb input:focus,.fb select:focus{border-color:#C9A84C;box-shadow:0 0 0 3px rgba(14,107,74,.12)}
-.fbtn{padding:.42rem 1rem;border-radius:8px;border:none;cursor:pointer;font-size:.82rem;font-family:inherit;font-weight:600;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem}
-.shdr{display:flex;align-items:center;gap:.6rem;padding:1.2rem 2rem .6rem;font-size:.88rem;font-weight:700;color:#0E6B4A}
-.shdr .bge{padding:.15rem .55rem;border-radius:12px;font-size:.68rem;font-weight:800;background:#C9A84C;color:#0E6B4A}
-.bge-bl{background:#2563EB!important;color:#fff!important}
-.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(275px,1fr));gap:1.2rem;padding:0 2rem 1.5rem}
-.pc{background:#fff;border-radius:12px;border:1px solid #DDE1EE;overflow:hidden;transition:all .22s;box-shadow:0 2px 10px rgba(15,36,68,.06);display:flex;flex-direction:column}
-.pc:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(15,36,68,.14);border-color:#0E6B4A}
-.pi{height:185px;position:relative;overflow:hidden;background:linear-gradient(135deg,#0F2444,#0E6B4A);flex-shrink:0}
+.lh p{color:rgba(255,255,255,.55);font-size:.85rem;margin:0 0 1.5rem}
+.lh-wave{width:100%;height:32px;background:var(--bg);clip-path:ellipse(60% 100% at 50% 100%);position:relative;z-index:2}
+.fb{background:#fff;border-bottom:1px solid var(--border);padding:.75rem 2rem;display:flex;gap:.7rem;align-items:center;flex-wrap:wrap}
+.fb input,.fb select{padding:.42rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem;font-family:var(--font);outline:none;color:var(--dark);background:#fff}
+.fb input:focus,.fb select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
+.fbtn{padding:.42rem 1rem;border-radius:8px;border:none;cursor:pointer;font-size:.82rem;font-family:var(--font);font-weight:600;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem}
+.shdr{display:flex;align-items:center;gap:.6rem;padding:1.2rem 2rem .6rem;font-size:.88rem;font-weight:700;color:var(--navy)}
+.shdr .bge{padding:.15rem .55rem;border-radius:12px;font-size:.68rem;font-weight:800}
+.bge-gold{background:var(--gold);color:var(--navy)}
+.bge-blue{background:var(--blue);color:#fff}
+.bge-green{background:var(--green);color:#fff}
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem;padding:0 2rem 1.5rem}
+.pc{background:#fff;border-radius:12px;border:1px solid var(--border);overflow:hidden;transition:all .22s;box-shadow:0 2px 10px rgba(15,36,68,.06);display:flex;flex-direction:column}
+.pc:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(15,36,68,.14)}
+.pi{height:190px;position:relative;overflow:hidden;flex-shrink:0;background:#e8eaf0}
 .pi img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
 .pc:hover .pi img{transform:scale(1.06)}
-.pi-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3rem;color:rgba(255,255,255,.25)}
+.pi-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--navy),var(--green))}
+.pi-ph i{font-size:3rem;color:rgba(255,255,255,.2)}
 .pbge{position:absolute;top:.6rem;left:.6rem;padding:.2rem .55rem;border-radius:20px;font-size:.62rem;font-weight:800}
 .pb{padding:1rem;flex:1;display:flex;flex-direction:column;gap:.22rem}
-.pp{font-family:Georgia,serif;font-size:1.22rem;font-weight:700;color:#0E6B4A}
-.ppu{font-size:.72rem;color:#6B7280;font-weight:400;margin-left:.2rem}
-.pt{font-size:.87rem;font-weight:600;color:#1F2937;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.pm{display:flex;gap:.65rem;flex-wrap:wrap}
-.pm span{font-size:.72rem;color:#6B7280;display:flex;align-items:center;gap:.22rem}
-.pm i{color:#C9A84C;font-size:.65rem}
-.ploc{font-size:.72rem;color:#6B7280;display:flex;align-items:center;gap:.28rem;margin-top:auto;padding-top:.3rem}
-.stag{display:inline-flex;align-items:center;gap:.3rem;background:rgba(14,107,74,.08);border:1px solid rgba(14,107,74,.25);color:#0E6B4A;font-size:.63rem;font-weight:700;padding:.15rem .5rem;border-radius:20px}
-.es{text-align:center;padding:3.5rem;color:#9CA3AF}
-.es i{font-size:3rem;display:block;margin-bottom:.8rem;color:#DDE1EE}
+.pp{font-family:Georgia,serif;font-size:1.18rem;font-weight:700;line-height:1.1}
+.ppu{font-size:.7rem;color:var(--muted);font-weight:400;margin-left:.15rem}
+.pt{font-size:.86rem;font-weight:600;color:var(--dark);line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pm{display:flex;gap:.6rem;flex-wrap:wrap}
+.pm span{font-size:.72rem;color:var(--muted);display:flex;align-items:center;gap:.2rem}
+.ploc{font-size:.72rem;color:var(--muted);display:flex;align-items:center;gap:.28rem;margin-top:auto;padding-top:.3rem}
+.stag{display:inline-flex;align-items:center;gap:.3rem;background:rgba(14,107,74,.08);border:1px solid rgba(14,107,74,.25);color:var(--green);font-size:.63rem;font-weight:700;padding:.15rem .5rem;border-radius:20px}
+.es{text-align:center;padding:3.5rem;color:var(--muted)}
+.es i{font-size:3rem;display:block;margin-bottom:.8rem;color:var(--border)}
 .pw{display:flex;justify-content:center;gap:.5rem;padding:1.2rem 2rem}
-.pgb{padding:.35rem .85rem;border:1.5px solid #DDE1EE;border-radius:8px;font-size:.82rem;color:#374151;text-decoration:none;background:#fff;transition:all .18s}
-.pgb:hover,.pgb.act{background:#0F2444;border-color:#0F2444;color:#fff;font-weight:700}
+.pgb{padding:.35rem .85rem;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem;color:var(--dark);text-decoration:none;background:#fff;transition:all .18s}
+
+.lh{background:linear-gradient(135deg,#0E6B4A,#155f3e)}
+.pc:hover{border-color:var(--green)}
+.pp{color:var(--green)}
+.pm i{color:var(--green)}
+.ploc i{color:var(--green)}
+.pgb:hover,.pgb.act{background:var(--green);border-color:var(--green);color:#fff;font-weight:700}
 </style>
 {% endblock %}
 {% block content %}
 <div class="lh">
   <div class="lh-in">
-    <h1><i class="fas fa-key" style="color:#C9A84C;margin-right:.5rem"></i>Biens en <span style="color:#C9A84C">Location</span></h1>
-    <p>{{ seller_total }} annonce{{ seller_total|pluralize }} vendeur &nbsp;·&nbsp; {{ scraped_total }} collectée{{ scraped_total|pluralize }} en temps réel</p>
+    <h1><i class="fas fa-key" style="color:var(--gold);margin-right:.5rem"></i>Biens en <span style="color:var(--gold)">Location</span></h1>
+    <p>{{ seller_total }} annonce{{seller_total|pluralize}} vendeur &nbsp;&middot;&nbsp; {{ scraped_total }} annonce{{scraped_total|pluralize}} collectée{{scraped_total|pluralize}} en temps réel</p>
   </div>
   <div class="lh-wave"></div>
 </div>
-<form method="GET" class="fb">
-  <input type="text" name="q" value="{{ q }}" placeholder="Rechercher…" style="min-width:180px;flex:1">
-  <select name="type"><option value="">Tous les types</option>{% for v,l in types %}<option value="{{ v }}"{% if type_f == v %} selected{% endif %}>{{ l }}</option>{% endfor %}</select>
-  <select name="city"><option value="">Toutes les villes</option>{% for c in cities %}<option value="{{ c }}"{% if city_f == c %} selected{% endif %}>{{ c }}</option>{% endfor %}</select>
-  <select name="sort">{% for v,l in sort_opts %}<option value="{{ v }}"{% if sort_f == v %} selected{% endif %}>{{ l }}</option>{% endfor %}</select>
-  <button type="submit" class="fbtn" style="background:#C9A84C;color:#0F2444">Filtrer</button>
-  <a href="{% url 'location' %}" class="fbtn" style="background:#F0F2F8;color:#6B7280">Reset</a>
-  {% if role == 'seller' %}<a href="{% url 'add_listing' %}" class="fbtn" style="background:#0E6B4A;color:#fff;margin-left:auto"><i class="fas fa-plus"></i>Ajouter</a>{% endif %}
+
+<form method="GET" action="{% url 'location' %}" class="fb" id="filterForm">
+  <input type="text" name="q" value="{{ q }}" placeholder="Rechercher titre, ville, quartier..." style="min-width:180px;flex:1">
+  <select name="type">
+    <option value="">Tous les types</option>
+    {% for v,l in types %}<option value="{{ v }}" {% if type_f == v %}selected{% endif %}>{{ l }}</option>{% endfor %}
+  </select>
+  <select name="city">
+    <option value="">Toutes les villes</option>
+    {% for c in cities %}<option value="{{ c }}" {% if city_f == c %}selected{% endif %}>{{ c }}</option>{% endfor %}
+  </select>
+  <select name="sort">
+    {% for v,l in sort_opts %}<option value="{{ v }}" {% if sort_f == v %}selected{% endif %}>{{ l }}</option>{% endfor %}
+  </select>
+  <button type="submit" class="fbtn" style="background:var(--green);color:#fff"><i class="fas fa-search"></i>Filtrer</button>
+  <a href="{% url 'location' %}" class="fbtn" style="background:var(--bg);color:var(--muted)">Réinitialiser</a>
+  {% if role == 'seller' %}
+  <a href="{% url 'add_listing' %}" class="fbtn" style="background:var(--gold);color:var(--navy);margin-left:auto"><i class="fas fa-plus"></i>Ajouter un bien</a>
+  {% endif %}
 </form>
+
 {% if seller_listings %}
-<div class="shdr"><i class="fas fa-star" style="color:#C9A84C"></i>Annonces des vendeurs ImmoPredict<span class="bge">{{ seller_total }}</span></div>
+<div class="shdr"><i class="fas fa-star" style="color:var(--gold)"></i>Annonces des vendeurs ImmoPredict<span class="bge bge-gold" style="margin-left:.3rem">{{ seller_total }}</span></div>
 <div class="cg">
 {% for l in seller_listings %}
 <a href="{% url 'listing_detail' l.pk %}" style="text-decoration:none;color:inherit">
 <div class="pc">
   <div class="pi">
-    {% with img=l.main_image %}{% if img %}<img src="{{ img.image.url }}" alt="{{ l.title }}" loading="lazy">{% else %}<div class="pi-ph">🏠</div>{% endif %}{% endwith %}
-    <div class="pbge" style="background:#0E6B4A;color:#fff">Vendeur</div>
+    {% with img=l.main_image %}{% if img %}<img src="{{ img.image.url }}" alt="{{ l.title }}" loading="lazy">{% else %}<div class="pi-ph"><i class="fas fa-home"></i></div>{% endif %}{% endwith %}
+    <div class="pbge" style="background:var(--green);color:#fff">Vendeur</div>
   </div>
   <div class="pb">
     <div class="pp">{{ l.price_formatted }}<span class="ppu">{{ l.price_unit }}</span></div>
@@ -75,32 +96,34 @@
       {% if l.bedrooms %}<span><i class="fas fa-bed"></i>{{ l.bedrooms }} ch.</span>{% endif %}
       {% if l.bathrooms %}<span><i class="fas fa-bath"></i>{{ l.bathrooms }} sdb</span>{% endif %}
     </div>
-    <div class="ploc"><i class="fas fa-map-pin" style="color:#C9A84C"></i>{% if l.neighborhood %}{{ l.neighborhood }}, {% endif %}{{ l.city }}</div>
+    <div class="ploc"><i class="fas fa-map-pin"></i>{% if l.neighborhood %}{{ l.neighborhood }}, {% endif %}{{ l.city }}</div>
     <div><span class="stag"><i class="fas fa-user-check"></i>{{ l.seller.get_full_name|default:l.seller.username }}</span></div>
   </div>
 </div></a>
 {% endfor %}
 </div>
 {% endif %}
-<div class="shdr"><i class="fas fa-satellite-dish" style="color:#2563EB"></i>Annonces collectées en temps réel<span class="bge bge-bl">{{ scraped_total }}</span></div>
+
+<div class="shdr"><i class="fas fa-satellite-dish" style="color:var(--blue)"></i>Annonces collectées en temps réel<span class="bge bge-blue" style="margin-left:.3rem">{{ scraped_total }}</span></div>
+
 {% if scraped_page.object_list %}
-<div class="cg">
+<div class="cg" id="scrapedGrid">
 {% for p in scraped_page %}
 <div class="pc">
   <div class="pi">
-    {% if p.image %}<img src="{{ p.image }}" alt="{{ p.title }}" loading="lazy">{% else %}<div class="pi-ph">🔑</div>{% endif %}
+    <img src="" alt="{{ p.title|truncatechars:40 }}" loading="lazy" class="scraped-img" data-idx="{{ forloop.counter0 }}">
     <div class="pbge" style="background:{{ p.source_color }};color:#fff">{{ p.source|upper|truncatechars:14 }}</div>
   </div>
   <div class="pb">
-    <div class="pp">{{ p.price_fmt }}<span class="ppu">{{ p.price_unit }}</span></div>
-    <div class="pt">{{ p.title|truncatechars:85 }}</div>
+    <div class="pp" style="color:var(--green)">{{ p.price_fmt }}<span class="ppu">{{ p.price_unit }}</span></div>
+    <div class="pt">{{ p.title|truncatechars:80 }}</div>
     <div class="pm">
       {% if p.surface_area %}<span><i class="fas fa-ruler-combined"></i>{{ p.surface_area|floatformat:0 }} m²</span>{% endif %}
       {% if p.bedrooms %}<span><i class="fas fa-bed"></i>{{ p.bedrooms }} ch.</span>{% endif %}
       {% if p.bathrooms %}<span><i class="fas fa-bath"></i>{{ p.bathrooms }} sdb</span>{% endif %}
-      {% if p.property_type %}<span><i class="fas fa-home"></i>{{ p.property_type|truncatechars:18 }}</span>{% endif %}
+      {% if p.property_type %}<span><i class="fas fa-building"></i>{{ p.property_type|truncatechars:18 }}</span>{% endif %}
     </div>
-    <div class="ploc"><i class="fas fa-map-pin" style="color:#C9A84C"></i>{{ p.city }}</div>
+    <div class="ploc"><i class="fas fa-map-pin"></i>{{ p.city }}</div>
   </div>
 </div>
 {% endfor %}
@@ -111,6 +134,22 @@
   {% if scraped_page.has_next %}<a href="?{% if q %}q={{ q }}&{% endif %}{% if type_f %}type={{ type_f }}&{% endif %}{% if city_f %}city={{ city_f }}&{% endif %}sort={{ sort_f }}&page_sc={{ scraped_page.next_page_number }}" class="pgb">Suivant →</a>{% endif %}
 </div>
 {% else %}
-<div class="es"><i class="fas fa-search"></i><strong>Aucun résultat</strong></div>
+<div class="es"><i class="fas fa-search"></i><strong>Aucun résultat</strong><br><small>Modifiez vos critères de recherche.</small></div>
 {% endif %}
+
+{% endblock %}
+{% block extra_js %}
+<script>
+(function(){
+  var imgs = ['https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&q=80', 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&q=80', 'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=600&q=80', 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&q=80', 'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600&q=80', 'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=600&q=80', 'https://images.unsplash.com/photo-1616137466211-f939a420be84?w=600&q=80', 'https://images.unsplash.com/photo-1565953522043-baea26b83b7e?w=600&q=80'];
+  document.querySelectorAll('.scraped-img').forEach(function(el){
+    var idx = parseInt(el.dataset.idx) % imgs.length;
+    el.src = imgs[idx];
+    el.onerror = function(){ 
+      el.style.display='none'; 
+      el.parentNode.innerHTML='<div class="pi-ph"><i class="fas fa-building"></i></div>';
+    };
+  });
+})();
+</script>
 {% endblock %}

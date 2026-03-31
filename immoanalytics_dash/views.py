@@ -241,10 +241,21 @@ def estimation_page(request):
         except Exception as e:
             error = str(e)
 
+    price_guide = [
+        {'label':'Villa Almadies','range':'150–500M FCFA'},
+        {'label':'Appt Ouakam','range':'40–100M FCFA'},
+        {'label':'Studio Plateau','range':'15–35M FCFA'},
+        {'label':'Terrain Pikine','range':'5–25M FCFA'},
+        {'label':'Chambre (loyer)','range':'30–150K/mois'},
+        {'label':'Appt 3ch Mermoz','range':'300K–1.5M/mois'},
+        {'label':'Villa Sacré-Cœur (loyer)','range':'500K–3M/mois'},
+        {'label':'Immeuble Dakar','range':'500M–5 Mds'},
+    ]
     return render(request, 'immoanalytics/estimation.html', _ctx(request, {
         'cities': cities, 'types': types,
         'transactions': transactions,
         'result': result, 'error': error, 'form': form,
+        'price_guide': price_guide,
     }))
 
 
