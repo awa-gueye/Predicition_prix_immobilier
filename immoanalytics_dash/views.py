@@ -30,17 +30,20 @@ def _ctx(request, extra=None):
 # ── Auth ──────────────────────────────────────────────────────────────────────
 def register_view(request):
     if request.user.is_authenticated:
-        return redirect(get_user_redirect(request.user))
+        return redirect('dashboard')
     error = None
     if request.method == 'POST':
         uname = request.POST.get('username','').strip()
         email = request.POST.get('email','').strip()
         fname = request.POST.get('first_name','').strip()
         lname = request.POST.get('last_name','').strip()
-        pwd   = request.POST.get('password','')
-        pwd2  = request.POST.get('confirm_password','')
+        phone = request.POST.get('phone','').strip()
+        pwd   = request.POST.get('password1','')    # template envoie password1
+        pwd2  = request.POST.get('password2','')    # template envoie password2
         if not uname or not email or not pwd:
             error = "Tous les champs obligatoires doivent être remplis."
+        elif not phone:
+            error = "Le numéro de téléphone est obligatoire."
         elif pwd != pwd2:
             error = "Les mots de passe ne correspondent pas."
         elif len(pwd) < 8:
@@ -52,18 +55,18 @@ def register_view(request):
         else:
             u = User.objects.create_user(username=uname, email=email, password=pwd,
                                           first_name=fname, last_name=lname)
+            # Sauvegarder le téléphone dans le profil
+            try:
+                from listings.models import UserProfile
+                profile, _ = UserProfile.objects.get_or_create(user=u)
+                profile.phone = phone
+                profile.save()
+            except Exception:
+                pass
             login(request, u)
             messages.success(request, f"Bienvenue {fname or uname} !")
-            return redirect('/viewer/')
-    return render(request, 'immoanalytics/register.html', {
-        'error': error,
-        'features': [
-            'Données réelles de 5 sources agrégées',
-            'Prédiction ML des prix (XGBoost)',
-            'Chatbot ImmoAI propulsé par Groq',
-            'Carte interactive des annonces',
-        ]
-    })
+            return redirect('dashboard')
+    return render(request, 'immoanalytics/register.html', {'error': error})
 
 
 def login_view(request):

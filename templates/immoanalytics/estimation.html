@@ -4,16 +4,20 @@
 {% block extra_css %}
 <style>
 .est-hero{
-  background:linear-gradient(135deg,#0F2444 0%,#1A3560 100%);
   padding:2.5rem 2rem;text-align:center;
   position:relative;overflow:hidden;
+  background:#0E6B4A;
 }
 .est-hero::before{
   content:'';position:absolute;inset:0;
   background:url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1400&q=50') center/cover;
-  opacity:.08;
+  opacity:.15;mix-blend-mode:luminosity;
 }
-.est-hero>*{position:relative;z-index:2}
+.est-hero::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(15,36,68,.88),rgba(14,107,74,.75));
+}
+.est-hero>*{position:relative;z-index:3}
 .est-hero h1{font-family:Georgia,serif;font-size:clamp(1.5rem,3vw,2.2rem);color:#FFFFFF!important;margin:0 0 .5rem;text-shadow:0 1px 3px rgba(0,0,0,.3)}
 .est-hero p{color:rgba(255,255,255,.65)!important;font-size:.88rem;margin:0}
 .est-body{max-width:1100px;margin:2rem auto;padding:0 1.5rem 3rem;display:grid;grid-template-columns:1fr 380px;gap:2rem}

@@ -1,60 +1,69 @@
-{% extends 'immoanalytics/base.html' %}
-{% load static %}
-{% block title %}Créer un compte — ImmoPredict SN{% endblock %}
-{% block extra_css %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Créer un compte — ImmoPredict SN</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Georgia&display=swap">
 <style>
-.auth-wrap{min-height:calc(100vh - 60px);display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0F2444 0%,#1A3560 50%,#0E6B4A 100%);padding:2rem}
-.auth-card{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(15,36,68,.3);width:100%;max-width:480px;overflow:hidden}
-.auth-hdr{background:linear-gradient(135deg,#0F2444,#1A3560);padding:2rem;text-align:center}
-.auth-hdr h1{font-family:Georgia,serif;font-size:1.6rem;color:#fff;margin:0 0 .3rem}
-.auth-hdr p{color:rgba(255,255,255,.5);font-size:.82rem;margin:0}
-.auth-body{padding:2rem}
-.fg{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem}
-.fg label{font-size:.82rem;font-weight:600;color:#374151;display:flex;align-items:center;gap:.4rem}
-.fg label i{color:#C9A84C;width:14px}
-.fg input{padding:.6rem .9rem;border:1.5px solid #DDE1EE;border-radius:9px;font-size:.9rem;font-family:inherit;color:#1F2937;outline:none;transition:all .2s;width:100%;box-sizing:border-box}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0F2444 0%,#1A3560 50%,#0E6B4A 100%);padding:1.5rem}
+.card{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(15,36,68,.35);width:100%;max-width:500px;overflow:hidden}
+.card-hdr{background:linear-gradient(135deg,#0F2444,#1A3560);padding:2rem;text-align:center}
+.card-hdr .icon-wrap{width:56px;height:56px;background:rgba(201,168,76,.2);border-radius:50%;margin:0 auto .9rem;display:flex;align-items:center;justify-content:center}
+.card-hdr .icon-wrap i{color:#C9A84C;font-size:1.4rem}
+.card-hdr h1{font-family:Georgia,serif;font-size:1.6rem;color:#fff;margin:0 0 .3rem}
+.card-hdr p{color:rgba(255,255,255,.5);font-size:.82rem}
+.card-body{padding:2rem}
+.fg{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.9rem}
+.fg label{font-size:.8rem;font-weight:600;color:#374151;display:flex;align-items:center;gap:.4rem}
+.fg label i{color:#C9A84C;font-size:.72rem;width:13px}
+.fg input{padding:.58rem .9rem;border:1.5px solid #DDE1EE;border-radius:9px;font-size:.88rem;font-family:inherit;color:#1F2937;outline:none;transition:border .2s,box-shadow .2s;width:100%}
 .fg input:focus{border-color:#C9A84C;box-shadow:0 0 0 3px rgba(201,168,76,.12)}
-.fr{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
-@media(max-width:480px){.fr{grid-template-columns:1fr}}
-.err{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;padding:.6rem .8rem;border-radius:8px;font-size:.82rem;margin-bottom:1rem;display:flex;align-items:center;gap:.4rem}
-.btn-register{width:100%;padding:.75rem;background:#C9A84C;color:#0F2444;border:none;border-radius:10px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;margin-top:.5rem}
-.btn-register:hover{background:#b8953e;transform:translateY(-1px)}
-.auth-footer{text-align:center;padding:1.2rem;border-top:1px solid #F0F2F8;font-size:.83rem;color:#6B7280}
-.auth-footer a{color:#C9A84C;font-weight:600;text-decoration:none}
-.divider{display:flex;align-items:center;gap:.8rem;margin:.8rem 0;color:#9CA3AF;font-size:.75rem}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:#F0F2F8}
+.req{color:#C0392B;margin-left:.2rem}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.err{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;padding:.6rem .85rem;border-radius:8px;font-size:.82rem;margin-bottom:1rem;display:flex;align-items:center;gap:.4rem}
+.divider{text-align:center;font-size:.72rem;color:#9CA3AF;margin:.3rem 0 .6rem;position:relative}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:38%;height:1px;background:#F0F2F8}
+.divider::before{left:0}.divider::after{right:0}
+.btn{width:100%;padding:.72rem;background:#C9A84C;color:#0F2444;border:none;border-radius:10px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;margin-top:.4rem;display:flex;align-items:center;justify-content:center;gap:.4rem}
+.btn:hover{background:#b8953e;transform:translateY(-1px)}
+.card-ftr{text-align:center;padding:1.1rem;border-top:1px solid #F0F2F8;font-size:.82rem;color:#6B7280}
+.card-ftr a{color:#C9A84C;font-weight:600;text-decoration:none}
+.card-ftr a:hover{text-decoration:underline}
 </style>
-{% endblock %}
-{% block content %}
-<div class="auth-wrap">
-  <div class="auth-card">
-    <div class="auth-hdr">
-      <div style="width:52px;height:52px;background:rgba(201,168,76,.2);border-radius:50%;margin:0 auto .8rem;display:flex;align-items:center;justify-content:center">
-        <i class="fas fa-user-plus" style="color:#C9A84C;font-size:1.3rem"></i>
-      </div>
-      <h1>Créer un compte</h1>
-      <p>Rejoignez ImmoPredict SN — accédez au marché immobilier sénégalais</p>
-    </div>
-    <div class="auth-body">
-      {% if error %}<div class="err"><i class="fas fa-exclamation-circle"></i>{{ error }}</div>{% endif %}
-      <form method="POST">
-        {% csrf_token %}
-        <div class="fr">
-          <div class="fg"><label><i class="fas fa-user"></i>Prénom</label><input type="text" name="first_name" placeholder="Votre prénom" autocomplete="given-name"></div>
-          <div class="fg"><label><i class="fas fa-user"></i>Nom</label><input type="text" name="last_name" placeholder="Votre nom" autocomplete="family-name"></div>
-        </div>
-        <div class="fg"><label><i class="fas fa-at"></i>Nom d'utilisateur<span style="color:#C0392B;margin-left:.2rem">*</span></label><input type="text" name="username" placeholder="utilisateur123" required autocomplete="username"></div>
-        <div class="fg"><label><i class="fas fa-envelope"></i>Email<span style="color:#C0392B;margin-left:.2rem">*</span></label><input type="email" name="email" placeholder="vous@email.com" required autocomplete="email"></div>
-        <div class="fg"><label><i class="fas fa-phone"></i>Téléphone<span style="color:#C0392B;margin-left:.2rem">*</span></label><input type="tel" name="phone" placeholder="+221 77 xxx xx xx" required autocomplete="tel"></div>
-        <div class="divider">Mot de passe</div>
-        <div class="fr">
-          <div class="fg"><label><i class="fas fa-lock"></i>Mot de passe<span style="color:#C0392B;margin-left:.2rem">*</span></label><input type="password" name="password1" placeholder="Min. 8 caractères" required autocomplete="new-password"></div>
-          <div class="fg"><label><i class="fas fa-lock"></i>Confirmer<span style="color:#C0392B;margin-left:.2rem">*</span></label><input type="password" name="password2" placeholder="Répéter" required autocomplete="new-password"></div>
-        </div>
-        <button type="submit" class="btn-register"><i class="fas fa-user-plus" style="margin-right:.4rem"></i>Créer mon compte</button>
-      </form>
-    </div>
-    <div class="auth-footer">Déjà un compte ? <a href="{% url 'login' %}">Se connecter</a></div>
+</head>
+<body>
+<div class="card">
+  <div class="card-hdr">
+    <div class="icon-wrap"><i class="fas fa-user-plus"></i></div>
+    <h1>Créer un compte</h1>
+    <p>Rejoignez ImmoPredict SN — accédez au marché immobilier sénégalais</p>
   </div>
+  <div class="card-body">
+    {% if error %}
+    <div class="err"><i class="fas fa-exclamation-circle"></i>{{ error }}</div>
+    {% endif %}
+    <form method="POST">
+      {% csrf_token %}
+      <div class="row">
+        <div class="fg"><label><i class="fas fa-user"></i>Prénom</label><input type="text" name="first_name" placeholder="Votre prénom" autocomplete="given-name"></div>
+        <div class="fg"><label><i class="fas fa-user"></i>Nom</label><input type="text" name="last_name" placeholder="Votre nom" autocomplete="family-name"></div>
+      </div>
+      <div class="fg"><label><i class="fas fa-at"></i>Nom d'utilisateur<span class="req">*</span></label><input type="text" name="username" placeholder="utilisateur123" required autocomplete="username"></div>
+      <div class="fg"><label><i class="fas fa-envelope"></i>Email<span class="req">*</span></label><input type="email" name="email" placeholder="vous@email.com" required autocomplete="email"></div>
+      <div class="fg"><label><i class="fas fa-phone"></i>Téléphone<span class="req">*</span></label><input type="tel" name="phone" placeholder="+221 77 xxx xx xx" required autocomplete="tel"></div>
+      <div class="divider">Mot de passe</div>
+      <div class="row">
+        <div class="fg"><label><i class="fas fa-lock"></i>Mot de passe<span class="req">*</span></label><input type="password" name="password1" placeholder="Min. 8 caractères" required autocomplete="new-password"></div>
+        <div class="fg"><label><i class="fas fa-lock"></i>Confirmer<span class="req">*</span></label><input type="password" name="password2" placeholder="Répéter" required autocomplete="new-password"></div>
+      </div>
+      <button type="submit" class="btn"><i class="fas fa-user-plus"></i>Créer mon compte</button>
+    </form>
+  </div>
+  <div class="card-ftr">Déjà un compte ? <a href="{% url 'login' %}">Se connecter</a></div>
 </div>
-{% endblock %}
+{% load django.templatetags.static %}
+</body>
+</html>
