@@ -135,7 +135,7 @@ def vente_page(request):
             Q(title__icontains=q) | Q(city__icontains=q) |
             Q(neighborhood__icontains=q) | Q(description__icontains=q))
     if type_f:
-        seller_qs = seller_qs.filter(property_type=type_f)
+        seller_qs = seller_qs.filter(property_type__icontains=type_f)
     if city_f:
         seller_qs = seller_qs.filter(Q(city__icontains=city_f) | Q(neighborhood__icontains=city_f))
 
@@ -146,12 +146,11 @@ def vente_page(request):
 
     # Filtres annonces scraées
     if q:
-        scraped = [s for s in scraped if q.lower() in s['title'].lower()
-                   or q.lower() in s['city'].lower()]
+        scraped = [s for s in scraped if (s.get('title') and q.lower() in s['title'].lower()) or (s.get('city') and q.lower() in s['city'].lower())]
     if type_f:
-        scraped = [s for s in scraped if type_f.lower() in s['property_type'].lower()]
+        scraped = [s for s in scraped if s.get('property_type') and type_f.lower() in s['property_type'].lower()]
     if city_f:
-        scraped = [s for s in scraped if city_f.lower() in s['city'].lower()]
+        scraped = [s for s in scraped if s.get('city') and city_f.lower() in s['city'].lower()]
 
     # Tri annonces scraées
     if sort_f == 'price_asc':  scraped.sort(key=lambda x: x['price'])
@@ -201,14 +200,13 @@ def location_page(request):
     if q:
         seller_qs = seller_qs.filter(
             Q(title__icontains=q) | Q(city__icontains=q) | Q(description__icontains=q))
-        scraped = [s for s in scraped if q.lower() in s['title'].lower()
-                   or q.lower() in s['city'].lower()]
+        scraped = [s for s in scraped if (s.get('title') and q.lower() in s['title'].lower()) or (s.get('city') and q.lower() in s['city'].lower())]
     if type_f:
-        seller_qs = seller_qs.filter(property_type=type_f)
-        scraped = [s for s in scraped if type_f.lower() in s['property_type'].lower()]
+        seller_qs = seller_qs.filter(property_type__icontains=type_f)
+        scraped = [s for s in scraped if s.get('property_type') and type_f.lower() in s['property_type'].lower()]
     if city_f:
         seller_qs = seller_qs.filter(Q(city__icontains=city_f))
-        scraped = [s for s in scraped if city_f.lower() in s['city'].lower()]
+        scraped = [s for s in scraped if s.get('city') and city_f.lower() in s['city'].lower()]
 
     if sort_f == 'price_asc':   seller_qs = seller_qs.order_by('price');  scraped.sort(key=lambda x: x['price'])
     elif sort_f == 'price_desc': seller_qs = seller_qs.order_by('-price'); scraped.sort(key=lambda x: x['price'], reverse=True)
