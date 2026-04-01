@@ -1,172 +1,183 @@
 {% extends 'immoanalytics/base.html' %}
 {% load static %}
-{% block title %}Estimation — ImmoPredict SN{% endblock %}
+{% block title %}Estimation de Prix{% endblock %}
+
 {% block extra_css %}
 <style>
-.est-hero{
-  position:relative;overflow:hidden;padding:2.5rem 2rem;text-align:center;
-  background:#0E6B4A;
+.est-hero {
+  background: linear-gradient(135deg, #0F2444 0%, #0E6B4A 100%);
+  padding: 2.5rem 2rem 0;
+  position: relative; overflow: hidden;
 }
-.est-hero::before{
-  content:'';position:absolute;inset:0;
-  background:url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1400&q=60') center/cover;
-  opacity:.2;
+.est-hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(45deg,transparent,transparent 30px,rgba(201,168,76,.04) 30px,rgba(201,168,76,.04) 31px);
 }
-.est-hero::after{
-  content:'';position:absolute;inset:0;
-  background:rgba(10,45,25,.78);
-}
-.est-hero>*{position:relative;z-index:4}
-.est-hero h1{font-family:Georgia,serif;font-size:clamp(1.5rem,3vw,2.2rem);color:#FFFFFF!important;margin:0 0 .5rem;text-shadow:0 1px 3px rgba(0,0,0,.3)}
-.est-hero p{color:rgba(255,255,255,.65)!important;font-size:.88rem;margin:0}
-.est-body{max-width:1100px;margin:2rem auto;padding:0 1.5rem 3rem;display:grid;grid-template-columns:1fr 380px;gap:2rem}
-@media(max-width:900px){.est-body{grid-template-columns:1fr}}
-.est-form-card{background:#fff;border-radius:14px;border:1px solid #DDE1EE;box-shadow:0 4px 20px rgba(15,36,68,.08);padding:2rem}
-.est-form-card h2{font-family:Georgia,serif;font-size:1.2rem;color:#0F2444;margin:0 0 1.4rem;display:flex;align-items:center;gap:.5rem}
-.est-form-card h2 i{color:#C9A84C}
-.fg{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem}
-.fg label{font-size:.82rem;font-weight:600;color:#374151;display:flex;align-items:center;gap:.4rem}
-.fg label i{color:#C9A84C;font-size:.75rem;width:14px}
-.req{color:#C0392B;margin-left:.2rem}
-.fg input,.fg select{padding:.6rem .9rem;border:1.5px solid #DDE1EE;border-radius:9px;font-size:.9rem;font-family:inherit;color:#1F2937;outline:none;transition:all .2s;background:#fff;width:100%}
-.fg input:focus,.fg select:focus{border-color:#C9A84C;box-shadow:0 0 0 3px rgba(201,168,76,.12)}
-.fr{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-@media(max-width:500px){.fr{grid-template-columns:1fr}}
-.btn-est{width:100%;padding:.8rem;background:#C9A84C;color:#0F2444;border:none;border-radius:10px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;margin-top:.5rem;display:flex;align-items:center;justify-content:center;gap:.5rem}
-.btn-est:hover{background:#b8953e;transform:translateY(-1px)}
-.est-tip{display:flex;align-items:flex-start;gap:.5rem;font-size:.78rem;color:#6B7280;padding:.5rem .7rem;background:#F8F9FC;border-radius:8px;margin-top:.6rem}
-.est-tip i{color:#C9A84C;flex-shrink:0;margin-top:.1rem}
-/* Résultat */
-.result-card{background:linear-gradient(135deg,#0F2444,#1A3560);border-radius:14px;padding:2rem;color:#fff;text-align:center}
-.result-price{font-family:Georgia,serif;font-size:2.5rem;font-weight:700;color:#C9A84C;margin:.8rem 0 .3rem;line-height:1}
-.result-range{font-size:.85rem;color:rgba(255,255,255,.55);margin-bottom:1.2rem}
-.result-meta{display:flex;gap:.8rem;flex-wrap:wrap;justify-content:center;margin-bottom:1rem}
-.result-badge{padding:.25rem .7rem;border-radius:20px;font-size:.72rem;font-weight:700;background:rgba(255,255,255,.12);color:rgba(255,255,255,.85)}
-/* Guide prix */
-.guide-card{background:#fff;border-radius:14px;border:1px solid #DDE1EE;box-shadow:0 4px 20px rgba(15,36,68,.08);overflow:hidden}
-.guide-hdr{background:#0F2444;padding:1rem 1.4rem;color:#fff;font-size:.85rem;font-weight:700;display:flex;align-items:center;gap:.5rem}
-.guide-hdr i{color:#C9A84C}
-.guide-body{padding:1rem 1.4rem}
-.guide-row{display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px solid #F0F2F8;font-size:.84rem}
-.guide-row:last-child{border-bottom:none}
-.guide-row .name{color:#374151;font-weight:500}
-.guide-row .price{font-family:Georgia,serif;font-weight:700;color:#C9A84C;font-size:.88rem}
-.wait-card{background:#fff;border-radius:14px;border:1px solid #DDE1EE;box-shadow:0 4px 20px rgba(15,36,68,.08);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2.5rem;text-align:center}
-.wait-icon{width:80px;height:80px;background:linear-gradient(135deg,#0F2444,#0E6B4A);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;font-size:1.8rem;color:rgba(255,255,255,.4)}
+.est-hero-inner { position: relative; z-index: 2; max-width: 700px; }
+.est-hero h1 { font-family: var(--serif); font-size: clamp(1.6rem,3vw,2.4rem); font-weight: 700; color: #fff; margin-bottom: .4rem; }
+.est-hero h1 span { color: var(--gold); }
+.est-hero p { color: rgba(255,255,255,.55); font-size: .9rem; }
+.est-wave { width: 100%; height: 40px; margin-top: 1.5rem; background: var(--bg); clip-path: ellipse(55% 100% at 50% 100%); }
+.est-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; padding: 1.5rem 2rem 2rem; max-width: 1100px; margin: 0 auto; }
+.form-card { background: #fff; border-radius: 14px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(15,36,68,.07); overflow: hidden; }
+.form-card-header { background: linear-gradient(135deg,#F8F9FF 0%,#fff 100%); padding: .8rem 1.3rem; border-bottom: 2px solid rgba(201,168,76,.2); font-weight: 700; font-size: .85rem; color: var(--navy); display: flex; align-items: center; gap: .5rem; }
+.form-card-header i { color: var(--gold); }
+.form-card-body { padding: 1.4rem; }
+.result-panel { background: linear-gradient(160deg,#0F2444 0%,#0E6B4A 100%); border-radius: 14px; padding: 1.6rem; color: #fff; position: sticky; top: calc(var(--navbar-h) + 1rem); border: 1px solid rgba(201,168,76,.2); box-shadow: 0 8px 32px rgba(15,36,68,.25); overflow: hidden; }
+.result-panel::before { content: ''; position: absolute; top: -40px; right: -40px; width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle,rgba(201,168,76,.12) 0%,transparent 70%); }
+.result-inner { position: relative; z-index: 2; }
+.result-placeholder { text-align: center; padding: 2rem 1rem; color: rgba(255,255,255,.3); }
+.result-placeholder i { font-size: 3rem; margin-bottom: 1rem; display: block; }
+.result-tag { display: inline-flex; align-items: center; gap: .35rem; background: rgba(201,168,76,.15); border: 1px solid rgba(201,168,76,.3); color: var(--gold); font-size: .7rem; font-weight: 600; padding: .2rem .65rem; border-radius: 20px; text-transform: uppercase; letter-spacing: .08em; font-family: var(--mono); margin-bottom: .9rem; }
+.result-price { font-family: var(--serif); font-size: 2.4rem; font-weight: 700; color: var(--gold); line-height: 1; margin-bottom: .3rem; }
+.result-range { font-size: .75rem; color: rgba(255,255,255,.4); margin-bottom: 1.2rem; }
+.result-divider { height: 1px; background: rgba(255,255,255,.1); margin: 1rem 0; }
+.result-row { display: flex; justify-content: space-between; font-size: .77rem; padding: .3rem 0; }
+.result-row-lbl { color: rgba(255,255,255,.45); }
+.result-row-val { color: rgba(255,255,255,.85); font-weight: 600; }
+.prix-guide { margin-top: 1.2rem; padding: .9rem 1rem; background: rgba(255,255,255,.06); border-radius: 8px; border: 1px solid rgba(255,255,255,.08); }
+.prix-guide-title { font-size: .7rem; color: var(--gold); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-family: var(--mono); margin-bottom: .6rem; }
+.prix-guide-row { display: flex; justify-content: space-between; font-size: .73rem; padding: .22rem 0; border-bottom: 1px solid rgba(255,255,255,.05); color: rgba(255,255,255,.6); }
+.prix-guide-row:last-child { border-bottom: none; }
+.prix-guide-row span:last-child { color: rgba(255,255,255,.85); font-weight: 500; }
+.tip { display: flex; align-items: flex-start; gap: .6rem; padding: .5rem; background: var(--bg); border-radius: 8px; border: 1px solid var(--border); font-size: .75rem; color: var(--muted); margin-bottom: .5rem; }
+.tip i { color: var(--gold); flex-shrink: 0; margin-top: .1rem; }
+@media(max-width:768px) { .est-layout { grid-template-columns: 1fr; } }
 </style>
 {% endblock %}
+
 {% block content %}
 <div class="est-hero">
-  <h1><i class="fas fa-calculator" style="color:#C9A84C;margin-right:.5rem"></i>Estimer un bien immobilier</h1>
-  <p>Estimation basée sur les données réelles du marché sénégalais et notre modèle IA</p>
+  <div class="est-hero-inner fade-up">
+    <h1><i class="fas fa-calculator" style="color:var(--gold);margin-right:.5rem"></i>Estimer un <span>bien immobilier</span></h1>
+    <p>Estimation basée sur les données réelles du marché sénégalais et notre modèle d'IA (XGBoost/LightGBM).</p>
+  </div>
+  <div class="est-wave"></div>
 </div>
 
-<div class="est-body">
+<div class="est-layout">
+
   <!-- Formulaire -->
-  <div>
-    {% if result %}
-    <div class="result-card fade-in" style="margin-bottom:1.5rem">
-      <div style="font-size:.82rem;color:rgba(255,255,255,.5);font-weight:600;text-transform:uppercase;letter-spacing:.05em">Prix estimé</div>
-      <div class="result-price">
-        {% if result.transaction == 'Location' %}
-          {{ result.predicted_price|floatformat:0 }} FCFA<span style="font-size:1rem;font-weight:400;color:rgba(255,255,255,.5)">/mois</span>
+  <div class="fade-up d1">
+    <form method="POST" action="/estimation/">
+      {% csrf_token %}
+      <div class="form-card">
+        <div class="form-card-header">
+          <i class="fas fa-sliders"></i> Caractéristiques du bien
+        </div>
+        <div class="form-card-body">
+
+          {% if error %}
+          <div class="alert alert-error mb-2">
+            <i class="fas fa-exclamation-circle"></i> {{ error }}
+          </div>
+          {% endif %}
+
+          <div class="form-group">
+            <label class="form-label"><i class="fas fa-map-pin" style="color:var(--gold)"></i> Quartier / Ville *</label>
+            <select name="city" class="form-control form-select" required>
+              <option value="">-- Sélectionner un quartier --</option>
+              {% for c in cities %}
+              <option value="{{ c }}" {% if form.city == c %}selected{% endif %}>{{ c }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label"><i class="fas fa-home" style="color:var(--gold)"></i> Type de bien *</label>
+            <select name="property_type" class="form-control form-select" required>
+              <option value="">-- Sélectionner --</option>
+              {% for t in types %}
+              <option value="{{ t }}" {% if form.property_type == t %}selected{% endif %}>{{ t }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label"><i class="fas fa-exchange-alt" style="color:var(--gold)"></i> Type de transaction *</label>
+            <select name="transaction" class="form-control form-select" required>
+              {% for val, lbl in transactions %}
+              <option value="{{ val }}" {% if form.transaction == val %}selected{% endif %}>{{ lbl }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label"><i class="fas fa-expand" style="color:var(--gold)"></i> Superficie (m²)</label>
+              <input type="number" name="surface_area" class="form-control" placeholder="ex: 120" min="10" max="10000" value="{{ form.surface_area }}">
+            </div>
+            <div class="form-group">
+              <label class="form-label"><i class="fas fa-bed" style="color:var(--gold)"></i> Chambres</label>
+              <input type="number" name="bedrooms" class="form-control" placeholder="ex: 3" min="0" max="20" value="{{ form.bedrooms }}">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label"><i class="fas fa-bath" style="color:var(--gold)"></i> Salles de bain</label>
+            <input type="number" name="bathrooms" class="form-control" placeholder="ex: 2" min="0" max="10" value="{{ form.bathrooms }}" style="max-width:50%">
+          </div>
+
+          <button type="submit" class="btn btn-primary w-full btn-lg" style="justify-content:center;margin-top:.5rem">
+            <i class="fas fa-magic"></i> Estimer le prix
+          </button>
+        </div>
+      </div>
+
+      <div style="margin-top:1rem">
+        <div class="tip"><i class="fas fa-lightbulb"></i> Plus vous renseignez de champs, plus l'estimation sera précise.</div>
+        <div class="tip"><i class="fas fa-database"></i> Modèle entraîné sur les annonces réelles de 4 sources sénégalaises.</div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Résultat -->
+  <div class="fade-up d2">
+    <div class="result-panel">
+      <div class="result-inner">
+        {% if result %}
+        <div class="result-tag"><i class="fas fa-robot"></i> ImmoPredict ML</div>
+        <div style="color:rgba(255,255,255,.5);font-size:.8rem;margin-bottom:.4rem">
+          Prix estimé{% if result.transaction == 'location' %} (mensuel){% endif %}
+        </div>
+        <div class="result-price">
+          {% if result.predicted_price >= 1000000000 %}{{ result.predicted_price|floatformat:0 }} FCFA
+          {% elif result.predicted_price >= 1000000 %}{{ result.predicted_price|floatformat:0 }} FCFA
+          {% else %}{{ result.predicted_price|floatformat:0 }} FCFA
+          {% endif %}
+          {% if result.unit %}<span style="font-size:1rem;opacity:.55"> {{ result.unit }}</span>{% endif %}
+        </div>
+        <div class="result-range">
+          Fourchette : {{ result.price_min|floatformat:0 }} – {{ result.price_max|floatformat:0 }} FCFA
+        </div>
+        <div class="result-divider"></div>
+        {% if form.city %}<div class="result-row"><span class="result-row-lbl">Localité</span><span class="result-row-val">{{ form.city }}</span></div>{% endif %}
+        {% if form.property_type %}<div class="result-row"><span class="result-row-lbl">Type</span><span class="result-row-val">{{ form.property_type }}</span></div>{% endif %}
+        {% if form.transaction %}<div class="result-row"><span class="result-row-lbl">Transaction</span><span class="result-row-val">{% if form.transaction == 'location' %}Location{% else %}Vente{% endif %}</span></div>{% endif %}
+        {% if form.surface_area %}<div class="result-row"><span class="result-row-lbl">Surface</span><span class="result-row-val">{{ form.surface_area }} m²</span></div>{% endif %}
+        {% if form.bedrooms %}<div class="result-row"><span class="result-row-lbl">Chambres</span><span class="result-row-val">{{ form.bedrooms }}</span></div>{% endif %}
+        <div class="result-divider"></div>
+        <div class="result-row"><span class="result-row-lbl">Modèle</span><span class="result-row-val" style="font-family:var(--mono);font-size:.65rem;color:var(--gold)">{{ result.model_used }}</span></div>
+        <div class="result-row"><span class="result-row-lbl">Confiance</span><span class="result-row-val">{{ result.confidence }}</span></div>
+
         {% else %}
-          {% if result.predicted_price >= 1000000000 %}{{ result.predicted_price|floatformat:"-3" }} Mds{% elif result.predicted_price >= 1000000 %}{{ result.predicted_price|floatformat:"-3" }} M{% else %}{{ result.predicted_price|floatformat:0 }} {% endif %} FCFA
+        <div class="result-placeholder">
+          <i class="fas fa-calculator"></i>
+          <div style="font-size:.9rem">Remplissez le formulaire et cliquez sur<br><strong style="color:var(--gold)">Estimer le prix</strong></div>
+        </div>
+        <div class="prix-guide">
+          <div class="prix-guide-title"><i class="fas fa-chart-bar"></i> Guide des prix — Dakar</div>
+          <div class="prix-guide-row"><span>Villa Almadies</span><span>150–500M FCFA</span></div>
+          <div class="prix-guide-row"><span>Appt Ouakam</span><span>40–100M FCFA</span></div>
+          <div class="prix-guide-row"><span>Studio Plateau</span><span>15–35M FCFA</span></div>
+          <div class="prix-guide-row"><span>Terrain Pikine</span><span>5–25M FCFA</span></div>
+          <div class="prix-guide-row"><span>Chambre (loyer)</span><span>30–150K/mois</span></div>
+          <div class="prix-guide-row"><span>Appt (loyer)</span><span>150K–1.5M/mois</span></div>
+        </div>
         {% endif %}
       </div>
-      <div class="result-range">
-        Fourchette estimée : {{ result.price_min|floatformat:0 }} – {{ result.price_max|floatformat:0 }} FCFA {{ result.unit }}
-      </div>
-      <div class="result-meta">
-        <span class="result-badge"><i class="fas fa-robot" style="margin-right:.3rem"></i>{{ result.model_used }}</span>
-        <span class="result-badge"><i class="fas fa-crosshairs" style="margin-right:.3rem"></i>Confiance {{ result.confidence }}</span>
-        <span class="result-badge"><i class="fas fa-exchange-alt" style="margin-right:.3rem"></i>{{ result.transaction }}</span>
-      </div>
-    </div>
-    {% endif %}
-
-    {% if error %}
-    <div style="background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;padding:.8rem 1rem;border-radius:10px;font-size:.85rem;margin-bottom:1rem">
-      <i class="fas fa-exclamation-circle" style="margin-right:.4rem"></i>{{ error }}
-    </div>
-    {% endif %}
-
-    <div class="est-form-card">
-      <h2><i class="fas fa-sliders-h"></i>Caractéristiques du bien</h2>
-      <form method="POST">
-        {% csrf_token %}
-        <div class="fg">
-          <label><i class="fas fa-map-pin"></i>Quartier / Ville<span class="req">*</span></label>
-          <select name="city" required>
-            <option value="">-- Sélectionner un quartier --</option>
-            {% for c in cities %}<option value="{{ c }}" {% if form.city == c %}selected{% endif %}>{{ c }}</option>{% endfor %}
-          </select>
-        </div>
-        <div class="fr">
-          <div class="fg">
-            <label><i class="fas fa-home"></i>Type de bien<span class="req">*</span></label>
-            <select name="property_type" required>
-              <option value="">-- Sélectionner --</option>
-              {% for t in types %}<option value="{{ t }}" {% if form.property_type == t %}selected{% endif %}>{{ t }}</option>{% endfor %}
-            </select>
-          </div>
-          <div class="fg">
-            <label><i class="fas fa-exchange-alt"></i>Transaction<span class="req">*</span></label>
-            <select name="transaction" required>
-              {% for v,l in transactions %}<option value="{{ v }}" {% if form.transaction == v %}selected{% endif %}>{{ l }}</option>{% endfor %}
-            </select>
-          </div>
-        </div>
-        <div class="fr">
-          <div class="fg">
-            <label><i class="fas fa-ruler-combined"></i>Superficie (m²)</label>
-            <input type="number" name="surface_area" value="{{ form.surface_area|default:'' }}" min="1" step="0.5" placeholder="ex: 120">
-          </div>
-          <div class="fg">
-            <label><i class="fas fa-bed"></i>Chambres</label>
-            <input type="number" name="bedrooms" value="{{ form.bedrooms|default:'' }}" min="0" max="20" placeholder="ex: 3">
-          </div>
-        </div>
-        <div class="fr">
-          <div class="fg">
-            <label><i class="fas fa-bath"></i>Salles de bain</label>
-            <input type="number" name="bathrooms" value="{{ form.bathrooms|default:'' }}" min="0" max="10" placeholder="ex: 2">
-          </div>
-        </div>
-        <button type="submit" class="btn-est"><i class="fas fa-calculator"></i>Estimer le prix</button>
-        <div class="est-tip"><i class="fas fa-lightbulb"></i>Plus vous renseignez de champs, plus l'estimation sera précise.</div>
-        <div class="est-tip" style="margin-top:.4rem"><i class="fas fa-database"></i>Modèle entraîné sur les annonces réelles de 4 sources sénégalaises.</div>
-      </form>
     </div>
   </div>
 
-  <!-- Guide / Résultat -->
-  <div>
-    {% if not result %}
-    <div class="wait-card" style="margin-bottom:1.5rem">
-      <div class="wait-icon"><i class="fas fa-calculator"></i></div>
-      <div style="font-weight:700;font-size:1rem;color:#0F2444;margin-bottom:.4rem">Prêt à estimer</div>
-      <div style="font-size:.82rem;color:#9CA3AF">Remplissez le formulaire et cliquez sur <strong style="color:#C9A84C">Estimer le prix</strong></div>
-    </div>
-    {% endif %}
-
-    <div class="guide-card">
-      <div class="guide-hdr"><i class="fas fa-chart-line"></i>GUIDE DES PRIX — DAKAR</div>
-      <div class="guide-body">
-        {% for row in price_guide %}
-        <div class="guide-row"><span class="name">{{ row.label }}</span><span class="price">{{ row.range }}</span></div>
-        {% empty %}
-        <div class="guide-row"><span class="name">Villa Almadies</span><span class="price">150–500M FCFA</span></div>
-        <div class="guide-row"><span class="name">Appt Ouakam</span><span class="price">40–100M FCFA</span></div>
-        <div class="guide-row"><span class="name">Studio Plateau</span><span class="price">15–35M FCFA</span></div>
-        <div class="guide-row"><span class="name">Terrain Pikine</span><span class="price">5–25M FCFA</span></div>
-        <div class="guide-row"><span class="name">Chambre (loyer)</span><span class="price">30–150K/mois</span></div>
-        <div class="guide-row"><span class="name">Appt 3ch Mermoz</span><span class="price">300K–1.5M/mois</span></div>
-        <div class="guide-row"><span class="name">Villa Sacré-Cœur</span><span class="price">500K–3M/mois</span></div>
-        <div class="guide-row"><span class="name">Immeuble Dakar</span><span class="price">500M–5 Mds</span></div>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
 </div>
 {% endblock %}
