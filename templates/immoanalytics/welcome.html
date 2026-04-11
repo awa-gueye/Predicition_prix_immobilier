@@ -4,748 +4,319 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>ImmoAnalytics — Plateforme Immobilière Sénégal</title>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-<link href="{% static 'immoanalytics/css/app.css' %}" rel="stylesheet">
+<title>ImmoPredict SN -- Plateforme Immobiliere IA du Senegal</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* Overrides pour la landing page (fond sombre) */
-body { background: #FFFFFF; color: #1A1A2E; }
+:root{--navy:#0B1D37;--gold:#C9A84C;--gold2:#E2C47A;--green:#0E6B4A;--dark:#0F172A;--muted:#7A8599}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',Arial,sans-serif;background:#fff;color:var(--dark);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+::selection{background:var(--gold);color:var(--navy)}
 
-nav { position:fixed;top:0;left:0;right:0;z-index:100;
-      display:flex;align-items:center;justify-content:space-between;
-      padding:.9rem 5%; background:rgba(255,255,255,.95);
-      backdrop-filter:blur(20px);
-      border-bottom:1px solid rgba(184,149,90,.2); }
-.nav-logo { display:flex;align-items:center;gap:.6rem;text-decoration:none; }
-.nav-logo-icon { width:34px;height:34px;border-radius:8px;
-  background:linear-gradient(135deg,#B8955A,#D4AF7A);
-  display:flex;align-items:center;justify-content:center;color:#0D1117;font-size:.85rem; }
-.nav-logo-text { font-family:'Playfair Display',serif;font-size:1.1rem;
-                 font-weight:700;color:#FAFAF8;letter-spacing:.02em; }
-.nav-links { display:flex;align-items:center;gap:2rem; }
-.nav-links a { color:rgba(30,30,50,.6);text-decoration:none;font-size:.83rem;
-               letter-spacing:.03em;transition:color .2s; }
-.nav-links a:hover { color:#B8955A; }
-.nav-cta { display:flex;gap:.5rem; }
-.btn-nav-o { padding:.45rem 1.1rem;border:1px solid rgba(184,149,90,.35);color:#B8955A;
-             background:transparent;border-radius:6px;font-size:.8rem;font-weight:500;
-             text-decoration:none;transition:all .18s; }
-.btn-nav-o:hover { background:rgba(184,149,90,.1); }
-.btn-nav-s { padding:.45rem 1.1rem;background:linear-gradient(135deg,#B8955A,#D4AF7A);
-             color:#0D1117;border:none;border-radius:6px;font-size:.8rem;font-weight:600;
-             text-decoration:none;transition:all .18s; }
-.btn-nav-s:hover { transform:translateY(-1px);box-shadow:0 4px 14px rgba(184,149,90,.3); }
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:.9rem 5%;background:rgba(255,255,255,.97);backdrop-filter:blur(20px);border-bottom:1px solid rgba(201,168,76,.15);transition:all .3s}
+nav.scrolled{box-shadow:0 2px 20px rgba(0,0,0,.08)}
+.nav-logo{display:flex;align-items:center;gap:.6rem;text-decoration:none}
+.nav-logo-icon{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;color:var(--navy);font-size:.95rem;box-shadow:0 3px 12px rgba(201,168,76,.3)}
+.nav-logo-text{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:var(--navy)}
+.nav-logo-text span{color:var(--gold)}
+.nav-links{display:flex;align-items:center;gap:2.2rem}
+.nav-links a{color:var(--muted);font-size:.84rem;font-weight:500;letter-spacing:.02em;transition:color .2s;position:relative}
+.nav-links a:hover{color:var(--gold)}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:2px;background:var(--gold);transform:scaleX(0);transition:transform .2s}
+.nav-links a:hover::after{transform:scaleX(1)}
+.nav-cta{display:flex;gap:.6rem}
+.btn-o{padding:.48rem 1.2rem;border:1.5px solid rgba(201,168,76,.4);color:var(--gold);background:transparent;border-radius:8px;font-size:.82rem;font-weight:600;transition:all .2s;display:inline-flex;align-items:center;gap:.3rem}
+.btn-o:hover{background:rgba(201,168,76,.08)}
+.btn-s{padding:.48rem 1.2rem;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy);border:none;border-radius:8px;font-size:.82rem;font-weight:700;transition:all .22s;display:inline-flex;align-items:center;gap:.3rem;box-shadow:0 3px 12px rgba(201,168,76,.25)}
+.btn-s:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(201,168,76,.35)}
 
-/* Hero */
-.hero { min-height:100vh;display:flex;align-items:center;
-        padding:7rem 5% 5rem;position:relative;overflow:hidden;
-        background:#F8F9FA; }
-.hero-bg-img { position:absolute;inset:0;
-               background:url('{% static "immoanalytics/img/hero-bg.jpg" %}') center/cover no-repeat;
-               opacity:.12; }
-.hero-overlay { position:absolute;inset:0;
-  background:radial-gradient(ellipse 70% 60% at 30% 50%,rgba(26,92,58,.08),transparent 70%),
-             radial-gradient(ellipse 50% 40% at 80% 70%,rgba(184,149,90,.06),transparent 60%); }
-.hero-grid { position:absolute;inset:0;
-  background-image:linear-gradient(rgba(184,149,90,.03) 1px,transparent 1px),
-                   linear-gradient(90deg,rgba(184,149,90,.03) 1px,transparent 1px);
-  background-size:60px 60px; }
-.hero-content { position:relative;z-index:2;max-width:640px; }
-.hero-chip { display:inline-flex;align-items:center;gap:.45rem;
-             background:rgba(184,149,90,.12);border:1px solid rgba(184,149,90,.3);
-             padding:.3rem .9rem;border-radius:20px;
-             font-size:.68rem;color:#B8955A;letter-spacing:.1em;text-transform:uppercase;
-             font-family:'JetBrains Mono',monospace;margin-bottom:2rem; }
-.hero-title { font-family:'Playfair Display',serif;
-              font-size:clamp(2.6rem,5vw,4.2rem);font-weight:700;line-height:1.1;
-              color:#1A1A2E;margin-bottom:1.2rem; }
-.hero-title em { color:#B8955A;font-style:italic; }
-.hero-desc { font-size:.95rem;color:rgba(30,30,50,.55);line-height:1.75;
-             font-weight:300;max-width:500px;margin-bottom:2.5rem; }
-.hero-btns { display:flex;gap:.8rem;flex-wrap:wrap; }
-.btn-hero-p { padding:.8rem 2rem;background:linear-gradient(135deg,#B8955A,#D4AF7A);
-              color:#0D1117;border:none;border-radius:8px;font-size:.88rem;font-weight:600;
-              text-decoration:none;display:inline-flex;align-items:center;gap:.4rem;
-              transition:all .22s;cursor:pointer; }
-.btn-hero-p:hover { transform:translateY(-2px);box-shadow:0 8px 22px rgba(184,149,90,.35); }
-.btn-hero-s { padding:.8rem 2rem;background:transparent;color:#1A1A2E;
-              border:1px solid rgba(30,30,50,.2);border-radius:8px;font-size:.88rem;
-              text-decoration:none;display:inline-flex;align-items:center;gap:.4rem;
-              transition:all .22s; }
-.btn-hero-s:hover { border-color:var(--gold);color:var(--gold); }
-.hero-stats { display:flex;gap:2.5rem;margin-top:3.5rem;
-              padding-top:2.5rem;border-top:1px solid rgba(184,149,90,.2); }
-.h-stat-n { font-family:'Playfair Display',serif;font-size:1.8rem;
-            font-weight:700;color:#B8955A;line-height:1; }
-.h-stat-l { font-size:.68rem;color:rgba(30,30,50,.45);text-transform:uppercase;
-            letter-spacing:.1em;margin-top:.25rem;font-family:'JetBrains Mono',monospace; }
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;padding:7rem 5% 5rem;position:relative;overflow:hidden;background:#F8F9FA}
+.hero-video{position:absolute;inset:0;z-index:0}
+.hero-video video{width:100%;height:100%;object-fit:cover}
+.hero-video-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(248,249,250,.92) 0%,rgba(248,249,250,.85) 40%,rgba(248,249,250,.7) 100%)}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(201,168,76,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,.04) 1px,transparent 1px);background-size:50px 50px;z-index:1}
+.hero-content{position:relative;z-index:2;max-width:620px}
+.hero-chip{display:inline-flex;align-items:center;gap:.5rem;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.25);padding:.35rem 1rem;border-radius:24px;font-size:.7rem;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin-bottom:2rem}
+.hero-chip i{font-size:.6rem}
+.hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.6rem,5vw,4rem);font-weight:700;line-height:1.12;color:var(--dark);margin-bottom:1.3rem}
+.hero-title em{color:var(--gold);font-style:italic}
+.hero-desc{font-size:.95rem;color:var(--muted);line-height:1.8;font-weight:400;max-width:500px;margin-bottom:2.5rem}
+.hero-btns{display:flex;gap:.8rem;flex-wrap:wrap}
+.btn-hero-p{padding:.85rem 2.2rem;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy);border:none;border-radius:10px;font-size:.9rem;font-weight:700;display:inline-flex;align-items:center;gap:.45rem;transition:all .25s;cursor:pointer;box-shadow:0 4px 18px rgba(201,168,76,.3)}
+.btn-hero-p:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,168,76,.4)}
+.btn-hero-s{padding:.85rem 2.2rem;background:transparent;color:var(--dark);border:1.5px solid rgba(15,23,42,.15);border-radius:10px;font-size:.9rem;font-weight:500;display:inline-flex;align-items:center;gap:.45rem;transition:all .25s}
+.btn-hero-s:hover{border-color:var(--gold);color:var(--gold)}
+.hero-stats{display:flex;gap:3rem;margin-top:3.5rem;padding-top:2.5rem;border-top:1px solid rgba(201,168,76,.2)}
+.h-stat-n{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--gold);line-height:1}
+.h-stat-l{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-top:.3rem;font-family:'JetBrains Mono',monospace}
 
-/* Mockup (côté droit) */
-.hero-right { position:absolute;right:5%;top:50%;transform:translateY(-50%);
-              width:40%;max-width:520px;z-index:2; }
-.mock-win { background:#F0F2F5;border:1px solid rgba(184,149,90,.2);border-radius:12px;
-            overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.55); }
-.mock-bar { background:#E8EAF0;padding:.6rem .9rem;
-            display:flex;align-items:center;gap:.4rem;
-            border-bottom:1px solid rgba(255,255,255,.05); }
-.dot { width:9px;height:9px;border-radius:50%; }
-.mock-url { flex:1;background:#fff;border-radius:4px;padding:.2rem .6rem;margin:0 .4rem;
-            font-family:'JetBrains Mono',monospace;font-size:.62rem;
-            color:rgba(30,30,50,.35);border:1px solid #E8EAF0; }
-.mock-body { padding:1.2rem;background:#F8F9FA; }
-.kpi-r { display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-bottom:1rem; }
-.kpi-m { background:#fff;border-radius:7px;padding:.7rem;border-left:2px solid #B8955A;box-shadow:0 1px 4px rgba(0,0,0,.06); }
-.kpi-m-v { font-family:'Playfair Display',serif;font-size:1.2rem;
-            font-weight:700;color:#B8955A; }
-.kpi-m-l { font-size:.58rem;color:rgba(30,30,50,.45);
-            text-transform:uppercase;letter-spacing:.07em;margin-top:.15rem; }
-.chart-ph { background:#fff;border-radius:7px;height:120px;box-shadow:0 1px 4px rgba(0,0,0,.06);
-             display:flex;align-items:flex-end;gap:.3rem;padding:.8rem; }
-.bar-m { flex:1;border-radius:2px 2px 0 0;
-          background:linear-gradient(to top,#B8955A,rgba(184,149,90,.25)); }
+/* Mockup */
+.hero-right{position:absolute;right:5%;top:50%;transform:translateY(-50%);width:42%;max-width:540px;z-index:2}
+.mock-win{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.12)}
+.mock-bar{background:#F3F4F6;padding:.55rem .9rem;display:flex;align-items:center;gap:.4rem;border-bottom:1px solid rgba(0,0,0,.05)}
+.dot{width:9px;height:9px;border-radius:50%}
+.mock-url{flex:1;background:#fff;border-radius:5px;padding:.22rem .6rem;margin:0 .5rem;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);border:1px solid #E5E7EB}
+.mock-body{padding:1.2rem;background:#FAFBFD}
+.kpi-r{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-bottom:1rem}
+.kpi-m{background:#fff;border-radius:8px;padding:.75rem;border-left:3px solid var(--gold);box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.kpi-m-v{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:var(--gold)}
+.kpi-m-l{font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:.15rem}
+.chart-ph{background:#fff;border-radius:8px;height:130px;box-shadow:0 1px 4px rgba(0,0,0,.05);display:flex;align-items:flex-end;gap:4px;padding:1rem}
+.bar-m{flex:1;border-radius:3px 3px 0 0;background:linear-gradient(to top,var(--gold),rgba(201,168,76,.2))}
+
+/* SECTIONS */
+.section{padding:5.5rem 5%}
+.section-alt{background:#FAFBFD}
+.section-tag{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.7rem;text-align:center}
+.section-h{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3vw,2.6rem);font-weight:700;color:var(--dark);margin-bottom:.6rem;text-align:center}
+.section-desc{color:var(--muted);font-size:.9rem;max-width:550px;margin:0 auto 3.5rem;text-align:center;line-height:1.7}
 
 /* Features */
-.section { padding:5rem 5%; }
-.section-tag { font-family:'JetBrains Mono',monospace;font-size:.68rem;
-               letter-spacing:.18em;text-transform:uppercase;color:#B8955A;margin-bottom:.7rem;text-align:center; }
-.section-h { font-family:'Playfair Display',serif;font-size:clamp(1.7rem,3vw,2.5rem);
-             font-weight:700;color:#1A1A2E;margin-bottom:3rem; }
-.feat-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem; }
-.feat-card { background:#F8F9FA;border:1px solid rgba(0,0,0,.07);border-radius:10px;
-             padding:1.8rem;transition:all .25s;position:relative;overflow:hidden; }
-.feat-card::after { content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
-                    background:linear-gradient(90deg,#B8955A,#D4AF7A);
-                    transform:scaleX(0);transform-origin:left;transition:transform .25s; }
-.feat-card:hover { border-color:rgba(184,149,90,.4);transform:translateY(-3px); }
-.feat-card:hover::after { transform:scaleX(1); }
-.feat-icon { width:44px;height:44px;border-radius:9px;background:rgba(184,149,90,.1);
-             display:flex;align-items:center;justify-content:center;
-             color:#B8955A;font-size:1.1rem;margin-bottom:1rem; }
-.feat-title { font-weight:600;color:#1A1A2E;font-size:.92rem;margin-bottom:.5rem; }
-.feat-desc { font-size:.82rem;color:rgba(30,30,50,.55);line-height:1.65; }
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.4rem;max-width:1100px;margin:0 auto}
+.feat-card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:14px;padding:2rem;transition:all .3s;position:relative;overflow:hidden}
+.feat-card::before{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold2));transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.feat-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.08);border-color:rgba(201,168,76,.2)}
+.feat-card:hover::before{transform:scaleX(1)}
+.feat-icon{width:48px;height:48px;border-radius:12px;background:rgba(201,168,76,.08);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:1.15rem;margin-bottom:1.2rem}
+.feat-title{font-family:'Playfair Display',serif;font-weight:600;color:var(--dark);font-size:1rem;margin-bottom:.6rem}
+.feat-desc{font-size:.84rem;color:var(--muted);line-height:1.7}
+
+/* How it works */
+.steps{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:2rem;max-width:1000px;margin:0 auto}
+.step{text-align:center;padding:1rem}
+.step-num{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy);font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;box-shadow:0 4px 16px rgba(201,168,76,.25)}
+.step-title{font-family:'Playfair Display',serif;font-weight:600;font-size:1rem;margin-bottom:.5rem;color:var(--dark)}
+.step-desc{font-size:.84rem;color:var(--muted);line-height:1.65}
 
 /* Sources */
-.sources-sec { padding:3rem 5%;border-top:1px solid rgba(255,255,255,.05); }
-.src-grid { display:flex;justify-content:center;align-items:center;
-            flex-wrap:wrap;gap:2.5rem;margin-top:2rem; }
-.src-item { color:rgba(30,30,50,.45);font-size:.83rem;font-weight:500;
-            display:flex;align-items:center;gap:.5rem;transition:color .2s; }
-.src-item:hover { color:#B8955A; }
-.src-dot { width:6px;height:6px;border-radius:50%;background:#B8955A;opacity:.4; }
+.src-grid{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:3rem;margin-top:2rem}
+.src-item{color:var(--muted);font-size:.88rem;font-weight:600;display:flex;align-items:center;gap:.6rem;transition:color .2s}
+.src-item:hover{color:var(--gold)}
+.src-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
 /* CTA */
-.cta-sec { padding:5rem 5%;text-align:center;
-           background:linear-gradient(135deg,rgba(26,92,58,.06),rgba(184,149,90,.04));
-           border-top:1px solid rgba(184,149,90,.15);
-           border-bottom:1px solid rgba(184,149,90,.15); }
-.cta-h { font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3vw,2.8rem);
-          font-weight:700;color:#1A1A2E;margin-bottom:.8rem; }
-.cta-d { font-size:.9rem;color:rgba(30,30,50,.55);max-width:440px;
-          margin:0 auto 2.2rem;line-height:1.75; }
-.cta-btns { display:flex;justify-content:center;gap:.8rem;flex-wrap:wrap; }
+.cta-sec{padding:6rem 5%;text-align:center;background:linear-gradient(135deg,var(--navy),var(--green));position:relative;overflow:hidden}
+.cta-sec::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(201,168,76,.03) 40px,rgba(201,168,76,.03) 41px)}
+.cta-h{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:700;color:#fff;margin-bottom:.8rem;position:relative;z-index:2}
+.cta-h span{color:var(--gold)}
+.cta-d{font-size:.92rem;color:rgba(255,255,255,.5);max-width:480px;margin:0 auto 2.5rem;line-height:1.75;position:relative;z-index:2}
+.cta-btns{display:flex;justify-content:center;gap:.8rem;flex-wrap:wrap;position:relative;z-index:2}
 
 /* Footer */
-footer { padding:2.5rem 5%;background:#1A1A2E;
-         border-top:1px solid rgba(255,255,255,.05);
-         display:flex;align-items:center;justify-content:space-between;
-         flex-wrap:wrap;gap:1rem; }
-.foot-brand { font-family:'Playfair Display',serif;color:#B8955A;font-weight:700; }
-.foot-copy { font-size:.75rem;color:rgba(240,237,232,.25); }
-.foot-links { display:flex;gap:1.2rem; }
-.foot-links a { font-size:.75rem;color:rgba(240,237,232,.3);text-decoration:none;transition:color .2s; }
-.foot-links a:hover { color:#B8955A; }
+footer{padding:2.5rem 5%;background:var(--dark);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.foot-brand{font-family:'Playfair Display',serif;color:var(--gold);font-weight:700;font-size:1rem}
+.foot-copy{font-size:.75rem;color:rgba(255,255,255,.2)}
+.foot-links{display:flex;gap:1.5rem}
+.foot-links a{font-size:.78rem;color:rgba(255,255,255,.3);transition:color .2s}
+.foot-links a:hover{color:var(--gold)}
 
-@keyframes fade-up { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
-.fade-up { animation:fade-up .6s ease forwards;opacity:0; }
+/* Animations */
+@keyframes fade-up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fade-up .7s ease forwards;opacity:0}
 .d1{animation-delay:.1s}.d2{animation-delay:.25s}.d3{animation-delay:.4s}.d4{animation-delay:.55s}
-@keyframes float { 0%,100%{transform:translateY(-50%)} 50%{transform:translateY(calc(-50% - 10px))} }
-.hero-right { animation:float 5s ease-in-out infinite; }
-@media(max-width:1024px){.hero-right{display:none}.nav-links{display:none}}
-@media(max-width:640px){.hero-stats{flex-wrap:wrap;gap:1.2rem}}
+@keyframes float{0%,100%{transform:translateY(-50%)}50%{transform:translateY(calc(-50% - 12px))}}
+.hero-right{animation:float 5s ease-in-out infinite}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.hero-chip{background:linear-gradient(90deg,rgba(201,168,76,.08) 25%,rgba(201,168,76,.18) 50%,rgba(201,168,76,.08) 75%);background-size:200% 100%;animation:shimmer 3s ease infinite}
 
-/* ── Carousel ────────────────────────────────────────────────────────────── */
-.carousel-section {
-  position: relative;
-  overflow: hidden;
-  background: #0D1117;
-  height: 520px;
-}
-/* Tous les slides empilés en absolu */
-.carousel-slide {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 1s ease;
-  z-index: 1;
-}
-.carousel-slide.active {
-  opacity: 1;
-  z-index: 2;
-}
-.carousel-slide img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.carousel-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(13,17,23,.75) 0%,
-    rgba(26,92,58,.4) 50%,
-    rgba(13,17,23,.5) 100%
-  );
-}
-.carousel-content {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  padding: 2.5rem 6%;
-  background: linear-gradient(to top, rgba(13,17,23,.9) 0%, transparent 100%);
-  z-index: 3;
-}
-.carousel-tag {
-  display: inline-flex; align-items: center; gap: .4rem;
-  background: rgba(184,149,90,.15);
-  border: 1px solid rgba(184,149,90,.3);
-  padding: .25rem .75rem; border-radius: 20px;
-  font-size: .68rem; color: #B8955A;
-  letter-spacing: .1em; text-transform: uppercase;
-  font-family: 'JetBrains Mono', monospace;
-  margin-bottom: .8rem;
-}
-.carousel-title {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
-  font-weight: 700; color: #FAFAF8;
-  line-height: 1.15; margin-bottom: .6rem;
-  max-width: 680px;
-}
-.carousel-title em { color: #B8955A; font-style: italic; }
-.carousel-desc {
-  font-size: .88rem; color: rgba(240,237,232,.65);
-  max-width: 500px; line-height: 1.7;
-  font-weight: 300; margin-bottom: 1rem;
-}
-.carousel-cta {
-  display: inline-flex; align-items: center; gap: .5rem;
-  padding: .55rem 1.3rem;
-  background: linear-gradient(135deg, #B8955A, #D4AF7A);
-  color: #0D1117; border-radius: 7px;
-  font-size: .82rem; font-weight: 600;
-  text-decoration: none; transition: all .2s;
-}
-.carousel-cta:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(184,149,90,.35);
-}
-.carousel-indicators {
-  position: absolute; bottom: 1.2rem; right: 5%;
-  display: flex; gap: .5rem; z-index: 10;
-}
-.carousel-dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: rgba(240,237,232,.35);
-  cursor: pointer; transition: all .3s;
-  border: none; padding: 0;
-}
-.carousel-dot.active {
-  background: #B8955A;
-  width: 22px; border-radius: 4px;
-}
-.carousel-arrow {
-  position: absolute; top: 50%;
-  transform: translateY(-50%);
-  width: 40px; height: 40px; border-radius: 50%;
-  background: rgba(255,255,255,.12);
-  border: 1px solid rgba(255,255,255,.18);
-  color: #fff; font-size: .85rem;
-  cursor: pointer; z-index: 10;
-  display: flex; align-items: center; justify-content: center;
-  transition: all .2s; backdrop-filter: blur(8px);
-}
-.carousel-arrow:hover {
-  background: rgba(184,149,90,.45);
-  border-color: #B8955A;
-}
-.carousel-prev { left: 2%; }
-.carousel-next { right: 2%; }
-.carousel-progress {
-  position: absolute; bottom: 0; left: 0;
-  height: 3px; width: 0%;
-  background: linear-gradient(90deg, #B8955A, #D4AF7A);
-  z-index: 10;
-}
-@media(max-width: 640px) {
-  .carousel-section { height: 400px; }
-  .carousel-arrow { display: none; }
-  .carousel-title { font-size: 1.35rem; }
-}
+/* Mobile */
+.mobile-toggle{display:none;background:none;border:none;font-size:1.2rem;color:var(--navy);cursor:pointer}
+@media(max-width:1024px){.hero-right{display:none}.nav-links{display:none}.mobile-toggle{display:block}}
+@media(max-width:640px){.hero-stats{flex-wrap:wrap;gap:1.5rem}.hero{padding:6rem 5% 4rem}.steps{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
-<nav>
+<!-- NAV -->
+<nav id="mainNav">
   <a href="/" class="nav-logo">
     <div class="nav-logo-icon"><i class="fas fa-building"></i></div>
-    <span class="nav-logo-text">ImmoAnalytics</span>
+    <span class="nav-logo-text">Immo<span>Predict</span> SN</span>
   </a>
   <div class="nav-links">
-    <a href="#features">Fonctionnalités</a>
-    <a href="#sources">Sources</a>
-    <a href="/api/properties/stats/" target="_blank">API</a>
+    <a href="#features">Fonctionnalites</a>
+    <a href="#how">Comment ca marche</a>
+    <a href="#sources">Donnees</a>
+    <a href="{% url 'about' %}">A propos</a>
+    <a href="{% url 'contact' %}">Contact</a>
   </div>
   <div class="nav-cta">
-    <a href="/immo/login/"    class="btn-nav-o">Connexion</a>
-    <a href="/immo/register/" class="btn-nav-s">
-      <i class="fas fa-user-plus"></i> S'inscrire
-    </a>
+    <a href="{% url 'login' %}" class="btn-o"><i class="fas fa-sign-in-alt"></i>Connexion</a>
+    <a href="{% url 'register' %}" class="btn-s"><i class="fas fa-user-plus"></i>S'inscrire</a>
   </div>
+  <button class="mobile-toggle" onclick="document.querySelector('.nav-links').classList.toggle('show')"><i class="fas fa-bars"></i></button>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-bg-img"></div>
-  <div class="hero-overlay"></div>
+  <div class="hero-video">
+    <video autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1600&q=80">
+      <source src="https://videos.pexels.com/video-files/3129671/3129671-uhd_2560_1440_30fps.mp4" type="video/mp4">
+    </video>
+    <div class="hero-video-overlay"></div>
+  </div>
   <div class="hero-grid"></div>
+
   <div class="hero-content">
-    <div class="hero-chip fade-up d1">
-      <i class="fas fa-satellite-dish"></i>
-      Plateforme d'Intelligence Immobilière · Sénégal
-    </div>
-    <h1 class="hero-title fade-up d2">
-      Décryptez le marché<br>immobilier avec <em>l'IA</em>
-    </h1>
-    <p class="hero-desc fade-up d3">
-      Données agrégées de 5 sources, analyses en temps réel,
-      prédiction des prix par machine learning et recherche
-      en langage naturel.
-    </p>
-    <div class="hero-btns fade-up d4">
-      <a href="/immo/register/" class="btn-hero-p">
-        <i class="fas fa-rocket"></i> Commencer gratuitement
-      </a>
-      <a href="/immo/login/" class="btn-hero-s">
-        <i class="fas fa-sign-in-alt"></i> Se connecter
-      </a>
+    <div class="hero-chip fade-up"><i class="fas fa-circle"></i> Plateforme IA &middot; Immobilier Senegal</div>
+    <h1 class="hero-title fade-up d1">L'intelligence artificielle au service de <em>l'immobilier senegalais</em></h1>
+    <p class="hero-desc fade-up d2">Analysez le marche en temps reel, estimez la valeur de tout bien immobilier et recevez des recommandations personnalisees grace a notre IA.</p>
+    <div class="hero-btns fade-up d3">
+      <a href="{% url 'register' %}" class="btn-hero-p"><i class="fas fa-rocket"></i>Commencer gratuitement</a>
+      <a href="#features" class="btn-hero-s"><i class="fas fa-play-circle"></i>Decouvrir</a>
     </div>
     <div class="hero-stats fade-up d4">
-      <div><div class="h-stat-n" id="st">9K+</div><div class="h-stat-l">Annonces</div></div>
-      <div><div class="h-stat-n">4</div><div class="h-stat-l">Sources</div></div>
+      <div><div class="h-stat-n" id="statAnn">10K+</div><div class="h-stat-l">Annonces</div></div>
       <div><div class="h-stat-n">80+</div><div class="h-stat-l">Quartiers</div></div>
+      <div><div class="h-stat-n">4</div><div class="h-stat-l">Sources</div></div>
+      <div><div class="h-stat-n">IA</div><div class="h-stat-l">XGBoost</div></div>
     </div>
   </div>
+
+  <!-- Mockup -->
   <div class="hero-right">
     <div class="mock-win">
       <div class="mock-bar">
         <div class="dot" style="background:#FF5F57"></div>
         <div class="dot" style="background:#FFBD2E"></div>
-        <div class="dot" style="background:#28C941"></div>
-        <div class="mock-url">immoanalytics.sn/dashboard</div>
+        <div class="dot" style="background:#28CA41"></div>
+        <div class="mock-url">immopredict.sn/dashboard</div>
       </div>
       <div class="mock-body">
         <div class="kpi-r">
-          <div class="kpi-m"><div class="kpi-m-v">9K+</div><div class="kpi-m-l">Annonces</div></div>
-          <div class="kpi-m"><div class="kpi-m-v">85M</div><div class="kpi-m-l">Prix médian</div></div>
-          <div class="kpi-m"><div class="kpi-m-v">4</div><div class="kpi-m-l">Sources</div></div>
+          <div class="kpi-m"><div class="kpi-m-v">9,247</div><div class="kpi-m-l">Annonces</div></div>
+          <div class="kpi-m"><div class="kpi-m-v">45M</div><div class="kpi-m-l">Prix median</div></div>
+          <div class="kpi-m"><div class="kpi-m-v">80+</div><div class="kpi-m-l">Quartiers</div></div>
         </div>
         <div class="chart-ph">
-          <div class="bar-m" style="height:40%"></div>
-          <div class="bar-m" style="height:65%"></div>
           <div class="bar-m" style="height:45%"></div>
-          <div class="bar-m" style="height:82%"></div>
-          <div class="bar-m" style="height:55%"></div>
+          <div class="bar-m" style="height:78%"></div>
+          <div class="bar-m" style="height:62%"></div>
           <div class="bar-m" style="height:90%"></div>
-          <div class="bar-m" style="height:68%"></div>
-          <div class="bar-m" style="height:60%"></div>
+          <div class="bar-m" style="height:55%"></div>
+          <div class="bar-m" style="height:72%"></div>
+          <div class="bar-m" style="height:48%"></div>
+          <div class="bar-m" style="height:85%"></div>
+          <div class="bar-m" style="height:38%"></div>
+          <div class="bar-m" style="height:65%"></div>
         </div>
       </div>
     </div>
   </div>
 </section>
-
-
-<!-- ── CAROUSEL ─────────────────────────────────────────────────────────── -->
-{% load static %}
-<section class="carousel-section">
-
-  <div class="carousel-track" id="carTrack">
-
-    <!-- Slide 1 — Dashboard analytique -->
-    <div class="carousel-slide active">
-      <img src="{% static 'immoanalytics/img/slide-dashboard.jpg' %}"
-           alt="Dashboard ImmoAnalytics"
-           onerror="this.parentElement.style.background='linear-gradient(135deg,#0D1117,#1A5C3A)'">
-      <div class="carousel-overlay"></div>
-      <div class="carousel-content">
-        <div class="carousel-tag"><i class="fas fa-chart-line"></i> Dashboard en temps réel</div>
-        <h2 class="carousel-title">
-          Visualisez le marché<br>immobilier <em>sénégalais</em>
-        </h2>
-        <p class="carousel-desc">
-          KPIs actualisés, distribution des prix, top quartiers et répartition
-          par source sur plus de 9 000 annonces agrégées en continu.
-        </p>
-        <a href="/immo/register/" class="carousel-cta">
-          <i class="fas fa-rocket"></i> Accéder au dashboard
-        </a>
-      </div>
-    </div>
-
-    <!-- Slide 2 — Estimation ML -->
-    <div class="carousel-slide">
-      <img src="{% static 'immoanalytics/img/slide-estimation.jpg' %}"
-           alt="Estimation de prix"
-           onerror="this.parentElement.style.background='linear-gradient(135deg,#0D1117,#2563EB)'">
-      <div class="carousel-overlay"></div>
-      <div class="carousel-content">
-        <div class="carousel-tag"><i class="fas fa-brain"></i> Intelligence artificielle</div>
-        <h2 class="carousel-title">
-          Estimez le prix de<br>n'importe quel <em>bien</em>
-        </h2>
-        <p class="carousel-desc">
-          Notre modèle XGBoost entraîné sur des milliers d'annonces prédit
-          le prix d'un bien en quelques secondes selon son quartier,
-          sa superficie et ses caractéristiques.
-        </p>
-        <a href="/immo/register/" class="carousel-cta">
-          <i class="fas fa-calculator"></i> Estimer un bien
-        </a>
-      </div>
-    </div>
-
-    <!-- Slide 3 — Carte interactive -->
-    <div class="carousel-slide">
-      <img src="{% static 'immoanalytics/img/slide-carte.jpg' %}"
-           alt="Carte de Dakar"
-           onerror="this.parentElement.style.background='linear-gradient(135deg,#0D1117,#7C3AED)'">
-      <div class="carousel-overlay"></div>
-      <div class="carousel-content">
-        <div class="carousel-tag"><i class="fas fa-map-marked-alt"></i> Carte interactive</div>
-        <h2 class="carousel-title">
-          Explorez les annonces<br>sur la <em>carte de Dakar</em>
-        </h2>
-        <p class="carousel-desc">
-          Visualisez la densité et les prix des biens géolocalisés sur une carte
-          interactive. Filtrez par type de bien et cliquez pour voir les détails.
-        </p>
-        <a href="/immo/register/" class="carousel-cta">
-          <i class="fas fa-map-marked-alt"></i> Explorer la carte
-        </a>
-      </div>
-    </div>
-
-    <!-- Slide 4 — Recherche IA -->
-    <div class="carousel-slide">
-      <img src="{% static 'immoanalytics/img/slide-recherche.jpg' %}"
-           alt="Recherche IA"
-           onerror="this.parentElement.style.background='linear-gradient(135deg,#0D1117,#B8955A)'">
-      <div class="carousel-overlay"></div>
-      <div class="carousel-content">
-        <div class="carousel-tag"><i class="fas fa-robot"></i> Assistant IA</div>
-        <h2 class="carousel-title">
-          Trouvez le bien idéal<br>en <em>langage naturel</em>
-        </h2>
-        <p class="carousel-desc">
-          Décrivez simplement ce que vous cherchez — « villa à Almadies
-          avec piscine moins de 200M » — et notre assistant analyse
-          les données pour vous répondre instantanément.
-        </p>
-        <a href="/immo/register/" class="carousel-cta">
-          <i class="fas fa-search"></i> Rechercher un bien
-        </a>
-      </div>
-    </div>
-
-    <!-- Slide 5 — Dakar vue aérienne -->
-    <div class="carousel-slide">
-      <img src="{% static 'immoanalytics/img/dakar-aerial.jpg' %}"
-           alt="Dakar vue aérienne"
-           onerror="this.parentElement.style.background='linear-gradient(135deg,#0D1117,#1A5C3A)'">
-      <div class="carousel-overlay"></div>
-      <div class="carousel-content">
-        <div class="carousel-tag"><i class="fas fa-building"></i> Marché immobilier</div>
-        <h2 class="carousel-title">
-          Dakar, capitale de<br>l'investissement <em>immobilier</em>
-        </h2>
-        <p class="carousel-desc">
-          De l'Almadies au Plateau, de Pikine à Ouakam — découvrez
-          les dynamiques de prix de tous les quartiers de Dakar
-          et prenez les meilleures décisions immobilières.
-        </p>
-        <a href="/immo/register/" class="carousel-cta">
-          <i class="fas fa-chart-bar"></i> Analyser le marché
-        </a>
-      </div>
-    </div>
-
-  </div><!-- /track -->
-
-  <!-- Flèches -->
-  <button class="carousel-arrow carousel-prev" onclick="carMove(-1)" aria-label="Précédent">
-    <i class="fas fa-chevron-left"></i>
-  </button>
-  <button class="carousel-arrow carousel-next" onclick="carMove(1)" aria-label="Suivant">
-    <i class="fas fa-chevron-right"></i>
-  </button>
-
-  <!-- Indicateurs -->
-  <div class="carousel-indicators" id="carDots"></div>
-
-  <!-- Barre de progression -->
-  <div class="carousel-progress" id="carProgress"></div>
-
-</section>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  var slides  = document.querySelectorAll('.carousel-slide');
-  var dots    = document.getElementById('carDots');
-  var prog    = document.getElementById('carProgress');
-  var n       = slides.length;
-  var cur     = 0;
-  var DELAY   = 5000;
-  var timer   = null;
-
-  if (!n) return;
-
-  // Créer les dots
-  for (var i = 0; i < n; i++) {
-    var d = document.createElement('button');
-    d.className = 'carousel-dot' + (i === 0 ? ' active' : '');
-    d.setAttribute('aria-label', 'Slide ' + (i+1));
-    (function(idx) {
-      d.addEventListener('click', function() { goTo(idx); restart(); });
-    })(i);
-    dots.appendChild(d);
-  }
-
-  function goTo(idx) {
-    slides[cur].classList.remove('active');
-    dots.children[cur].classList.remove('active');
-    cur = ((idx % n) + n) % n;
-    slides[cur].classList.add('active');
-    dots.children[cur].classList.add('active');
-    animProgress();
-  }
-
-  function animProgress() {
-    if (!prog) return;
-    prog.style.transition = 'none';
-    prog.style.width = '0%';
-    prog.offsetWidth; // force reflow
-    prog.style.transition = 'width ' + DELAY + 'ms linear';
-    prog.style.width = '100%';
-  }
-
-  function tick() { goTo(cur + 1); }
-
-  function start() {
-    stop();
-    timer = setInterval(tick, DELAY);
-    animProgress();
-  }
-
-  function stop() {
-    if (timer) { clearInterval(timer); timer = null; }
-  }
-
-  function restart() { start(); }
-
-  // Exposer pour les boutons
-  window.carMove = function(dir) { goTo(cur + dir); restart(); };
-
-  // Pause au survol
-  var sec = document.querySelector('.carousel-section');
-  if (sec) {
-    sec.addEventListener('mouseenter', stop);
-    sec.addEventListener('mouseleave', start);
-  }
-
-  // Swipe mobile
-  var tx = 0;
-  if (sec) {
-    sec.addEventListener('touchstart', function(e) {
-      tx = e.touches[0].clientX;
-    }, {passive: true});
-    sec.addEventListener('touchend', function(e) {
-      var dx = e.changedTouches[0].clientX - tx;
-      if (Math.abs(dx) > 50) { goTo(cur + (dx < 0 ? 1 : -1)); restart(); }
-    }, {passive: true});
-  }
-
-  // Lancer immédiatement
-  start();
-});
-</script>
-
-<!-- Section stats animée pour welcome.html -->
-<!-- À insérer après le carousel, avant <!-- FEATURES --> -->
-
-<section style="background:#fff;padding:4rem 5%;position:relative;z-index:2">
-  <div style="max-width:1100px;margin:0 auto">
-    <div style="text-align:center;margin-bottom:2.5rem">
-      <div style="display:inline-flex;align-items:center;gap:.4rem;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.25);padding:.3rem .9rem;border-radius:20px;font-size:.7rem;color:#8B6914;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.8rem">
-        <i class="fas fa-chart-bar"></i> Données en temps réel
-      </div>
-      <h2 style="font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;color:#0F2444">
-        Le marché immobilier sénégalais<br><span style="color:#C9A84C">en chiffres</span>
-      </h2>
-    </div>
-
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem" id="stats-grid">
-      <!-- Annonces -->
-      <div style="text-align:center;padding:2rem 1rem;background:linear-gradient(135deg,#F8F9FF,#fff);border-radius:16px;border:1px solid #DDE1EE;box-shadow:0 4px 20px rgba(15,36,68,.06)">
-        <div style="width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(201,168,76,.05));display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">
-          <i class="fas fa-database" style="color:#C9A84C;font-size:1.3rem"></i>
-        </div>
-        <div class="stat-counter" data-target="9312" style="font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:700;color:#0F2444">0</div>
-        <div style="font-size:.72rem;color:#6B7280;text-transform:uppercase;letter-spacing:.1em;font-family:'JetBrains Mono',monospace;margin-top:.3rem">Annonces indexées</div>
-      </div>
-      <!-- Sources -->
-      <div style="text-align:center;padding:2rem 1rem;background:linear-gradient(135deg,#F8F9FF,#fff);border-radius:16px;border:1px solid #DDE1EE;box-shadow:0 4px 20px rgba(15,36,68,.06)">
-        <div style="width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,rgba(37,99,235,.12),rgba(37,99,235,.04));display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">
-          <i class="fas fa-layer-group" style="color:#2563EB;font-size:1.3rem"></i>
-        </div>
-        <div class="stat-counter" data-target="4" style="font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:700;color:#0F2444">0</div>
-        <div style="font-size:.72rem;color:#6B7280;text-transform:uppercase;letter-spacing:.1em;font-family:'JetBrains Mono',monospace;margin-top:.3rem">Sources agrégées</div>
-      </div>
-      <!-- Quartiers -->
-      <div style="text-align:center;padding:2rem 1rem;background:linear-gradient(135deg,#F8F9FF,#fff);border-radius:16px;border:1px solid #DDE1EE;box-shadow:0 4px 20px rgba(15,36,68,.06)">
-        <div style="width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,rgba(14,107,74,.12),rgba(14,107,74,.04));display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">
-          <i class="fas fa-map-pin" style="color:#0E6B4A;font-size:1.3rem"></i>
-        </div>
-        <div class="stat-counter" data-target="80" data-suffix="+" style="font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:700;color:#0F2444">0</div>
-        <div style="font-size:.72rem;color:#6B7280;text-transform:uppercase;letter-spacing:.1em;font-family:'JetBrains Mono',monospace;margin-top:.3rem">Quartiers couverts</div>
-      </div>
-      <!-- Modèle -->
-      <div style="text-align:center;padding:2rem 1rem;background:linear-gradient(135deg,#F8F9FF,#fff);border-radius:16px;border:1px solid #DDE1EE;box-shadow:0 4px 20px rgba(15,36,68,.06)">
-        <div style="width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(124,58,237,.04));display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">
-          <i class="fas fa-brain" style="color:#7C3AED;font-size:1.3rem"></i>
-        </div>
-        <div style="font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:700;color:#0F2444">ML</div>
-        <div style="font-size:.72rem;color:#6B7280;text-transform:uppercase;letter-spacing:.1em;font-family:'JetBrains Mono',monospace;margin-top:.3rem">Prédiction IA</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<script>
-// Compteur animé
-(function() {
-  function animateCounter(el) {
-    var target = parseInt(el.getAttribute('data-target'));
-    var suffix = el.getAttribute('data-suffix') || '';
-    var duration = 1500;
-    var start = null;
-    function step(timestamp) {
-      if (!start) start = timestamp;
-      var progress = Math.min((timestamp - start) / duration, 1);
-      var ease = 1 - Math.pow(1 - progress, 3);
-      var current = Math.floor(ease * target);
-      el.textContent = current.toLocaleString('fr-FR') + (progress >= 1 ? suffix : '');
-      if (progress < 1) requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
-  }
-
-  var observer = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-      if (entry.isIntersecting) {
-        var counters = entry.target.querySelectorAll('.stat-counter');
-        counters.forEach(function(c) { animateCounter(c); });
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.3 });
-
-  var grid = document.getElementById('stats-grid');
-  if (grid) observer.observe(grid);
-})();
-</script>
-
 
 <!-- FEATURES -->
-<section class="section" id="features" style="background:#FFFFFF">
-  <div class="section-tag">Fonctionnalités</div>
+<section class="section section-alt" id="features">
+  <div class="section-tag">Fonctionnalites</div>
   <h2 class="section-h">Tout ce dont vous avez besoin</h2>
+  <p class="section-desc">Des outils professionnels pour analyser, estimer et investir dans l'immobilier senegalais avec confiance.</p>
   <div class="feat-grid">
     <div class="feat-card">
       <div class="feat-icon"><i class="fas fa-chart-line"></i></div>
-      <h3 class="feat-title">Dashboard en temps réel</h3>
-      <p class="feat-desc">KPIs actualisés, distribution des prix, top quartiers. Toutes les métriques du marché en un coup d'œil.</p>
+      <div class="feat-title">Dashboard analytique</div>
+      <div class="feat-desc">Visualisez les tendances du marche en temps reel avec des graphiques interactifs et des indicateurs cles.</div>
     </div>
     <div class="feat-card">
-      <div class="feat-icon"><i class="fas fa-calculator"></i></div>
-      <h3 class="feat-title">Estimation ML des prix</h3>
-      <p class="feat-desc">Renseignez quartier, surface et chambres. Obtenez une estimation basée sur XGBoost entraîné sur des milliers d'annonces.</p>
-    </div>
-    <div class="feat-card">
-      <div class="feat-icon"><i class="fas fa-comments"></i></div>
-      <h3 class="feat-title">Chatbot IA</h3>
-      <p class="feat-desc">Tapez « villa Almadies moins de 200M », l'IA extrait les critères et filtre les résultats instantanément.</p>
+      <div class="feat-icon"><i class="fas fa-brain"></i></div>
+      <div class="feat-title">Estimation par IA</div>
+      <div class="feat-desc">Notre modele XGBoost entraine sur des milliers d'annonces estime le prix de tout bien au Senegal.</div>
     </div>
     <div class="feat-card">
       <div class="feat-icon"><i class="fas fa-map-marked-alt"></i></div>
-      <h3 class="feat-title">Carte interactive</h3>
-      <p class="feat-desc">Visualisez les annonces géolocalisées sur une carte Leaflet de Dakar. Filtrez par type de bien.</p>
+      <div class="feat-title">Carte interactive</div>
+      <div class="feat-desc">Explorez les annonces sur une carte Leaflet avec filtres par type, quartier et fourchette de prix.</div>
     </div>
     <div class="feat-card">
-      <div class="feat-icon"><i class="fas fa-chart-bar"></i></div>
-      <h3 class="feat-title">Analytics avancés</h3>
-      <p class="feat-desc">Box plots, scatter prix/surface, comparaison sources, distribution prix au m². Pour une analyse approfondie.</p>
+      <div class="feat-icon"><i class="fas fa-robot"></i></div>
+      <div class="feat-title">Assistant ImmoAI</div>
+      <div class="feat-desc">Posez vos questions en langage naturel a notre chatbot propulse par Groq (LLaMA 3.3 70B).</div>
     </div>
     <div class="feat-card">
-      <div class="feat-icon"><i class="fas fa-database"></i></div>
-      <h3 class="feat-title">API REST complète</h3>
-      <p class="feat-desc">Accédez aux données en JSON. Filtres, pagination, endpoints par source. Intégration dans vos propres outils.</p>
+      <div class="feat-icon"><i class="fas fa-bell"></i></div>
+      <div class="feat-title">Alertes de proximite</div>
+      <div class="feat-desc">Recevez des notifications lorsqu'un bien est publie a proximite de votre localisation.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><i class="fas fa-lightbulb"></i></div>
+      <div class="feat-title">Recommandations</div>
+      <div class="feat-desc">Systeme de recommandation intelligent qui apprend de vos recherches pour vous proposer les meilleurs biens.</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how">
+  <div class="section-tag">Processus</div>
+  <h2 class="section-h">Comment ca marche</h2>
+  <p class="section-desc">En 3 etapes simples, accedez a toute la puissance de l'analyse immobiliere.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-title">Inscrivez-vous</div>
+      <div class="step-desc">Creez votre compte gratuit en moins de 30 secondes. Choisissez votre profil : acheteur ou vendeur.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-title">Explorez le marche</div>
+      <div class="step-desc">Parcourez les annonces, analysez les prix par quartier et utilisez notre estimateur IA.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-title">Decidez avec confiance</div>
+      <div class="step-desc">Recevez des alertes, des recommandations personnalisees et prenez des decisions eclairees.</div>
     </div>
   </div>
 </section>
 
 <!-- SOURCES -->
-<section class="sources-sec" id="sources" style="background:#F8F9FA;border-top:1px solid #E8EAF0">
-  <div style="text-align:center">
-    <div class="section-tag" style="text-align:center">Sources de données</div>
-    <h2 class="section-h" style="text-align:center;margin-bottom:0">4 plateformes agrégées en continu</h2>
-  </div>
+<section class="section section-alt" id="sources">
+  <div class="section-tag">Sources de donnees</div>
+  <h2 class="section-h">Des donnees fiables et completes</h2>
+  <p class="section-desc">Nous aggregeons les annonces de 4 plateformes majeures du Senegal, mises a jour quotidiennement.</p>
   <div class="src-grid">
-    <div class="src-item"><div class="src-dot"></div> CoinAfrique</div>
-    <div class="src-item"><div class="src-dot"></div> Expat-Dakar</div>
-    <div class="src-item"><div class="src-dot"></div> Loger-Dakar</div>
-    <div class="src-item"><div class="src-dot"></div> DakarVente</div>
+    <div class="src-item"><div class="src-dot" style="background:#F59E0B"></div>CoinAfrique</div>
+    <div class="src-item"><div class="src-dot" style="background:#2563EB"></div>Expat-Dakar</div>
+    <div class="src-item"><div class="src-dot" style="background:#0E6B4A"></div>Loger-Dakar</div>
+    <div class="src-item"><div class="src-dot" style="background:#C0392B"></div>DakarVente</div>
+    <div class="src-item"><div class="src-dot" style="background:#0891B2"></div>2simmobilier</div>
   </div>
 </section>
 
 <!-- CTA -->
 <section class="cta-sec">
-  <h2 class="cta-h">Prêt à analyser le marché ?</h2>
-  <p class="cta-d">Créez votre compte gratuitement et accédez immédiatement à toutes les données.</p>
+  <h2 class="cta-h">Pret a explorer le marche <span>immobilier senegalais</span> ?</h2>
+  <p class="cta-d">Rejoignez des milliers d'utilisateurs qui font confiance a ImmoPredict SN pour leurs decisions immobilieres.</p>
   <div class="cta-btns">
-    <a href="/immo/register/" class="btn-hero-p">
-      <i class="fas fa-user-plus"></i> Créer mon compte
-    </a>
-    <a href="/immo/login/" class="btn-hero-s">
-      <i class="fas fa-sign-in-alt"></i> J'ai déjà un compte
-    </a>
+    <a href="{% url 'register' %}" class="btn-hero-p"><i class="fas fa-rocket"></i>Creer un compte gratuit</a>
+    <a href="{% url 'login' %}" class="btn-hero-s" style="color:#fff;border-color:rgba(255,255,255,.2)"><i class="fas fa-sign-in-alt"></i>Se connecter</a>
   </div>
 </section>
 
+<!-- FOOTER -->
 <footer>
-  <div class="foot-brand">ImmoPredict SN</div>
-  <div class="foot-copy">© 2026 · Plateforme Nationale d'Information Immobilière · Sénégal</div>
+  <div>
+    <div class="foot-brand">ImmoPredict SN</div>
+    <div class="foot-copy">Plateforme IA pour l'immobilier au Senegal &copy; 2025</div>
+  </div>
   <div class="foot-links">
-    <a href="/api/properties/stats/" target="_blank">API</a>
-    <a href="/admin/">Admin</a>
-    <a href="/immo/login/">Connexion</a>
+    <a href="{% url 'about' %}">A propos</a>
+    <a href="{% url 'contact' %}">Contact</a>
+    <a href="{% url 'register' %}">S'inscrire</a>
   </div>
 </footer>
 
 <script>
-fetch('/api/properties/stats/').then(r=>r.json()).then(d=>{
-  const t=Object.values(d).reduce((a,s)=>a+(s?.total||0),0);
-  if(t>0){const e=document.getElementById('st');if(e)e.textContent=t>1000?(t/1000).toFixed(0)+'K+':t;}
-}).catch(()=>{});
+// Nav scroll effect
+window.addEventListener('scroll',()=>{document.getElementById('mainNav').classList.toggle('scrolled',window.scrollY>50)});
+// Animate stats counter
+function animateCount(el,target,suffix=''){let c=0;const step=Math.ceil(target/50);const t=setInterval(()=>{c+=step;if(c>=target){c=target;clearInterval(t)}el.textContent=c.toLocaleString('fr-FR')+suffix},30)}
+const sa=document.getElementById('statAnn');if(sa){animateCount(sa,10000,'+')}
+// Intersection observer for fade-up
+const obs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.style.animationPlayState='running';obs.unobserve(e.target)}})},{threshold:.1});
+document.querySelectorAll('.feat-card,.step').forEach((el,i)=>{el.classList.add('fade-up');el.style.animationDelay=(i*100)+'ms';el.style.animationPlayState='paused';obs.observe(el)});
 </script>
 </body>
 </html>

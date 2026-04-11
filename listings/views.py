@@ -1,6 +1,7 @@
 """
 listings/views.py
 Vues pour : Vente, Location, Ajout annonce, Profil, Modification profil.
+Filtres corriges + price_range + tracking recherches pour recommandations.
 """
 import logging
 from django.shortcuts import render, redirect, get_object_or_404
@@ -18,7 +19,7 @@ from .forms import ProfileForm, ListingForm, ListingImageForm
 logger = logging.getLogger(__name__)
 
 
-# ── Helpers ───────────────────────────────────────────────────
+# -- Helpers --
 def _get_or_create_profile(user):
     profile, _ = UserProfile.objects.get_or_create(user=user)
     return profile
@@ -33,7 +34,7 @@ def _ctx(request, extra=None):
 
 
 def _fmt(p):
-    if not p: return "—"
+    if not p: return "--"
     p = float(p)
     if p >= 1e9:  return f"{p/1e9:.2f} Mds FCFA"
     if p >= 1e6:  return f"{p/1e6:.1f}M FCFA"
@@ -41,17 +42,85 @@ def _fmt(p):
     return f"{p:,.0f} FCFA"
 
 
+def _parse_price_range(price_range):
+    """Parse price_range filter like '25-50' into (min, max) in FCFA."""
+    if not price_range:
+        return None, None
+    try:
+        parts = price_range.split('-')
+        if len(parts) == 2:
+            mn = int(parts[0]) * 1_000_000 if parts[0] != '0' else None
+            mx = int(parts[1]) * 1_000_000 if parts[1] != '0' else None
+            # Handle "250-0" meaning 250M+
+            if parts[1] == '0' and parts[0] != '0':
+                mn = int(parts[0]) * 1_000_000
+                mx = None
+            return mn, mx
+    except (ValueError, IndexError):
+        pass
+    return None, None
+
+
+def _track_search(user, city=None, property_type=None, transaction=None):
+    """Track user search for recommendation system."""
+    try:
+        from .models import SearchHistory
+        SearchHistory.objects.create(
+            user=user,
+            city=city or '',
+            property_type=property_type or '',
+            transaction=transaction or '',
+        )
+    except Exception:
+        pass
+
+
+def _get_recommendations(user, transaction='vente', limit=4):
+    """Get recommendations based on user search history."""
+    try:
+        from .models import SearchHistory
+        from collections import Counter
+
+        recent = SearchHistory.objects.filter(user=user).order_by('-created_at')[:20]
+        if not recent.exists():
+            return []
+
+        # Find most searched cities and types
+        cities = Counter(s.city for s in recent if s.city)
+        types  = Counter(s.property_type for s in recent if s.property_type)
+
+        top_city = cities.most_common(1)[0][0] if cities else None
+        top_type = types.most_common(1)[0][0] if types else None
+
+        # Search for matching properties
+        results = _scraped_listings(transaction)
+        scored = []
+        for r in results:
+            score = 0
+            if top_city and r.get('city') and top_city.lower() in r['city'].lower():
+                score += 3
+            if top_type and r.get('property_type') and top_type.lower() in r['property_type'].lower():
+                score += 2
+            if score > 0:
+                scored.append((score, r))
+
+        scored.sort(key=lambda x: x[0], reverse=True)
+        return [r for _, r in scored[:limit]]
+    except Exception:
+        return []
+
+
 def _scraped_listings(transaction):
     """
-    Charge les annonces scraées depuis les 4 sources pour vente/location.
+    Charge les annonces scrapees depuis les 4 sources pour vente/location.
     transaction: 'vente' ou 'location'
     """
     from properties.models import (CoinAfriqueProperty, ExpatDakarProperty,
                                    LogerDakarProperty, DakarVenteProperty)
     import re
 
-    KW_LOC = ['louer','location','locat','bail','mensuel','loyer','a louer']
-    KW_VTE = ['vendre','vente','achat','cession','a vendre']
+    KW_LOC = ['louer', 'location', 'locat', 'bail', 'mensuel', 'loyer', 'a louer']
+    KW_VTE = ['vendre', 'vente', 'achat', 'cession', 'a vendre']
 
     def is_location(row_dict):
         text = ' '.join([
@@ -77,15 +146,15 @@ def _scraped_listings(transaction):
     for model, src_name, color in SRCS:
         try:
             avail = [f.name for f in model._meta.get_fields()]
-            fields = [f for f in ['id','title','price','surface_area','bedrooms',
-                                  'bathrooms','city','property_type','statut',
-                                  'description','latitude','longitude'] if f in avail]
+            fields = [f for f in ['id', 'title', 'price', 'surface_area', 'bedrooms',
+                                  'bathrooms', 'city', 'property_type', 'statut',
+                                  'description', 'latitude', 'longitude'] if f in avail]
             qs = list(model.objects.filter(price__isnull=False, price__gt=0).values(*fields)[:3000])
             for row in qs:
                 loc = is_location(row)
                 if (transaction == 'location' and loc) or (transaction == 'vente' and not loc):
                     results.append({
-                        'id':            str(row.get('id','')),
+                        'id':            str(row.get('id', '')),
                         'title':         row.get('title') or 'Annonce',
                         'price':         row.get('price') or 0,
                         'price_fmt':     _fmt(row.get('price') or 0),
@@ -100,7 +169,7 @@ def _scraped_listings(transaction):
                         'longitude':     row.get('longitude'),
                         'source':        src_name,
                         'source_color':  color,
-                        'image':         None,  # pas d'image pour les scraped
+                        'image':         None,
                         'is_scraped':    True,
                     })
         except Exception as e:
@@ -110,26 +179,70 @@ def _scraped_listings(transaction):
     return results
 
 
-# ══════════════════════════════════════════════════════════════
+def _apply_filters(scraped, q='', type_f='', city_f='', price_min=None, price_max=None):
+    """Apply filters to scraped listings with robust matching."""
+    filtered = scraped
+
+    if q:
+        q_lower = q.lower()
+        filtered = [s for s in filtered if
+            (s.get('title') and q_lower in s['title'].lower()) or
+            (s.get('city') and q_lower in s['city'].lower()) or
+            (s.get('property_type') and q_lower in s['property_type'].lower()) or
+            (s.get('description') and q_lower in s['description'].lower())]
+
+    if type_f:
+        type_lower = type_f.lower()
+        # Match against both the exact type and partial matches
+        filtered = [s for s in filtered if s.get('property_type') and (
+            type_lower in s['property_type'].lower() or
+            s['property_type'].lower() in type_lower or
+            # Also check first 4 chars for fuzzy matching
+            type_lower[:4] in s['property_type'].lower()
+        )]
+
+    if city_f:
+        city_lower = city_f.lower()
+        filtered = [s for s in filtered if s.get('city') and (
+            city_lower in s['city'].lower() or
+            s['city'].lower() in city_lower
+        )]
+
+    if price_min is not None:
+        filtered = [s for s in filtered if s.get('price', 0) >= price_min]
+
+    if price_max is not None:
+        filtered = [s for s in filtered if s.get('price', 0) <= price_max]
+
+    return filtered
+
+
+# ==========================================
 # VENTE
-# ══════════════════════════════════════════════════════════════
+# ==========================================
 @login_required(login_url='/immo/login/')
 def vente_page(request):
-    """Onglet Vente — annonces scraées + annonces vendeurs."""
-    q        = request.GET.get('q', '').strip()
-    type_f   = request.GET.get('type', '')
-    city_f   = request.GET.get('city', '')
-    sort_f   = request.GET.get('sort', 'recent')
+    q           = request.GET.get('q', '').strip()
+    type_f      = request.GET.get('type', '')
+    city_f      = request.GET.get('city', '')
+    sort_f      = request.GET.get('sort', 'recent')
+    price_range = request.GET.get('price_range', '')
 
-    # Annonces vendeurs en vente
+    price_min, price_max = _parse_price_range(price_range)
+
+    # Track search
+    if q or type_f or city_f:
+        _track_search(request.user, city=city_f, property_type=type_f, transaction='vente')
+
+    # Seller listings
     seller_qs = Listing.objects.filter(
         transaction='vente', status='active'
     ).prefetch_related('images', 'seller__profile')
 
-    # Annonces scraées
+    # Scraped listings
     scraped = _scraped_listings('vente')
 
-    # Filtres vendeurs
+    # Apply filters to seller listings
     if q:
         seller_qs = seller_qs.filter(
             Q(title__icontains=q) | Q(city__icontains=q) |
@@ -138,58 +251,68 @@ def vente_page(request):
         seller_qs = seller_qs.filter(property_type__icontains=type_f)
     if city_f:
         seller_qs = seller_qs.filter(Q(city__icontains=city_f) | Q(neighborhood__icontains=city_f))
+    if price_min is not None:
+        seller_qs = seller_qs.filter(price__gte=price_min)
+    if price_max is not None:
+        seller_qs = seller_qs.filter(price__lte=price_max)
 
-    # Tri vendeurs
-    if sort_f == 'price_asc':  seller_qs = seller_qs.order_by('price')
+    # Sort seller listings
+    if sort_f == 'price_asc':    seller_qs = seller_qs.order_by('price')
     elif sort_f == 'price_desc': seller_qs = seller_qs.order_by('-price')
-    else: seller_qs = seller_qs.order_by('-created_at')
+    else:                        seller_qs = seller_qs.order_by('-created_at')
 
-    # Filtres annonces scraées
-    if q:
-        scraped = [s for s in scraped if (s.get('title') and q.lower() in s['title'].lower()) or (s.get('city') and q.lower() in s['city'].lower())]
-    if type_f:
-        scraped = [s for s in scraped if s.get('property_type') and type_f.lower() in s['property_type'].lower()]
-    if city_f:
-        scraped = [s for s in scraped if s.get('city') and city_f.lower() in s['city'].lower()]
+    # Apply filters to scraped (using robust filter function)
+    scraped = _apply_filters(scraped, q=q, type_f=type_f, city_f=city_f,
+                             price_min=price_min, price_max=price_max)
 
-    # Tri annonces scraées
-    if sort_f == 'price_asc':  scraped.sort(key=lambda x: x['price'])
+    # Sort scraped
+    if sort_f == 'price_asc':    scraped.sort(key=lambda x: x['price'])
     elif sort_f == 'price_desc': scraped.sort(key=lambda x: x['price'], reverse=True)
 
-    # Pagination annonces scraées
+    # Pagination
     paginator = Paginator(scraped, 12)
     page_obj  = paginator.get_page(request.GET.get('page_sc', 1))
 
-    # Villes disponibles pour filtre
+    # Cities for filter (cached from first 500)
     cities = sorted(set(
-        [s['city'] for s in _scraped_listings('vente')[:500] if s['city']] +
+        [s['city'] for s in _scraped_listings('vente')[:500] if s.get('city')] +
         list(Listing.objects.filter(transaction='vente', status='active')
              .values_list('city', flat=True).distinct())
     ))
 
+    # Recommendations
+    recommendations = _get_recommendations(request.user, 'vente', 4)
+
     return render(request, 'immoanalytics/vente.html', _ctx(request, {
-        'page_title':    'Biens en Vente',
+        'page_title':      'Biens en Vente',
         'seller_listings': list(seller_qs[:20]),
-        'scraped_page':  page_obj,
-        'scraped_total': len(scraped),
-        'seller_total':  seller_qs.count(),
+        'scraped_page':    page_obj,
+        'scraped_total':   len(scraped),
+        'seller_total':    seller_qs.count(),
         'q': q, 'type_f': type_f, 'city_f': city_f, 'sort_f': sort_f,
-        'cities':    cities[:80],
-        'types':     Listing.TYPE_CHOICES,
-        'sort_opts': [('recent','Plus récents'),('price_asc','Prix ↑'),('price_desc','Prix ↓')],
+        'price_range':     price_range,
+        'cities':          cities[:80],
+        'types':           Listing.TYPE_CHOICES,
+        'sort_opts':       [('recent', 'Plus recents'), ('price_asc', 'Prix croissant'), ('price_desc', 'Prix decroissant')],
+        'recommendations': recommendations,
     }))
 
 
-# ══════════════════════════════════════════════════════════════
+# ==========================================
 # LOCATION
-# ══════════════════════════════════════════════════════════════
+# ==========================================
 @login_required(login_url='/immo/login/')
 def location_page(request):
-    """Onglet Location — annonces scraées + annonces vendeurs."""
-    q      = request.GET.get('q', '').strip()
-    type_f = request.GET.get('type', '')
-    city_f = request.GET.get('city', '')
-    sort_f = request.GET.get('sort', 'recent')
+    q           = request.GET.get('q', '').strip()
+    type_f      = request.GET.get('type', '')
+    city_f      = request.GET.get('city', '')
+    sort_f      = request.GET.get('sort', 'recent')
+    price_range = request.GET.get('price_range', '')
+
+    price_min, price_max = _parse_price_range(price_range)
+
+    if q or type_f or city_f:
+        _track_search(request.user, city=city_f, property_type=type_f, transaction='location')
 
     seller_qs = Listing.objects.filter(
         transaction='location', status='active'
@@ -200,43 +323,51 @@ def location_page(request):
     if q:
         seller_qs = seller_qs.filter(
             Q(title__icontains=q) | Q(city__icontains=q) | Q(description__icontains=q))
-        scraped = [s for s in scraped if (s.get('title') and q.lower() in s['title'].lower()) or (s.get('city') and q.lower() in s['city'].lower())]
     if type_f:
         seller_qs = seller_qs.filter(property_type__icontains=type_f)
-        scraped = [s for s in scraped if s.get('property_type') and type_f.lower() in s['property_type'].lower()]
     if city_f:
         seller_qs = seller_qs.filter(Q(city__icontains=city_f))
-        scraped = [s for s in scraped if s.get('city') and city_f.lower() in s['city'].lower()]
+    if price_min is not None:
+        seller_qs = seller_qs.filter(price__gte=price_min)
+    if price_max is not None:
+        seller_qs = seller_qs.filter(price__lte=price_max)
 
-    if sort_f == 'price_asc':   seller_qs = seller_qs.order_by('price');  scraped.sort(key=lambda x: x['price'])
+    if sort_f == 'price_asc':    seller_qs = seller_qs.order_by('price');  scraped.sort(key=lambda x: x['price'])
     elif sort_f == 'price_desc': seller_qs = seller_qs.order_by('-price'); scraped.sort(key=lambda x: x['price'], reverse=True)
-    else: seller_qs = seller_qs.order_by('-created_at')
+    else:                        seller_qs = seller_qs.order_by('-created_at')
+
+    scraped = _apply_filters(scraped, q=q, type_f=type_f, city_f=city_f,
+                             price_min=price_min, price_max=price_max)
 
     paginator = Paginator(scraped, 12)
     page_obj  = paginator.get_page(request.GET.get('page_sc', 1))
 
     cities = sorted(set(
-        [s['city'] for s in _scraped_listings('location')[:500] if s['city']] +
+        [s['city'] for s in _scraped_listings('location')[:500] if s.get('city')] +
         list(Listing.objects.filter(transaction='location', status='active')
              .values_list('city', flat=True).distinct())
     ))
 
+    recommendations = _get_recommendations(request.user, 'location', 4)
+
     return render(request, 'immoanalytics/location.html', _ctx(request, {
-        'page_title':    'Biens en Location',
+        'page_title':      'Biens en Location',
         'seller_listings': list(seller_qs[:20]),
-        'scraped_page':  page_obj,
-        'scraped_total': len(scraped),
-        'seller_total':  seller_qs.count(),
+        'scraped_page':    page_obj,
+        'scraped_total':   len(scraped),
+        'seller_total':    seller_qs.count(),
         'q': q, 'type_f': type_f, 'city_f': city_f, 'sort_f': sort_f,
-        'cities':    cities[:80],
-        'types':     Listing.TYPE_CHOICES,
-        'sort_opts': [('recent','Plus récents'),('price_asc','Prix ↑'),('price_desc','Prix ↓')],
+        'price_range':     price_range,
+        'cities':          cities[:80],
+        'types':           Listing.TYPE_CHOICES,
+        'sort_opts':       [('recent', 'Plus recents'), ('price_asc', 'Prix croissant'), ('price_desc', 'Prix decroissant')],
+        'recommendations': recommendations,
     }))
 
 
-# ══════════════════════════════════════════════════════════════
-# DETAIL ANNONCE VENDEUR
-# ══════════════════════════════════════════════════════════════
+# ==========================================
+# DETAIL ANNONCE
+# ==========================================
 @login_required(login_url='/immo/login/')
 def listing_detail(request, pk):
     listing = get_object_or_404(Listing, pk=pk, status='active')
@@ -249,17 +380,16 @@ def listing_detail(request, pk):
     }))
 
 
-# ══════════════════════════════════════════════════════════════
+# ==========================================
 # AJOUT ANNONCE
-# ══════════════════════════════════════════════════════════════
+# ==========================================
 @login_required(login_url='/immo/login/')
 def add_listing(request):
     profile = _get_or_create_profile(request.user)
 
-    # Vérifier que c'est un vendeur
     if profile.role != 'seller':
         messages.warning(request,
-            "Vous devez être vendeur pour ajouter une annonce. "
+            "Vous devez etre vendeur pour ajouter une annonce. "
             "Modifiez votre statut dans votre profil.")
         return redirect('edit_profile')
 
@@ -272,8 +402,7 @@ def add_listing(request):
             listing.seller = request.user
             listing.save()
 
-            # Sauvegarder les images
-            for i, f in enumerate(files[:8]):  # max 8 images
+            for i, f in enumerate(files[:8]):
                 ListingImage.objects.create(
                     listing  = listing,
                     image    = f,
@@ -281,7 +410,7 @@ def add_listing(request):
                     order    = i,
                 )
 
-            messages.success(request, "✅ Votre annonce a été publiée !")
+            messages.success(request, "Votre annonce a ete publiee avec succes !")
             if listing.transaction == 'vente':
                 return redirect('vente')
             return redirect('location')
@@ -294,9 +423,9 @@ def add_listing(request):
     }))
 
 
-# ══════════════════════════════════════════════════════════════
+# ==========================================
 # MODIFICATION ANNONCE
-# ══════════════════════════════════════════════════════════════
+# ==========================================
 @login_required(login_url='/immo/login/')
 def edit_listing(request, pk):
     listing = get_object_or_404(Listing, pk=pk, seller=request.user)
@@ -316,7 +445,7 @@ def edit_listing(request, pk):
                     order   = listing.images.count() + i,
                 )
 
-            messages.success(request, "✅ Annonce mise à jour.")
+            messages.success(request, "Annonce mise a jour.")
             return redirect('my_listings')
     else:
         form = ListingForm(instance=listing)
@@ -333,7 +462,7 @@ def edit_listing(request, pk):
 def delete_listing(request, pk):
     listing = get_object_or_404(Listing, pk=pk, seller=request.user)
     listing.delete()
-    messages.success(request, "Annonce supprimée.")
+    messages.success(request, "Annonce supprimee.")
     return redirect('my_listings')
 
 
@@ -345,9 +474,9 @@ def my_listings(request):
     }))
 
 
-# ══════════════════════════════════════════════════════════════
+# ==========================================
 # PROFIL
-# ══════════════════════════════════════════════════════════════
+# ==========================================
 @login_required(login_url='/immo/login/')
 def profile_view(request):
     profile  = _get_or_create_profile(request.user)
@@ -358,7 +487,7 @@ def profile_view(request):
         {"icon": "fas fa-home",          "label": "Vente",       "has": True},
         {"icon": "fas fa-key",           "label": "Location",    "has": True},
         {"icon": "fas fa-calculator",    "label": "Estimation",  "has": True},
-        {"icon": "fas fa-plus-circle",   "label": "Ajouter bien","has": profile.role == 'seller'},
+        {"icon": "fas fa-plus-circle",   "label": "Ajouter bien", "has": profile.role == 'seller'},
         {"icon": "fas fa-crown",         "label": "Admin Panel", "has": request.user.is_superuser},
     ]
 
@@ -376,14 +505,13 @@ def edit_profile(request):
     if request.method == 'POST':
         form = ProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
-            # Mettre à jour User
             u = request.user
             u.first_name = form.cleaned_data.get('first_name', u.first_name)
             u.last_name  = form.cleaned_data.get('last_name',  u.last_name)
             u.email      = form.cleaned_data.get('email',      u.email)
             u.save()
             form.save()
-            messages.success(request, "✅ Profil mis à jour.")
+            messages.success(request, "Profil mis a jour avec succes.")
             return redirect('profile')
     else:
         form = ProfileForm(instance=profile, initial={

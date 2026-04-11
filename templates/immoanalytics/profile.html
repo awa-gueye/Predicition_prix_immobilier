@@ -8,7 +8,7 @@
 .prof-inner{position:relative;z-index:2;max-width:1000px;margin:0 auto;display:flex;align-items:center;gap:2rem;flex-wrap:wrap}
 .prof-avatar{width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid #C9A84C;flex-shrink:0}
 .prof-avatar-ph{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#C9A84C,#0E6B4A);display:flex;align-items:center;justify-content:center;font-size:2.2rem;color:#fff;border:3px solid #C9A84C;flex-shrink:0}
-.prof-info h1{font-family:Georgia,serif;font-size:1.8rem;font-weight:700;color:#fff;margin:0 0 .2rem}
+.prof-info h1{font-family:var(--heading);font-size:1.8rem;font-weight:700;color:#fff;margin:0 0 .2rem}
 .role-badge{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .7rem;border-radius:20px;font-size:.72rem;font-weight:700;background:#C9A84C;color:#0F2444}
 .prof-body{max-width:1000px;margin:2rem auto;padding:0 1.5rem;display:grid;grid-template-columns:280px 1fr;gap:1.8rem}
 @media(max-width:768px){.prof-body{grid-template-columns:1fr}}
@@ -30,7 +30,7 @@
 .lm:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(15,36,68,.1)}
 .lm img,.lm-ph{height:100px;width:100%;object-fit:cover;background:linear-gradient(135deg,#0F2444,#0E6B4A);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);font-size:1.8rem}
 .lm-info{padding:.6rem .7rem;background:#fff}
-.lm-price{font-family:Georgia,serif;font-size:.88rem;font-weight:700;color:#0F2444}
+.lm-price{font-family:var(--heading);font-size:.88rem;font-weight:700;color:#0F2444}
 .lm-city{font-size:.72rem;color:#9CA3AF}
 </style>
 {% endblock %}
@@ -84,7 +84,7 @@
         <div class="listing-mini">
           {% for l in listings %}
           <a href="{% url 'listing_detail' l.pk %}" class="lm">
-            {% with img=l.main_image %}{% if img %}<img src="{{ img.image.url }}" alt="">{% else %}<div class="lm-ph">🏠</div>{% endif %}{% endwith %}
+            {% with img=l.main_image %}{% if img %}<img src="{{ img.image.url }}" alt="">{% else %}<div class="lm-ph"><i class="fas fa-home"></i></div>{% endif %}{% endwith %}
             <div class="lm-info">
               <div class="lm-price">{{ l.price_formatted }}</div>
               <div class="lm-city">{{ l.city }}</div>

@@ -14,7 +14,7 @@
   background: repeating-linear-gradient(45deg,transparent,transparent 30px,rgba(201,168,76,.04) 30px,rgba(201,168,76,.04) 31px);
 }
 .est-hero-inner { position: relative; z-index: 2; max-width: 700px; }
-.est-hero h1 { font-family: var(--serif); font-size: clamp(1.6rem,3vw,2.4rem); font-weight: 700; color: #fff; margin-bottom: .4rem; }
+.est-hero h1 { font-family: 'Playfair Display',Georgia,serif; font-size: clamp(1.6rem,3vw,2.4rem); font-weight: 700; color: #fff; margin-bottom: .4rem; }
 .est-hero h1 span { color: var(--gold); }
 .est-hero p { color: rgba(255,255,255,.55); font-size: .9rem; }
 .est-wave { width: 100%; height: 40px; margin-top: 1.5rem; background: var(--bg); clip-path: ellipse(55% 100% at 50% 100%); }
@@ -28,15 +28,15 @@
 .result-inner { position: relative; z-index: 2; }
 .result-placeholder { text-align: center; padding: 2rem 1rem; color: rgba(255,255,255,.3); }
 .result-placeholder i { font-size: 3rem; margin-bottom: 1rem; display: block; }
-.result-tag { display: inline-flex; align-items: center; gap: .35rem; background: rgba(201,168,76,.15); border: 1px solid rgba(201,168,76,.3); color: var(--gold); font-size: .7rem; font-weight: 600; padding: .2rem .65rem; border-radius: 20px; text-transform: uppercase; letter-spacing: .08em; font-family: var(--mono); margin-bottom: .9rem; }
-.result-price { font-family: var(--serif); font-size: 2.4rem; font-weight: 700; color: var(--gold); line-height: 1; margin-bottom: .3rem; }
+.result-tag { display: inline-flex; align-items: center; gap: .35rem; background: rgba(201,168,76,.15); border: 1px solid rgba(201,168,76,.3); color: var(--gold); font-size: .7rem; font-weight: 600; padding: .2rem .65rem; border-radius: 20px; text-transform: uppercase; letter-spacing: .08em; font-family: 'JetBrains Mono','Consolas',monospace; margin-bottom: .9rem; }
+.result-price { font-family: 'Playfair Display',Georgia,serif; font-size: 2.4rem; font-weight: 700; color: var(--gold); line-height: 1; margin-bottom: .3rem; }
 .result-range { font-size: .75rem; color: rgba(255,255,255,.4); margin-bottom: 1.2rem; }
 .result-divider { height: 1px; background: rgba(255,255,255,.1); margin: 1rem 0; }
 .result-row { display: flex; justify-content: space-between; font-size: .77rem; padding: .3rem 0; }
 .result-row-lbl { color: rgba(255,255,255,.45); }
 .result-row-val { color: rgba(255,255,255,.85); font-weight: 600; }
 .prix-guide { margin-top: 1.2rem; padding: .9rem 1rem; background: rgba(255,255,255,.06); border-radius: 8px; border: 1px solid rgba(255,255,255,.08); }
-.prix-guide-title { font-size: .7rem; color: var(--gold); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-family: var(--mono); margin-bottom: .6rem; }
+.prix-guide-title { font-size: .7rem; color: var(--gold); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-family: 'JetBrains Mono','Consolas',monospace; margin-bottom: .6rem; }
 .prix-guide-row { display: flex; justify-content: space-between; font-size: .73rem; padding: .22rem 0; border-bottom: 1px solid rgba(255,255,255,.05); color: rgba(255,255,255,.6); }
 .prix-guide-row:last-child { border-bottom: none; }
 .prix-guide-row span:last-child { color: rgba(255,255,255,.85); font-weight: 500; }
@@ -157,7 +157,7 @@
         {% if form.surface_area %}<div class="result-row"><span class="result-row-lbl">Surface</span><span class="result-row-val">{{ form.surface_area }} m²</span></div>{% endif %}
         {% if form.bedrooms %}<div class="result-row"><span class="result-row-lbl">Chambres</span><span class="result-row-val">{{ form.bedrooms }}</span></div>{% endif %}
         <div class="result-divider"></div>
-        <div class="result-row"><span class="result-row-lbl">Modèle</span><span class="result-row-val" style="font-family:var(--mono);font-size:.65rem;color:var(--gold)">{{ result.model_used }}</span></div>
+        <div class="result-row"><span class="result-row-lbl">Modèle</span><span class="result-row-val" style="font-family:'JetBrains Mono','Consolas',monospace;font-size:.65rem;color:var(--gold)">{{ result.model_used }}</span></div>
         <div class="result-row"><span class="result-row-lbl">Confiance</span><span class="result-row-val">{{ result.confidence }}</span></div>
 
         {% else %}
