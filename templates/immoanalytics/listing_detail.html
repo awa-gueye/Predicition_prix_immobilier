@@ -4,8 +4,8 @@
 {% block extra_css %}
 <style>
 .det-hero{background:linear-gradient(135deg,#0F2444,#1A3560);padding:1.5rem 2rem;color:#fff}
-.det-hero h1{font-family:var(--heading);font-size:clamp(1.3rem,2.5vw,2rem);margin:0 0 .3rem}
-.det-price{font-family:var(--heading);font-size:2rem;font-weight:700;color:#C9A84C}
+.det-hero h1{font-family:Georgia,serif;font-size:clamp(1.3rem,2.5vw,2rem);margin:0 0 .3rem}
+.det-price{font-family:Georgia,serif;font-size:2rem;font-weight:700;color:#C9A84C}
 .det-price-unit{font-size:.9rem;color:rgba(255,255,255,.6)}
 .det-body{max-width:1100px;margin:2rem auto;padding:0 1.5rem;display:grid;grid-template-columns:1fr 360px;gap:2rem}
 @media(max-width:768px){.det-body{grid-template-columns:1fr}}
@@ -57,7 +57,7 @@
         {% if img %}
           <img src="{{ img.image.url }}" alt="{{ listing.title }}" class="det-main-img" id="mainImg">
         {% else %}
-          <div class="det-main-ph"><i class="fas fa-home"></i></div>
+          <div class="det-main-ph">🏠</div>
         {% endif %}
       {% endwith %}
       {% if images.count > 1 %}

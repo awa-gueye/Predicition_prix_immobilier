@@ -13,18 +13,15 @@ from django.http import JsonResponse
 logger = logging.getLogger(__name__)
 
 
-# ── Welcome ───────────────────────────────────────────────────────────────────
+# -- Welcome --
 def welcome_or_dashboard(request):
-    """Root URL: welcome pour non-connectes, dashboard pour connectes."""
     if request.user.is_authenticated:
+        from django.shortcuts import redirect
         return redirect('dashboard')
     return render(request, 'immoanalytics/welcome.html')
 
-
 def welcome_view(request):
-    """Page d'accueil publique."""
     return render(request, 'immoanalytics/welcome.html')
-
 
 # ── Rôles ─────────────────────────────────────────────────────────────────────
 def get_user_role(user):
@@ -54,10 +51,8 @@ def register_view(request):
         fname = request.POST.get('first_name','').strip()
         lname = request.POST.get('last_name','').strip()
         phone = request.POST.get('phone','').strip()
-        city  = request.POST.get('city','').strip()
-        role  = request.POST.get('role','user').strip()
-        pwd   = request.POST.get('password1','')
-        pwd2  = request.POST.get('password2','')
+        pwd   = request.POST.get('password1','')    # template envoie password1
+        pwd2  = request.POST.get('password2','')    # template envoie password2
         if not uname or not email or not pwd:
             error = "Tous les champs obligatoires doivent être remplis."
         elif not phone:
@@ -73,40 +68,14 @@ def register_view(request):
         else:
             u = User.objects.create_user(username=uname, email=email, password=pwd,
                                           first_name=fname, last_name=lname)
+            # Sauvegarder le téléphone dans le profil
             try:
                 from listings.models import UserProfile
                 profile, _ = UserProfile.objects.get_or_create(user=u)
                 profile.phone = phone
-                profile.city = city
-                if role in ('user', 'seller'):
-                    profile.role = role
                 profile.save()
             except Exception:
                 pass
-            # Si vendeur, creer un premier bien optionnel
-            if role == 'seller':
-                try:
-                    from listings.models import Listing, ListingImage
-                    l_title = request.POST.get('listing_title','').strip()
-                    l_price = request.POST.get('listing_price','').strip()
-                    if l_title and l_price:
-                        listing = Listing.objects.create(
-                            seller=u,
-                            title=l_title,
-                            description=request.POST.get('listing_desc','').strip() or l_title,
-                            property_type=request.POST.get('listing_type','') or 'appartement',
-                            transaction=request.POST.get('listing_txn','vente'),
-                            price=int(float(l_price)),
-                            city=request.POST.get('listing_city','').strip() or city or 'Dakar',
-                            status='active',
-                        )
-                        if 'listing_image' in request.FILES:
-                            ListingImage.objects.create(
-                                listing=listing, image=request.FILES['listing_image'],
-                                is_main=True, order=0,
-                            )
-                except Exception as e:
-                    logger.warning(f"Listing at register: {e}")
             login(request, u)
             messages.success(request, f"Bienvenue {fname or uname} !")
             return redirect('dashboard')

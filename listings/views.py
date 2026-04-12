@@ -41,23 +41,15 @@ def _fmt(p):
     return f"{p:,.0f} FCFA"
 
 
-VALID_PTYPES = {
-    'villa': 'Villa', 'appartement': 'Appartement', 'terrain': 'Terrain',
-    'duplex': 'Duplex', 'studio': 'Studio', 'maison': 'Maison',
-    'bureau': 'Bureau', 'local': 'Bureau', 'chambre': 'Chambre',
-    'immeuble': 'Immeuble',
-}
-
+# Type normalization for consistent filtering
+_TYPE_MAP = {'villa':'Villa','appartement':'Appartement','terrain':'Terrain','duplex':'Duplex',
+    'studio':'Studio','maison':'Maison','bureau':'Bureau','local':'Bureau','chambre':'Chambre','immeuble':'Immeuble'}
 def _normalize_ptype(raw):
-    if not raw:
-        return 'Autre'
+    if not raw: return 'Autre'
     v = raw.lower().strip()
-    for key, label in VALID_PTYPES.items():
-        if key in v:
-            return label
-    if len(v) > 30:
-        return 'Autre'
-    return raw.strip().title()[:30] if raw.strip() else 'Autre'
+    for k, label in _TYPE_MAP.items():
+        if k in v: return label
+    return raw.strip().title()[:25] if raw.strip() and len(raw.strip()) < 30 else 'Autre'
 
 
 def _scraped_listings(transaction):
@@ -140,17 +132,13 @@ def vente_page(request):
     city_f   = request.GET.get('city', '')
     sort_f   = request.GET.get('sort', 'recent')
     price_range = request.GET.get('price_range', '')
-
-    # Parse price range filter
     pr_min = pr_max = None
     if price_range:
         try:
             parts = price_range.split('-')
-            if len(parts) == 2:
-                pr_min = int(parts[0]) * 1_000_000 if parts[0] != '0' else None
-                pr_max = int(parts[1]) * 1_000_000 if parts[1] != '0' else None
-        except (ValueError, IndexError):
-            pass
+            pr_min = int(parts[0]) * 1_000_000 if parts[0] != '0' else None
+            pr_max = int(parts[1]) * 1_000_000 if parts[1] != '0' else None
+        except: pass
 
     # Annonces vendeurs en vente
     seller_qs = Listing.objects.filter(
@@ -169,10 +157,8 @@ def vente_page(request):
         seller_qs = seller_qs.filter(property_type__icontains=type_f)
     if city_f:
         seller_qs = seller_qs.filter(Q(city__icontains=city_f) | Q(neighborhood__icontains=city_f))
-    if pr_min is not None:
-        seller_qs = seller_qs.filter(price__gte=pr_min)
-    if pr_max is not None:
-        seller_qs = seller_qs.filter(price__lte=pr_max)
+    if pr_min: seller_qs = seller_qs.filter(price__gte=pr_min)
+    if pr_max: seller_qs = seller_qs.filter(price__lte=pr_max)
 
     # Tri vendeurs
     if sort_f == 'price_asc':  seller_qs = seller_qs.order_by('price')
@@ -183,24 +169,19 @@ def vente_page(request):
     if q:
         scraped = [s for s in scraped if (s.get('title') and q.lower() in s['title'].lower()) or (s.get('city') and q.lower() in s['city'].lower())]
     if type_f:
-        tf = type_f.lower()
-        scraped = [s for s in scraped if s.get('property_type') and (
-            tf in s['property_type'].lower() or
-            s['property_type'].lower() in tf or
-            _normalize_ptype(tf) == s['property_type']
-        )]
+        tf_low = type_f.lower()
+        scraped = [s for s in scraped if s.get('property_type') and (tf_low in s['property_type'].lower() or s['property_type'].lower().startswith(tf_low[:4]))]
     if city_f:
-        scraped = [s for s in scraped if s.get('city') and city_f.lower() in s['city'].lower()]
-    if pr_min is not None:
-        scraped = [s for s in scraped if s.get('price', 0) >= pr_min]
-    if pr_max is not None:
-        scraped = [s for s in scraped if s.get('price', 0) <= pr_max]
+        cf_low = city_f.lower()
+        scraped = [s for s in scraped if s.get('city') and cf_low in s['city'].lower()]
+    if pr_min: scraped = [s for s in scraped if s.get('price', 0) >= pr_min]
+    if pr_max: scraped = [s for s in scraped if s.get('price', 0) <= pr_max]
 
-    # Tri annonces scraées
+    # Tri annonces scrapees
     if sort_f == 'price_asc':  scraped.sort(key=lambda x: x['price'])
     elif sort_f == 'price_desc': scraped.sort(key=lambda x: x['price'], reverse=True)
 
-    # Pagination annonces scraées
+    # Pagination annonces scrapees
     paginator = Paginator(scraped, 12)
     page_obj  = paginator.get_page(request.GET.get('page_sc', 1))
 
@@ -240,14 +221,12 @@ def location_page(request):
     if price_range:
         try:
             parts = price_range.split('-')
-            if len(parts) == 2:
-                pr_min = int(parts[0]) * 1_000 if parts[0] != '0' else None
-                pr_max = int(parts[1]) * 1_000 if parts[1] != '0' else None
-        except (ValueError, IndexError):
-            pass
+            pr_min = int(parts[0]) * 1_000 if parts[0] != '0' else None
+            pr_max = int(parts[1]) * 1_000 if parts[1] != '0' else None
+        except: pass
 
     seller_qs = Listing.objects.filter(
-        transaction='location', status='active'
+        transaction='location', status='active' 
     ).prefetch_related('images', 'seller__profile')
 
     scraped = _scraped_listings('location')
@@ -258,18 +237,10 @@ def location_page(request):
         scraped = [s for s in scraped if (s.get('title') and q.lower() in s['title'].lower()) or (s.get('city') and q.lower() in s['city'].lower())]
     if type_f:
         seller_qs = seller_qs.filter(property_type__icontains=type_f)
-        tf = type_f.lower()
-        scraped = [s for s in scraped if s.get('property_type') and (
-            tf in s['property_type'].lower() or _normalize_ptype(tf) == s['property_type'])]
+        scraped = [s for s in scraped if s.get('property_type') and type_f.lower() in s['property_type'].lower()]
     if city_f:
         seller_qs = seller_qs.filter(Q(city__icontains=city_f))
         scraped = [s for s in scraped if s.get('city') and city_f.lower() in s['city'].lower()]
-    if pr_min is not None:
-        seller_qs = seller_qs.filter(price__gte=pr_min)
-        scraped = [s for s in scraped if s.get('price', 0) >= pr_min]
-    if pr_max is not None:
-        seller_qs = seller_qs.filter(price__lte=pr_max)
-        scraped = [s for s in scraped if s.get('price', 0) <= pr_max]
 
     if sort_f == 'price_asc':   seller_qs = seller_qs.order_by('price');  scraped.sort(key=lambda x: x['price'])
     elif sort_f == 'price_desc': seller_qs = seller_qs.order_by('-price'); scraped.sort(key=lambda x: x['price'], reverse=True)

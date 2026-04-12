@@ -2,260 +2,174 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>ImmoPredict SN — Plateforme IA Immobilier Senegal</title>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ImmoPredict SN</title>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--navy:#0B1D37;--gold:#C9A84C;--gold2:#E2C47A;--green:#0E6B4A;--dark:#0F172A;--muted:#7A8599;--bg:#F4F6FA}
-*{box-sizing:border-box;margin:0;padding:0}body{font-family:'DM Sans',Arial,sans-serif;background:#fff;color:var(--dark);-webkit-font-smoothing:antialiased}a{color:inherit;text-decoration:none}::selection{background:var(--gold);color:var(--navy)}
-/* NAV */
+:root{--navy:#0B1D37;--gold:#C9A84C;--gold2:#E2C47A;--green:#0E6B4A;--dark:#0F172A;--muted:#7A8599}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'DM Sans',Arial,sans-serif;background:#fff;color:var(--dark)}a{color:inherit;text-decoration:none}
 nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:.85rem 5%;background:transparent;transition:all .4s}
-nav.scrolled{background:rgba(255,255,255,.97);backdrop-filter:blur(20px);box-shadow:0 2px 20px rgba(0,0,0,.08);border-bottom:1px solid rgba(201,168,76,.15)}
-nav.scrolled .nl a,nav.scrolled .nav-logo-text{color:var(--dark)}
-nav.scrolled .nl a:hover{color:var(--gold)}
+nav.scrolled{background:rgba(255,255,255,.97);backdrop-filter:blur(20px);box-shadow:0 2px 20px rgba(0,0,0,.08)}
+nav.scrolled .nl a{color:var(--dark)}nav.scrolled .nav-logo-text{color:var(--dark)}
 .nav-logo{display:flex;align-items:center;gap:.6rem}
 .nav-logo-icon{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;color:var(--navy);font-size:.95rem;box-shadow:0 3px 12px rgba(201,168,76,.3)}
 .nav-logo-text{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:#fff;transition:color .3s}.nav-logo-text span{color:var(--gold)}
 .nl{display:flex;align-items:center;gap:2rem}.nl a{color:rgba(255,255,255,.7);font-size:.84rem;font-weight:500;transition:color .2s}.nl a:hover{color:var(--gold)}
 .nav-cta{display:flex;gap:.6rem}
-.btn-o{padding:.48rem 1.2rem;border:1.5px solid rgba(201,168,76,.5);color:var(--gold);background:transparent;border-radius:8px;font-size:.82rem;font-weight:600;transition:all .2s;display:inline-flex;align-items:center;gap:.3rem}
-.btn-o:hover{background:rgba(201,168,76,.1)}
-.btn-s{padding:.48rem 1.2rem;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy);border:none;border-radius:8px;font-size:.82rem;font-weight:700;transition:all .22s;display:inline-flex;align-items:center;gap:.3rem;box-shadow:0 3px 12px rgba(201,168,76,.25)}
-.btn-s:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(201,168,76,.35)}
-.mob-tog{display:none;background:none;border:none;color:#fff;font-size:1.2rem;cursor:pointer}
-nav.scrolled .mob-tog{color:var(--dark)}
-
-/* HERO WITH VIDEO + CAROUSEL */
+.btn-o{padding:.48rem 1.2rem;border:1.5px solid rgba(201,168,76,.5);color:var(--gold);background:transparent;border-radius:8px;font-size:.82rem;font-weight:600;transition:all .2s;display:inline-flex;align-items:center;gap:.3rem}.btn-o:hover{background:rgba(201,168,76,.1)}
+.btn-s{padding:.48rem 1.2rem;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy);border:none;border-radius:8px;font-size:.82rem;font-weight:700;transition:all .22s;display:inline-flex;align-items:center;gap:.3rem;box-shadow:0 3px 12px rgba(201,168,76,.25)}.btn-s:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(201,168,76,.35)}
+.mob-tog{display:none;background:none;border:none;color:#fff;font-size:1.2rem;cursor:pointer}nav.scrolled .mob-tog{color:var(--dark)}
 .hero{min-height:100vh;position:relative;overflow:hidden;display:flex;align-items:center}
-.hero-video{position:absolute;inset:0;z-index:0}
-.hero-video video{width:100%;height:100%;object-fit:cover}
-.hero-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(11,29,55,.85) 0%,rgba(11,29,55,.7) 40%,rgba(14,107,74,.5) 100%);z-index:1}
-.hero-particles{position:absolute;inset:0;z-index:2;background-image:radial-gradient(rgba(201,168,76,.08) 1px,transparent 1px);background-size:30px 30px}
-.hero-content{position:relative;z-index:3;padding:7rem 5% 5rem;max-width:650px}
-.hero-chip{display:inline-flex;align-items:center;gap:.5rem;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);padding:.35rem 1rem;border-radius:24px;font-size:.7rem;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin-bottom:2rem;animation:shimmer 3s ease infinite;background-size:200% 100%}
-@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-.hero-chip{background:linear-gradient(90deg,rgba(201,168,76,.08) 25%,rgba(201,168,76,.2) 50%,rgba(201,168,76,.08) 75%);background-size:200% 100%}
-.hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.4rem,5vw,3.8rem);font-weight:700;line-height:1.12;color:#fff;margin-bottom:1.3rem}
+.hero-video{position:absolute;inset:0;z-index:0}.hero-video video{width:100%;height:100%;object-fit:cover}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(11,29,55,.85),rgba(11,29,55,.7) 40%,rgba(14,107,74,.5));z-index:1}
+.hero-dots{position:absolute;inset:0;z-index:2;background-image:radial-gradient(rgba(201,168,76,.06) 1px,transparent 1px);background-size:28px 28px}
+.hero-content{position:relative;z-index:3;padding:7rem 5% 5rem;max-width:640px}
+.hero-chip{display:inline-flex;align-items:center;gap:.45rem;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);padding:.32rem .9rem;border-radius:22px;font-size:.68rem;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin-bottom:1.8rem}
+.hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.4rem,5vw,3.8rem);font-weight:700;line-height:1.12;color:#fff;margin-bottom:1.2rem}
 .hero-title em{color:var(--gold);font-style:italic}
-.hero-desc{font-size:.95rem;color:rgba(255,255,255,.55);line-height:1.8;max-width:500px;margin-bottom:2.5rem}
+.hero-desc{font-size:.92rem;color:rgba(255,255,255,.5);line-height:1.8;max-width:480px;margin-bottom:2.2rem}
 .hero-btns{display:flex;gap:.8rem;flex-wrap:wrap;margin-bottom:3rem}
-.btn-hero-p{padding:.85rem 2.2rem;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy);border:none;border-radius:10px;font-size:.9rem;font-weight:700;display:inline-flex;align-items:center;gap:.45rem;transition:all .25s;cursor:pointer;box-shadow:0 4px 18px rgba(201,168,76,.35)}
-.btn-hero-p:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,168,76,.45)}
-.btn-hero-s{padding:.85rem 2.2rem;background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.25);border-radius:10px;font-size:.9rem;font-weight:500;display:inline-flex;align-items:center;gap:.45rem;transition:all .25s}
-.btn-hero-s:hover{border-color:var(--gold);color:var(--gold)}
+.btn-hp{padding:.82rem 2rem;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy);border:none;border-radius:10px;font-size:.88rem;font-weight:700;display:inline-flex;align-items:center;gap:.4rem;transition:all .25s;box-shadow:0 4px 18px rgba(201,168,76,.35)}.btn-hp:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,168,76,.45)}
+.btn-hs{padding:.82rem 2rem;background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.25);border-radius:10px;font-size:.88rem;font-weight:500;display:inline-flex;align-items:center;gap:.4rem;transition:all .25s}.btn-hs:hover{border-color:var(--gold);color:var(--gold)}
 .hero-stats{display:flex;gap:3rem}
-.h-stat-n{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--gold);line-height:1}
-.h-stat-l{font-size:.68rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.12em;margin-top:.3rem;font-family:'JetBrains Mono',monospace}
-
-/* IMAGE CAROUSEL on right */
-.hero-carousel{position:absolute;right:5%;top:50%;transform:translateY(-50%);width:42%;max-width:520px;z-index:3}
-.carousel-container{position:relative;border-radius:16px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.4);border:2px solid rgba(201,168,76,.2)}
-.carousel-slide{display:none;width:100%;height:380px;object-fit:cover;animation:carouselFade 1s ease}
-.carousel-slide.active{display:block}
-@keyframes carouselFade{from{opacity:0;transform:scale(1.03)}to{opacity:1;transform:scale(1)}}
-.carousel-caption{position:absolute;bottom:0;left:0;right:0;padding:1.2rem 1.5rem;background:linear-gradient(transparent,rgba(11,29,55,.85));color:#fff}
-.carousel-caption strong{font-family:'Playfair Display',serif;font-size:1rem;display:block;margin-bottom:.2rem}
-.carousel-caption small{color:rgba(255,255,255,.5);font-size:.75rem}
-.carousel-dots{position:absolute;bottom:1rem;right:1.5rem;display:flex;gap:.4rem;z-index:4}
-.carousel-dots span{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.3);cursor:pointer;transition:all .2s}
-.carousel-dots span.active{background:var(--gold);width:20px;border-radius:4px}
-@keyframes float{0%,100%{transform:translateY(-50%)}50%{transform:translateY(calc(-50% - 10px))}}
-.hero-carousel{animation:float 5s ease-in-out infinite}
-
-/* SECTIONS */
-.section{padding:5.5rem 5%}.section-alt{background:var(--bg)}
-.section-tag{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.7rem;text-align:center}
-.section-h{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3vw,2.6rem);font-weight:700;color:var(--dark);margin-bottom:.6rem;text-align:center}
-.section-desc{color:var(--muted);font-size:.9rem;max-width:550px;margin:0 auto 3.5rem;text-align:center;line-height:1.7}
-/* Features */
-.feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.4rem;max-width:1100px;margin:0 auto}
-.feat-card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:14px;padding:2rem;transition:all .3s;position:relative;overflow:hidden}
-.feat-card::before{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold2));transform:scaleX(0);transform-origin:left;transition:transform .3s}
-.feat-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.08);border-color:rgba(201,168,76,.2)}
-.feat-card:hover::before{transform:scaleX(1)}
-.feat-icon{width:48px;height:48px;border-radius:12px;background:rgba(201,168,76,.08);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:1.15rem;margin-bottom:1.2rem}
-.feat-title{font-family:'Playfair Display',serif;font-weight:600;color:var(--dark);font-size:1rem;margin-bottom:.6rem}
-.feat-desc{font-size:.84rem;color:var(--muted);line-height:1.7}
-/* Steps */
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;max-width:1000px;margin:0 auto}
+.hs-n{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;color:var(--gold);line-height:1}
+.hs-l{font-size:.65rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.12em;margin-top:.25rem;font-family:'JetBrains Mono',monospace}
+.hero-carousel{position:absolute;right:5%;top:50%;transform:translateY(-50%);width:40%;max-width:500px;z-index:3;animation:hfloat 5s ease-in-out infinite}
+@keyframes hfloat{0%,100%{transform:translateY(-50%)}50%{transform:translateY(calc(-50% - 10px))}}
+.cc{position:relative;border-radius:14px;overflow:hidden;box-shadow:0 28px 70px rgba(0,0,0,.4);border:2px solid rgba(201,168,76,.15)}
+.cslide{display:none;width:100%;height:360px;object-fit:cover;animation:cfade .8s ease}.cslide.active{display:block}
+@keyframes cfade{from{opacity:0;transform:scale(1.02)}to{opacity:1;transform:scale(1)}}
+.ccap{position:absolute;bottom:0;left:0;right:0;padding:1rem 1.3rem;background:linear-gradient(transparent,rgba(11,29,55,.8));color:#fff}
+.ccap strong{font-family:'Playfair Display',serif;font-size:.95rem;display:block}.ccap small{color:rgba(255,255,255,.45);font-size:.72rem}
+.cdots{position:absolute;bottom:.8rem;right:1.2rem;display:flex;gap:.35rem;z-index:4}
+.cdots span{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.3);cursor:pointer;transition:all .2s}.cdots span.active{background:var(--gold);width:18px;border-radius:4px}
+.section{padding:5rem 5%}.section-alt{background:#F4F6FA}
+.stag{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem;text-align:center}
+.sh{font-family:'Playfair Display',serif;font-size:clamp(1.7rem,3vw,2.5rem);font-weight:700;color:var(--dark);margin-bottom:.5rem;text-align:center}
+.sdesc{color:var(--muted);font-size:.88rem;max-width:520px;margin:0 auto 3rem;text-align:center;line-height:1.7}
+.fg{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.3rem;max-width:1100px;margin:0 auto}
+.fc{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:14px;padding:1.8rem;transition:all .3s;position:relative;overflow:hidden}
+.fc::before{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold2));transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.fc:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.08)}.fc:hover::before{transform:scaleX(1)}
+.fci{width:46px;height:46px;border-radius:11px;background:rgba(201,168,76,.08);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:1.1rem;margin-bottom:1.1rem}
+.fct{font-family:'Playfair Display',serif;font-weight:600;color:var(--dark);font-size:.95rem;margin-bottom:.5rem}
+.fcd{font-size:.82rem;color:var(--muted);line-height:1.7}
+.imgs{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;max-width:1100px;margin:2.5rem auto 0}
+.imgs img{width:100%;height:180px;object-fit:cover;border-radius:10px;transition:all .3s}.imgs img:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.1)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;max-width:950px;margin:0 auto}
 .step{text-align:center;padding:1rem}
-.step-num{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy);font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;box-shadow:0 4px 16px rgba(201,168,76,.25)}
-.step-title{font-family:'Playfair Display',serif;font-weight:600;font-size:1rem;margin-bottom:.5rem;color:var(--dark)}
-.step-desc{font-size:.84rem;color:var(--muted);line-height:1.65}
-/* Testimonial images */
-.img-showcase{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;max-width:1100px;margin:3rem auto 0}
-.img-showcase img{width:100%;height:200px;object-fit:cover;border-radius:12px;transition:all .3s;border:2px solid transparent}
-.img-showcase img:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,.12);border-color:var(--gold)}
-/* Sources */
-.src-grid{display:flex;justify-content:center;flex-wrap:wrap;gap:3rem;margin-top:2rem}
-.src-item{color:var(--muted);font-size:.88rem;font-weight:600;display:flex;align-items:center;gap:.6rem;transition:color .2s}
-.src-item:hover{color:var(--gold)}
-.src-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-/* CTA */
-.cta-sec{padding:6rem 5%;text-align:center;background:linear-gradient(135deg,var(--navy),var(--green));position:relative;overflow:hidden}
-.cta-sec::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(201,168,76,.03) 40px,rgba(201,168,76,.03) 41px)}
-.cta-h{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:700;color:#fff;margin-bottom:.8rem;position:relative;z-index:2}
-.cta-h span{color:var(--gold)}
-.cta-d{font-size:.92rem;color:rgba(255,255,255,.5);max-width:480px;margin:0 auto 2.5rem;line-height:1.75;position:relative;z-index:2}
-.cta-btns{display:flex;justify-content:center;gap:.8rem;flex-wrap:wrap;position:relative;z-index:2}
-/* Footer */
-.wfooter{background:var(--dark);color:rgba(255,255,255,.4);font-size:.82rem}
-.wf-main{max-width:1200px;margin:0 auto;padding:3rem 2rem 2rem;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3rem}
-.wf-brand h3{font-family:'Playfair Display',serif;font-size:1.15rem;color:#fff;margin-bottom:.5rem}.wf-brand h3 span{color:var(--gold)}
-.wf-brand p{font-size:.8rem;color:rgba(255,255,255,.3);line-height:1.7;max-width:280px}
-.wf-col h4{font-size:.75rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.8rem}
-.wf-col a{display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.25rem 0;transition:color .2s}.wf-col a:hover{color:var(--gold)}
-.wf-bottom{max-width:1200px;margin:0 auto;padding:1rem 2rem;border-top:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
-.wf-bottom span{font-size:.72rem;color:rgba(255,255,255,.18)}
-.wf-social{display:flex;gap:.6rem}
-.wf-social a{width:30px;height:30px;border-radius:7px;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.25);font-size:.8rem;transition:all .2s}
-.wf-social a:hover{background:rgba(201,168,76,.12);color:var(--gold)}
-/* Animations */
-@keyframes fade-up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.fade-up{animation:fade-up .7s ease forwards;opacity:0}
+.sn{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy);font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;box-shadow:0 4px 14px rgba(201,168,76,.25)}
+.stt{font-family:'Playfair Display',serif;font-weight:600;font-size:.95rem;margin-bottom:.4rem;color:var(--dark)}.std{font-size:.82rem;color:var(--muted);line-height:1.6}
+.cta{padding:5rem 5%;text-align:center;background:linear-gradient(135deg,var(--navy),var(--green));position:relative;overflow:hidden}
+.cta::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(201,168,76,.03) 40px,rgba(201,168,76,.03) 41px)}
+.cta h2{font-family:'Playfair Display',serif;font-size:clamp(1.7rem,3vw,2.6rem);font-weight:700;color:#fff;margin-bottom:.7rem;position:relative;z-index:2}.cta h2 span{color:var(--gold)}
+.cta p{font-size:.88rem;color:rgba(255,255,255,.45);max-width:450px;margin:0 auto 2rem;line-height:1.7;position:relative;z-index:2}
+.cta-btns{display:flex;justify-content:center;gap:.7rem;flex-wrap:wrap;position:relative;z-index:2}
+.wf{background:#0F172A;color:rgba(255,255,255,.35);font-size:.8rem}
+.wfm{max-width:1100px;margin:0 auto;padding:2.5rem 2rem 1.5rem;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2.5rem}
+.wfb h3{font-family:'Playfair Display',serif;font-size:1.05rem;color:#fff;margin-bottom:.4rem}.wfb h3 span{color:var(--gold)}
+.wfb p{font-size:.76rem;color:rgba(255,255,255,.25);line-height:1.7;max-width:250px}
+.wfc h4{font-size:.7rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.7rem}
+.wfc a{display:block;color:rgba(255,255,255,.3);font-size:.78rem;padding:.2rem 0;transition:color .2s}.wfc a:hover{color:var(--gold)}
+.wfbot{max-width:1100px;margin:0 auto;padding:.8rem 2rem;border-top:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.4rem}
+.wfbot span{font-size:.68rem;color:rgba(255,255,255,.15)}
+@keyframes fu{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}.fu{animation:fu .7s ease forwards;opacity:0}
 .d1{animation-delay:.1s}.d2{animation-delay:.25s}.d3{animation-delay:.4s}.d4{animation-delay:.55s}
 @media(max-width:1024px){.hero-carousel{display:none}.nl{display:none}.mob-tog{display:block}}
-@media(max-width:640px){.hero-stats{flex-wrap:wrap;gap:1.5rem}.steps{grid-template-columns:1fr}.img-showcase{grid-template-columns:1fr 1fr}.wf-main{grid-template-columns:1fr 1fr;gap:2rem}}
-@media(max-width:480px){.wf-main{grid-template-columns:1fr}.img-showcase{grid-template-columns:1fr}}
+@media(max-width:640px){.hero-stats{flex-wrap:wrap;gap:1.2rem}.steps{grid-template-columns:1fr}.imgs{grid-template-columns:1fr 1fr}.wfm{grid-template-columns:1fr 1fr;gap:1.5rem}}
 </style>
 </head>
 <body>
 <nav id="mainNav">
   <a href="/" class="nav-logo"><div class="nav-logo-icon"><i class="fas fa-building"></i></div><span class="nav-logo-text">Immo<span>Predict</span> SN</span></a>
-  <div class="nl"><a href="#features">Fonctionnalites</a><a href="#how">Comment ca marche</a><a href="#sources">Donnees</a></div>
+  <div class="nl"><a href="#features">Fonctionnalites</a><a href="#how">Comment ca marche</a><a href="{% url 'about' %}">A propos</a><a href="{% url 'contact' %}">Contact</a></div>
   <div class="nav-cta"><a href="{% url 'login' %}" class="btn-o"><i class="fas fa-sign-in-alt"></i>Connexion</a><a href="{% url 'register' %}" class="btn-s"><i class="fas fa-user-plus"></i>S'inscrire</a></div>
   <button class="mob-tog" onclick="document.querySelector('.nl').classList.toggle('show')"><i class="fas fa-bars"></i></button>
 </nav>
-
-<!-- HERO WITH VIDEO + IMAGE CAROUSEL -->
 <section class="hero">
   <div class="hero-video">
     <video autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1600&q=80">
       <source src="https://videos.pexels.com/video-files/3129671/3129671-uhd_2560_1440_30fps.mp4" type="video/mp4">
     </video>
   </div>
-  <div class="hero-overlay"></div>
-  <div class="hero-particles"></div>
-
+  <div class="hero-overlay"></div><div class="hero-dots"></div>
   <div class="hero-content">
-    <div class="hero-chip fade-up"><i class="fas fa-circle" style="font-size:.4rem"></i> Plateforme IA - Immobilier Senegal</div>
-    <h1 class="hero-title fade-up d1">L'intelligence artificielle au service de <em>l'immobilier senegalais</em></h1>
-    <p class="hero-desc fade-up d2">Analysez le marche en temps reel, estimez la valeur de tout bien immobilier et recevez des recommandations personnalisees.</p>
-    <div class="hero-btns fade-up d3">
-      <a href="{% url 'register' %}" class="btn-hero-p"><i class="fas fa-rocket"></i>Commencer gratuitement</a>
-      <a href="#features" class="btn-hero-s"><i class="fas fa-play-circle"></i>Decouvrir</a>
+    <div class="hero-chip fu"><i class="fas fa-circle" style="font-size:.35rem"></i> Plateforme IA - Immobilier Senegal</div>
+    <h1 class="hero-title fu d1">L'intelligence artificielle au service de <em>l'immobilier senegalais</em></h1>
+    <p class="hero-desc fu d2">Analysez le marche en temps reel, estimez la valeur de tout bien immobilier et recevez des recommandations personnalisees.</p>
+    <div class="hero-btns fu d3">
+      <a href="{% url 'register' %}" class="btn-hp"><i class="fas fa-rocket"></i>Commencer gratuitement</a>
+      <a href="#features" class="btn-hs"><i class="fas fa-play-circle"></i>Decouvrir</a>
     </div>
-    <div class="hero-stats fade-up d4">
-      <div><div class="h-stat-n">10K+</div><div class="h-stat-l">Annonces</div></div>
-      <div><div class="h-stat-n">80+</div><div class="h-stat-l">Quartiers</div></div>
-      <div><div class="h-stat-n">4</div><div class="h-stat-l">Sources</div></div>
-      <div><div class="h-stat-n">IA</div><div class="h-stat-l">XGBoost</div></div>
-    </div>
-  </div>
-
-  <!-- Image Carousel -->
-  <div class="hero-carousel">
-    <div class="carousel-container">
-      <img class="carousel-slide active" src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80" alt="Villa moderne Dakar">
-      <img class="carousel-slide" src="https://images.unsplash.com/photo-1613977257363-707ba9348227?w=800&q=80" alt="Appartement luxe">
-      <img class="carousel-slide" src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&q=80" alt="Residence Senegal">
-      <img class="carousel-slide" src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80" alt="Duplex moderne">
-      <img class="carousel-slide" src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800&q=80" alt="Interior design">
-      <div class="carousel-caption"><strong>Explorez le marche immobilier</strong><small>Villas, appartements, terrains au Senegal</small></div>
-      <div class="carousel-dots"><span class="active" onclick="goSlide(0)"></span><span onclick="goSlide(1)"></span><span onclick="goSlide(2)"></span><span onclick="goSlide(3)"></span><span onclick="goSlide(4)"></span></div>
+    <div class="hero-stats fu d4">
+      <div><div class="hs-n">10K+</div><div class="hs-l">Annonces</div></div>
+      <div><div class="hs-n">80+</div><div class="hs-l">Quartiers</div></div>
+      <div><div class="hs-n">4</div><div class="hs-l">Sources</div></div>
+      <div><div class="hs-n">IA</div><div class="hs-l">XGBoost</div></div>
     </div>
   </div>
+  <div class="hero-carousel"><div class="cc">
+    <img class="cslide active" src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80" alt="">
+    <img class="cslide" src="https://images.unsplash.com/photo-1613977257363-707ba9348227?w=800&q=80" alt="">
+    <img class="cslide" src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&q=80" alt="">
+    <img class="cslide" src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80" alt="">
+    <img class="cslide" src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800&q=80" alt="">
+    <div class="ccap"><strong>Explorez le marche immobilier</strong><small>Villas, appartements, terrains au Senegal</small></div>
+    <div class="cdots"><span class="active" onclick="gs(0)"></span><span onclick="gs(1)"></span><span onclick="gs(2)"></span><span onclick="gs(3)"></span><span onclick="gs(4)"></span></div>
+  </div></div>
 </section>
-
-<!-- FEATURES -->
 <section class="section section-alt" id="features">
-  <div class="section-tag">Fonctionnalites</div>
-  <h2 class="section-h">Tout ce dont vous avez besoin</h2>
-  <p class="section-desc">Des outils professionnels pour analyser, estimer et investir dans l'immobilier senegalais.</p>
-  <div class="feat-grid">
-    <div class="feat-card"><div class="feat-icon"><i class="fas fa-chart-line"></i></div><div class="feat-title">Dashboard analytique</div><div class="feat-desc">Visualisez les tendances du marche en temps reel avec des graphiques Plotly interactifs et des KPI cles.</div></div>
-    <div class="feat-card"><div class="feat-icon"><i class="fas fa-brain"></i></div><div class="feat-title">Estimation par IA</div><div class="feat-desc">Notre modele XGBoost entraine sur des milliers d'annonces estime le prix de tout bien au Senegal.</div></div>
-    <div class="feat-card"><div class="feat-icon"><i class="fas fa-map-marked-alt"></i></div><div class="feat-title">Carte interactive</div><div class="feat-desc">Explorez les annonces sur une carte Leaflet avec filtres par type, quartier et fourchette de prix.</div></div>
-    <div class="feat-card"><div class="feat-icon"><i class="fas fa-headset"></i></div><div class="feat-title">Assistant ImmoAI</div><div class="feat-desc">Posez vos questions en langage naturel a notre chatbot IA propulse par Groq (LLaMA 3.3 70B).</div></div>
-    <div class="feat-card"><div class="feat-icon"><i class="fas fa-bell"></i></div><div class="feat-title">Alertes proximite</div><div class="feat-desc">Recevez des notifications lorsqu'un bien est publie pres de votre localisation.</div></div>
-    <div class="feat-card"><div class="feat-icon"><i class="fas fa-lightbulb"></i></div><div class="feat-title">Recommandations</div><div class="feat-desc">Systeme intelligent qui apprend de vos recherches pour proposer les meilleurs biens.</div></div>
+  <div class="stag">Fonctionnalites</div><h2 class="sh">Tout ce dont vous avez besoin</h2>
+  <p class="sdesc">Des outils professionnels pour analyser, estimer et investir dans l'immobilier senegalais.</p>
+  <div class="fg">
+    <div class="fc"><div class="fci"><i class="fas fa-chart-line"></i></div><div class="fct">Dashboard analytique</div><div class="fcd">Visualisez les tendances du marche en temps reel avec des graphiques interactifs et des KPI.</div></div>
+    <div class="fc"><div class="fci"><i class="fas fa-brain"></i></div><div class="fct">Estimation par IA</div><div class="fcd">Notre modele XGBoost entraine sur des milliers d'annonces estime le prix de tout bien.</div></div>
+    <div class="fc"><div class="fci"><i class="fas fa-map-marked-alt"></i></div><div class="fct">Carte interactive</div><div class="fcd">Explorez les annonces sur une carte avec filtres par type, quartier et prix.</div></div>
+    <div class="fc"><div class="fci"><i class="fas fa-headset"></i></div><div class="fct">Assistant ImmoAI</div><div class="fcd">Posez vos questions a notre chatbot IA propulse par Groq (LLaMA 3.3 70B).</div></div>
+    <div class="fc"><div class="fci"><i class="fas fa-bell"></i></div><div class="fct">Alertes proximite</div><div class="fcd">Recevez des notifications quand un bien est publie pres de chez vous.</div></div>
+    <div class="fc"><div class="fci"><i class="fas fa-lightbulb"></i></div><div class="fct">Recommandations</div><div class="fcd">Systeme intelligent qui apprend de vos recherches pour proposer les meilleurs biens.</div></div>
   </div>
 </section>
-
-<!-- SHOWCASE IMAGES -->
 <section class="section">
-  <div class="section-tag">Immobilier Senegal</div>
-  <h2 class="section-h">Decouvrez des biens d'exception</h2>
-  <p class="section-desc">Des villas aux Almadies aux appartements au Plateau, explorez le marche immobilier senegalais.</p>
-  <div class="img-showcase">
-    <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=500&q=80" alt="Villa moderne" loading="lazy">
-    <img src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=500&q=80" alt="Interieur luxe" loading="lazy">
-    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&q=80" alt="Residence" loading="lazy">
-    <img src="https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=500&q=80" alt="Architecture" loading="lazy">
+  <div class="stag">Immobilier Senegal</div><h2 class="sh">Decouvrez des biens d'exception</h2>
+  <div class="imgs">
+    <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=500&q=80" alt="" loading="lazy">
+    <img src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=500&q=80" alt="" loading="lazy">
+    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&q=80" alt="" loading="lazy">
+    <img src="https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=500&q=80" alt="" loading="lazy">
   </div>
 </section>
-
-<!-- HOW IT WORKS -->
 <section class="section section-alt" id="how">
-  <div class="section-tag">Processus</div>
-  <h2 class="section-h">Comment ca marche</h2>
-  <p class="section-desc">En 3 etapes simples, accedez a toute la puissance de l'analyse immobiliere.</p>
+  <div class="stag">Processus</div><h2 class="sh">Comment ca marche</h2>
+  <p class="sdesc">En 3 etapes simples, accedez a toute la puissance de l'analyse immobiliere.</p>
   <div class="steps">
-    <div class="step"><div class="step-num">1</div><div class="step-title">Inscrivez-vous</div><div class="step-desc">Creez votre compte gratuit en 30 secondes. Choisissez votre profil : acheteur ou vendeur.</div></div>
-    <div class="step"><div class="step-num">2</div><div class="step-title">Explorez le marche</div><div class="step-desc">Parcourez les annonces, analysez les prix par quartier et utilisez notre estimateur IA.</div></div>
-    <div class="step"><div class="step-num">3</div><div class="step-title">Decidez avec confiance</div><div class="step-desc">Recevez des alertes, des recommandations et prenez des decisions eclairees.</div></div>
+    <div class="step"><div class="sn">1</div><div class="stt">Inscrivez-vous</div><div class="std">Creez votre compte gratuit. Choisissez votre profil : acheteur ou vendeur.</div></div>
+    <div class="step"><div class="sn">2</div><div class="stt">Explorez le marche</div><div class="std">Parcourez les annonces, analysez les prix et utilisez notre estimateur IA.</div></div>
+    <div class="step"><div class="sn">3</div><div class="stt">Decidez avec confiance</div><div class="std">Alertes, recommandations et decisions eclairees.</div></div>
   </div>
 </section>
-
-<!-- SOURCES -->
-<section class="section" id="sources">
-  <div class="section-tag">Sources de donnees</div>
-  <h2 class="section-h">Des donnees fiables et completes</h2>
-  <p class="section-desc">Nous aggregeons les annonces de 4 plateformes majeures du Senegal, mises a jour quotidiennement.</p>
-  <div class="src-grid">
-    <div class="src-item"><div class="src-dot" style="background:#F59E0B"></div>CoinAfrique</div>
-    <div class="src-item"><div class="src-dot" style="background:#2563EB"></div>Expat-Dakar</div>
-    <div class="src-item"><div class="src-dot" style="background:#0E6B4A"></div>Loger-Dakar</div>
-    <div class="src-item"><div class="src-dot" style="background:#C0392B"></div>DakarVente</div>
-  </div>
+<section class="cta">
+  <h2>Pret a explorer le marche <span>immobilier</span> ?</h2>
+  <p>Rejoignez des milliers d'utilisateurs qui font confiance a ImmoPredict SN.</p>
+  <div class="cta-btns"><a href="{% url 'register' %}" class="btn-hp"><i class="fas fa-rocket"></i>Creer un compte gratuit</a><a href="{% url 'login' %}" class="btn-hs"><i class="fas fa-sign-in-alt"></i>Se connecter</a></div>
 </section>
-
-<!-- CTA -->
-<section class="cta-sec">
-  <h2 class="cta-h">Pret a explorer le marche <span>immobilier senegalais</span> ?</h2>
-  <p class="cta-d">Rejoignez des milliers d'utilisateurs qui font confiance a ImmoPredict SN.</p>
-  <div class="cta-btns">
-    <a href="{% url 'register' %}" class="btn-hero-p"><i class="fas fa-rocket"></i>Creer un compte gratuit</a>
-    <a href="{% url 'login' %}" class="btn-hero-s" style="color:#fff;border-color:rgba(255,255,255,.2)"><i class="fas fa-sign-in-alt"></i>Se connecter</a>
+<footer class="wf">
+  <div class="wfm">
+    <div class="wfb"><h3>Immo<span>Predict</span> SN</h3><p>Premiere plateforme IA dediee au marche immobilier senegalais.</p></div>
+    <div class="wfc"><h4>Navigation</h4><a href="{% url 'login' %}">Vente</a><a href="{% url 'login' %}">Location</a><a href="{% url 'login' %}">Dashboard</a><a href="{% url 'login' %}">Estimation</a></div>
+    <div class="wfc"><h4>Informations</h4><a href="{% url 'about' %}">A propos</a><a href="{% url 'contact' %}">Contact</a><a href="{% url 'register' %}">S'inscrire</a></div>
+    <div class="wfc"><h4>Technologies</h4><a href="#">Django / Python</a><a href="#">XGBoost / LightGBM</a><a href="#">PostgreSQL / Neon</a></div>
   </div>
-</section>
-
-<!-- FOOTER -->
-<footer class="wfooter">
-  <div class="wf-main">
-    <div class="wf-brand"><h3>Immo<span>Predict</span> SN</h3><p>La premiere plateforme IA dediee au marche immobilier senegalais. Donnees en temps reel, estimations ML et analyses avancees.</p></div>
-    <div class="wf-col"><h4>Navigation</h4><a href="{% url 'login' %}">Dashboard</a><a href="{% url 'login' %}">Vente</a><a href="{% url 'login' %}">Location</a><a href="{% url 'login' %}">Carte</a><a href="{% url 'login' %}">Estimation</a></div>
-    <div class="wf-col"><h4>Informations</h4><a href="{% url 'about' %}">A propos</a><a href="{% url 'contact' %}">Contact</a><a href="{% url 'register' %}">S'inscrire</a></div>
-    <div class="wf-col"><h4>Technologies</h4><a href="#">Django / Python</a><a href="#">XGBoost / LightGBM</a><a href="#">PostgreSQL / Neon</a><a href="#">Groq / LLaMA 3</a></div>
-  </div>
-  <div class="wf-bottom">
-    <span>ImmoPredict SN &copy; 2025 - Tous droits reserves</span>
-    <div class="wf-social"><a href="#"><i class="fab fa-linkedin-in"></i></a><a href="#"><i class="fab fa-x-twitter"></i></a><a href="#"><i class="fab fa-github"></i></a></div>
-  </div>
+  <div class="wfbot"><span>ImmoPredict SN &copy; 2025</span></div>
 </footer>
-
 <script>
-// Nav scroll
 window.addEventListener('scroll',function(){document.getElementById('mainNav').classList.toggle('scrolled',window.scrollY>50)});
-// Image carousel
-var slides=document.querySelectorAll('.carousel-slide'),dots=document.querySelectorAll('.carousel-dots span'),ci=0;
-function goSlide(n){slides.forEach(function(s){s.classList.remove('active')});dots.forEach(function(d){d.classList.remove('active')});ci=n;slides[ci].classList.add('active');dots[ci].classList.add('active')}
-setInterval(function(){goSlide((ci+1)%slides.length)},4000);
-// Intersection observer
-var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.style.animationPlayState='running';obs.unobserve(e.target)}})},{threshold:.1});
-document.querySelectorAll('.feat-card,.step,.img-showcase img').forEach(function(el,i){el.classList.add('fade-up');el.style.animationDelay=(i*80)+'ms';el.style.animationPlayState='paused';obs.observe(el)});
+var sl=document.querySelectorAll('.cslide'),dt=document.querySelectorAll('.cdots span'),ci=0;
+function gs(n){sl.forEach(function(s){s.classList.remove('active')});dt.forEach(function(d){d.classList.remove('active')});ci=n;sl[ci].classList.add('active');dt[ci].classList.add('active')}
+setInterval(function(){gs((ci+1)%sl.length)},4000);
+var obs=new IntersectionObserver(function(en){en.forEach(function(e){if(e.isIntersecting){e.target.style.animationPlayState='running';obs.unobserve(e.target)}})},{threshold:.1});
+document.querySelectorAll('.fc,.step,.imgs img').forEach(function(el,i){el.classList.add('fu');el.style.animationDelay=(i*70)+'ms';el.style.animationPlayState='paused';obs.observe(el)});
 </script>
 </body>
 </html>

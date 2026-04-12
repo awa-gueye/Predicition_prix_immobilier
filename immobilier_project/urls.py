@@ -13,39 +13,27 @@ except ImportError:
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
-    # Page d'accueil (welcome pour non-connectes, dashboard pour connectes)
-    path('',           auth_views.welcome_or_dashboard, name='home'),
-    path('welcome/',   auth_views.welcome_view,         name='welcome'),
-    path('dashboard/', chart_views.dashboard_page,      name='dashboard'),
-
-    # Authentification
-    path('immo/login/',    auth_views.login_view,    name='login'),
-    path('immo/logout/',   auth_views.logout_view,   name='logout'),
+    # Accueil: welcome pour visiteurs, dashboard pour connectes
+    path('', auth_views.welcome_or_dashboard, name='home'),
+    path('welcome/', auth_views.welcome_view, name='welcome'),
+    path('dashboard/', chart_views.dashboard_page, name='dashboard'),
+    # Auth
+    path('immo/login/', auth_views.login_view, name='login'),
+    path('immo/logout/', auth_views.logout_view, name='logout'),
     path('immo/register/', auth_views.register_view, name='register'),
-
-    # Pages principales
-    path('map/',        auth_views.map_page,        name='map'),
+    # Pages
+    path('map/', auth_views.map_page, name='map'),
     path('estimation/', auth_views.estimation_page, name='estimation'),
-    path('about/',      auth_views.about_view,      name='about'),
-    path('contact/',    auth_views.contact_view,    name='contact'),
-
-    # Admin panel
+    path('about/', auth_views.about_view, name='about'),
+    path('contact/', auth_views.contact_view, name='contact'),
     path('immo-admin/', auth_views.admin_panel_page, name='dash_page'),
-
-    # Vente, Location, Profil, Annonces
+    # Listings
     path('', include('listings.urls')),
-
-    # API
     path('api/properties/', include('properties.urls')),
-    path('api/stats/',    chart_views.api_stats_real, name='api_stats'),
-    path('api/debug-db/', chart_views.api_debug_db,   name='api_debug_db'),
+    path('api/stats/', chart_views.api_stats_real, name='api_stats'),
+    path('api/debug-db/', chart_views.api_debug_db, name='api_debug_db'),
 ]
-
 if api_chatbot:
-    urlpatterns += [
-        path('immo/api/chatbot/', api_chatbot, name='immo_api_chatbot'),
-    ]
-
-urlpatterns += static(settings.MEDIA_URL,  document_root=settings.MEDIA_ROOT)
+    urlpatterns += [path('immo/api/chatbot/', api_chatbot, name='immo_api_chatbot')]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

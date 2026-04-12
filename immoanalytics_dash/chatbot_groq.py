@@ -229,25 +229,19 @@ def _groq_response(question, context, history=None):
 
         client = Groq(api_key=api_key)
 
-        system_prompt = f"""Tu es ImmoAI, un assistant intelligent et polyvalent de la plateforme ImmoPredict SN.
-Tu es expert du marche immobilier senegalais MAIS tu reponds aussi a toute autre question.
+        system_prompt = f"""Tu es ImmoAI, l'assistant immobilier intelligent de la plateforme ImmoPredict SN.
+Tu aides les utilisateurs à analyser le marché immobilier sénégalais.
 
 {context}
 
-TES COMPETENCES :
-1. IMMOBILIER : Prix, estimations, comparaisons quartiers, conseils investissement, tendances
-2. CULTURE GENERALE : Tu reponds a toute question (histoire, sciences, geographie, actualites, etc.)
-3. CONSEILS PRATIQUES : Demarches administratives au Senegal, fiscalite immobiliere, credits
-4. CALCULS : Mensualites, rentabilite locative, plus-value, frais de notaire
-
-REGLES :
-- Reponds TOUJOURS en francais, de facon structuree et claire
-- Utilise les donnees reelles pour les questions immobilieres
-- Formate les prix en FCFA (85M FCFA, 300K FCFA)
-- Pour les questions NON immobilieres, reponds normalement et avec competence
-- NE DIS JAMAIS que tu ne comprends pas ou que la question est hors sujet
-- Utilise du HTML (<b>, <br>, <em>, <ul>, <li>) pour formater
-- Sois chaleureux, precis et utile comme un conseiller de confiance"""
+RÈGLES:
+- Réponds en français, de façon concise et professionnelle
+- Utilise les données réelles fournies ci-dessus
+- Formate les prix en FCFA (ex: 85M FCFA, 300K FCFA)
+- Si tu cites des prix, base-toi sur les données réelles du marché
+- Pour les questions hors immobilier, recentre sur le marché immobilier sénégalais
+- Sois direct et utile, pas trop long (max 3-4 phrases sauf si nécessaire)
+- Tu peux utiliser du HTML minimal (<b>, <br>) pour formater ta réponse"""
 
         messages = [{"role": "system", "content": system_prompt}]
         if history:
@@ -258,7 +252,7 @@ REGLES :
             model=GROQ_MODEL,
             messages=messages,
             max_tokens=800,
-            temperature=0.35,
+            temperature=0.4,
         )
         return response.choices[0].message.content
 
@@ -415,13 +409,10 @@ def api_chatbot(request):
         if _is_greeting(q):
             return JsonResponse({
                 'response': (
-                    "Bonjour ! Je suis <b>ImmoAI</b>, votre assistant intelligent.<br><br>"
-                    "Je peux vous aider sur :<br>"
-                    "- <b>Prix et estimations</b> du marche immobilier<br>"
-                    "- <b>Comparaison de quartiers</b> a Dakar et au Senegal<br>"
-                    "- <b>Conseils d'investissement</b> et calculs de rentabilite<br>"
-                    "- <b>Toute autre question</b> (culture generale, demarches, etc.)<br><br>"
-                    "<em>Essayez : Que vaut une villa a Almadies ? / Quel quartier pour investir ?</em>"
+                    "Bonjour ! Je suis <b>ImmoAI</b>, votre assistant immobilier intelligent.<br>"
+                    "Je peux analyser les prix du marché, comparer les quartiers, "
+                    "vous conseiller sur votre budget ou trouver des biens disponibles.<br>"
+                    "<small style='opacity:.65'>Propulsé par Groq · ImmoPredict SN</small>"
                 ),
                 'total': 0, 'properties': []
             })
@@ -468,17 +459,19 @@ def api_chatbot(request):
             # Recherche classique
             has_crit = any(crit.get(k) for k in ['city','type','transaction','min_price','max_price','bedrooms'])
             if not has_crit:
-                # Try Groq for general questions even without real estate criteria
-                groq_general = _groq_response(q, context, hist)
-                if groq_general:
-                    resp = groq_general
+                # Try Groq for general questions
+                groq_gen = _groq_response(q, context, hist)
+                if groq_gen:
+                    resp = groq_gen
+                    props = []
                 else:
-                    resp  = ("Voici quelques exemples de questions que je maitrise :<br>"
-                             "- <em>Que vaut une villa a Almadies ?</em><br>"
-                             "- <em>Avec 80M, que puis-je acheter a Dakar ?</em><br>"
-                             "- <em>Quel est le quartier le moins cher ?</em><br>"
-                             "- <em>Calcule la rentabilite d'un bien a 80M loue 500K/mois</em>")
-                props = []
+                    resp  = ("Je suis ImmoAI, votre assistant. Voici ce que je peux faire :<br>"
+                             "- <b>Prix</b> : <em>Que vaut une villa a Almadies ?</em><br>"
+                             "- <b>Budget</b> : <em>Avec 80M, que puis-je acheter ?</em><br>"
+                             "- <b>Comparaison</b> : <em>Quel quartier est le moins cher ?</em><br>"
+                             "- <b>Rentabilite</b> : <em>Calcule la rentabilite d'un bien a 80M loue 500K/mois</em><br><br>"
+                             "<em>Conseil : configurez GROQ_API_KEY pour des reponses plus completes.</em>")
+                    props = []
             else:
                 results, total = _search(crit)
                 parts = []

@@ -7,10 +7,10 @@
 .lh{padding:2rem 2rem 0;overflow:hidden;position:relative}
 .lh::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(201,168,76,.04) 40px,rgba(201,168,76,.04) 41px)}
 .lh-in{position:relative;z-index:2;max-width:1200px;margin:0 auto}
-.lh h1{font-family:var(--heading);font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;color:#fff;margin:0 0 .3rem}
+.lh h1{font-family:Georgia,serif;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;color:#fff;margin:0 0 .3rem}
 .lh p{color:rgba(255,255,255,.55);font-size:.85rem;margin:0 0 1.5rem}
 .lh-wave{width:100%;height:32px;background:var(--bg);clip-path:ellipse(60% 100% at 50% 100%);position:relative;z-index:2}
-.fb{background:#fff;border-bottom:1px solid var(--border);padding:.75rem 2rem;display:flex;gap:.7rem;align-items:center;flex-wrap:wrap}
+.fb{background:#fff;border-bottom:1px solid var(--border);padding:.75rem 2rem;display:flex;gap:.7rem;align-items:center;flex-wrap:wrap;position:relative;z-index:10}
 .fb input,.fb select{padding:.42rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem;font-family:var(--font);outline:none;color:var(--dark);background:#fff}
 .fb input:focus,.fb select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
 .fbtn{padding:.42rem 1rem;border-radius:8px;border:none;cursor:pointer;font-size:.82rem;font-family:var(--font);font-weight:600;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem}
@@ -29,7 +29,7 @@
 .pi-ph i{font-size:3rem;color:rgba(255,255,255,.2)}
 .pbge{position:absolute;top:.6rem;left:.6rem;padding:.2rem .55rem;border-radius:20px;font-size:.62rem;font-weight:800}
 .pb{padding:1rem;flex:1;display:flex;flex-direction:column;gap:.22rem}
-.pp{font-family:var(--heading);font-size:1.18rem;font-weight:700;line-height:1.1}
+.pp{font-family:Georgia,serif;font-size:1.18rem;font-weight:700;line-height:1.1}
 .ppu{font-size:.7rem;color:var(--muted);font-weight:400;margin-left:.15rem}
 .pt{font-size:.86rem;font-weight:600;color:var(--dark);line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .pm{display:flex;gap:.6rem;flex-wrap:wrap}
@@ -41,7 +41,7 @@
 .pw{display:flex;justify-content:center;gap:.5rem;padding:1.2rem 2rem}
 .pgb{padding:.35rem .85rem;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem;color:var(--dark);text-decoration:none;background:#fff;transition:all .18s}
 
-.lh{background:linear-gradient(135deg,#0B1D37,#132D52)}
+.lh{background:linear-gradient(135deg,#0F2444,#1A3560)}
 .pc:hover{border-color:var(--gold)}
 .pp{color:var(--navy)}
 .pm i{color:var(--gold)}
@@ -68,13 +68,13 @@
     <option value="">Toutes les villes</option>
     {% for c in cities %}<option value="{{ c }}" {% if city_f == c %}selected{% endif %}>{{ c }}</option>{% endfor %}
   </select>
-  <select name="price_range">
+  <select name="price_range" style="min-width:120px">
     <option value="">Budget</option>
-    <option value="0-25" {% if price_range == '0-25' %}selected{% endif %}>Moins de 25M</option>
+    <option value="0-25" {% if price_range == '0-25' %}selected{% endif %}>- de 25M</option>
     <option value="25-50" {% if price_range == '25-50' %}selected{% endif %}>25M - 50M</option>
     <option value="50-100" {% if price_range == '50-100' %}selected{% endif %}>50M - 100M</option>
-    <option value="100-250" {% if price_range == '100-250' %}selected{% endif %}>100M - 250M</option>
-    <option value="250-0" {% if price_range == '250-0' %}selected{% endif %}>Plus de 250M</option>
+    <option value="100-300" {% if price_range == '100-300' %}selected{% endif %}>100M - 300M</option>
+    <option value="300-0" {% if price_range == '300-0' %}selected{% endif %}>+ de 300M</option>
   </select>
   <select name="sort">
     {% for v,l in sort_opts %}<option value="{{ v }}" {% if sort_f == v %}selected{% endif %}>{{ l }}</option>{% endfor %}
@@ -137,9 +137,9 @@
 {% endfor %}
 </div>
 <div class="pw">
-  {% if scraped_page.has_previous %}<a href="?{% if q %}q={{ q }}&{% endif %}{% if type_f %}type={{ type_f }}&{% endif %}{% if city_f %}city={{ city_f }}&{% endif %}{% if price_range %}price_range={{ price_range }}&{% endif %}sort={{ sort_f }}&page_sc={{ scraped_page.previous_page_number }}" class="pgb">← Précédent</a>{% endif %}
+  {% if scraped_page.has_previous %}<a href="?{% if q %}q={{ q }}&{% endif %}{% if type_f %}type={{ type_f }}&{% endif %}{% if city_f %}city={{ city_f }}&{% endif %}sort={{ sort_f }}&page_sc={{ scraped_page.previous_page_number }}" class="pgb">← Précédent</a>{% endif %}
   <span class="pgb act">{{ scraped_page.number }} / {{ scraped_page.paginator.num_pages }}</span>
-  {% if scraped_page.has_next %}<a href="?{% if q %}q={{ q }}&{% endif %}{% if type_f %}type={{ type_f }}&{% endif %}{% if city_f %}city={{ city_f }}&{% endif %}{% if price_range %}price_range={{ price_range }}&{% endif %}sort={{ sort_f }}&page_sc={{ scraped_page.next_page_number }}" class="pgb">Suivant →</a>{% endif %}
+  {% if scraped_page.has_next %}<a href="?{% if q %}q={{ q }}&{% endif %}{% if type_f %}type={{ type_f }}&{% endif %}{% if city_f %}city={{ city_f }}&{% endif %}sort={{ sort_f }}&page_sc={{ scraped_page.next_page_number }}" class="pgb">Suivant →</a>{% endif %}
 </div>
 {% else %}
 <div class="es"><i class="fas fa-search"></i><strong>Aucun résultat</strong><br><small>Modifiez vos critères de recherche.</small></div>

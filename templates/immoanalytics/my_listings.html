@@ -4,7 +4,7 @@
 {% block extra_css %}
 <style>
 .ml-hero{background:linear-gradient(135deg,#0F2444,#1A3560);padding:1.8rem 2rem;color:#fff}
-.ml-hero h1{font-family:var(--heading);font-size:1.8rem;margin:0 0 .3rem}
+.ml-hero h1{font-family:Georgia,serif;font-size:1.8rem;margin:0 0 .3rem}
 .ml-hero p{color:rgba(255,255,255,.5);font-size:.85rem;margin:0}
 .ml-body{max-width:1100px;margin:2rem auto;padding:0 1.5rem}
 .ml-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;flex-wrap:wrap;gap:.8rem}
@@ -63,7 +63,7 @@
           {{ l.get_transaction_display }}
         </span>
       </td>
-      <td style="font-family:var(--heading);font-weight:700;color:#0F2444;font-size:.88rem;white-space:nowrap">{{ l.price_formatted }}</td>
+      <td style="font-family:Georgia,serif;font-weight:700;color:#0F2444;font-size:.88rem;white-space:nowrap">{{ l.price_formatted }}</td>
       <td style="font-size:.8rem;color:#6B7280">{% if l.neighborhood %}{{ l.neighborhood }}, {% endif %}{{ l.city }}</td>
       <td>
         <span class="status-badge" style="background:{% if l.status == 'active' %}rgba(14,107,74,.12);color:#0E6B4A{% elif l.status == 'sold' %}rgba(37,99,235,.12);color:#1D4ED8{% else %}rgba(156,163,175,.2);color:#6B7280{% endif %}">

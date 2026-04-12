@@ -1,143 +1,92 @@
 {% extends 'immoanalytics/base.html' %}
 {% load static %}
-{% block title %}À propos — ImmoPredict SN{% endblock %}
+{% block title %}A propos — ImmoPredict SN{% endblock %}
 {% block extra_css %}
 <style>
-/* ── Hero ── */
-.about-hero{
-  position:relative;overflow:hidden;padding:4rem 2rem;
-  background:#0E6B4A;
-}
-.about-hero::before{
-  content:'';position:absolute;inset:0;
-  background:url('https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1400&q=60') center/cover;
-  opacity:.2;
-}
-.about-hero::after{
-  content:'';position:absolute;inset:0;
-  background:rgba(10,45,25,.75);
-}
-.about-hero-inner{position:relative;z-index:3;max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}
-@media(max-width:768px){.about-hero-inner{grid-template-columns:1fr}}
-.hero-pill{display:inline-flex;align-items:center;gap:.4rem;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.35);color:#C9A84C;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .8rem;border-radius:20px;margin-bottom:1rem}
-.hero-title{font-family:var(--heading);font-size:clamp(2rem,4vw,3rem);font-weight:700;color:#FFFFFF;line-height:1.2;margin-bottom:1rem}
-.hero-title .hl{color:#C9A84C}
-.hero-desc{font-size:.95rem;color:rgba(255,255,255,.7);line-height:1.7;margin-bottom:0}
-/* Stats grid */
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-.stat-box{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:1.4rem 1.2rem;text-align:center;backdrop-filter:blur(4px)}
-.stat-val{font-family:var(--heading);font-size:2rem;font-weight:700;color:#C9A84C;line-height:1}
-.stat-lbl{font-size:.75rem;color:rgba(255,255,255,.55);margin-top:.4rem;font-weight:500}
-/* Body */
-.about-body{max-width:1100px;margin:0 auto;padding:3rem 2rem}
-.section-pill{display:inline-flex;align-items:center;gap:.4rem;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.25);color:#8B6914;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.25rem .7rem;border-radius:20px;margin-bottom:1rem}
-.section-title{font-family:var(--heading);font-size:1.8rem;font-weight:700;color:#0F2444;line-height:1.3;margin-bottom:.8rem}
-.section-title .hl{color:#C9A84C}
-.section-desc{font-size:.9rem;color:#6B7280;line-height:1.7;max-width:580px}
-.mission-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center;margin:2.5rem 0}
-@media(max-width:768px){.mission-grid{grid-template-columns:1fr}}
-.mission-img{border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(15,36,68,.2)}
-.mission-img img{width:100%;height:300px;object-fit:cover;display:block}
-.values-list{display:flex;flex-direction:column;gap:.8rem;margin-top:1rem}
-.val-item{display:flex;align-items:flex-start;gap:.8rem;padding:.9rem 1rem;background:#fff;border-radius:10px;border:1px solid #DDE1EE}
-.val-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.85rem}
-.val-text strong{font-size:.85rem;color:#0F2444;display:block}
-.val-text span{font-size:.78rem;color:#6B7280}
+.ab-hero{background:linear-gradient(135deg,#0B1D37 0%,#0E6B4A 100%);padding:3rem 2rem 0;position:relative;overflow:hidden}
+.ab-hero::before{content:'';position:absolute;inset:0;opacity:.08;background:url('https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1400&q=60') center/cover}
+.ab-hero::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(201,168,76,.03) 40px,rgba(201,168,76,.03) 41px)}
+.ab-inner{position:relative;z-index:2;max-width:900px;margin:0 auto;text-align:center}
+.ab-inner h1{font-family:var(--heading);font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:700;color:#fff;margin-bottom:.5rem}
+.ab-inner h1 span{color:#C9A84C}
+.ab-inner p{color:rgba(255,255,255,.5);font-size:.92rem;max-width:600px;margin:0 auto 2rem;line-height:1.7}
+.ab-wave{width:100%;height:40px;background:var(--bg);clip-path:ellipse(55% 100% at 50% 100%);position:relative;z-index:2}
+.ab-body{max-width:1100px;margin:0 auto;padding:2rem}
+.ab-section{margin-bottom:3rem}
+.ab-section-tag{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:#C9A84C;margin-bottom:.5rem}
+.ab-section-h{font-family:var(--heading);font-size:1.5rem;font-weight:700;color:#0B1D37;margin-bottom:1.5rem}
+/* Images */
+.ab-images{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:3rem;border-radius:12px;overflow:hidden}
+.ab-images img{width:100%;height:200px;object-fit:cover;border-radius:10px;transition:all .3s;border:2px solid transparent}
+.ab-images img:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.1);border-color:#C9A84C}
+/* Stats */
+.ab-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:3rem}
+.ab-stat{background:#fff;border-radius:12px;border:1px solid #E2E6F0;padding:1.5rem;text-align:center;transition:all .25s;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.ab-stat:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.ab-stat-val{font-family:var(--heading);font-size:1.8rem;font-weight:700;color:#C9A84C;line-height:1}
+.ab-stat-lbl{font-size:.78rem;color:#7A8599;margin-top:.3rem}
+/* Tech grid */
+.tech-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
+.tech-card{background:#fff;border:1px solid #E2E6F0;border-radius:12px;padding:1.3rem;display:flex;align-items:center;gap:1rem;transition:all .25s}
+.tech-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.06);border-color:rgba(201,168,76,.3)}
+.tech-icon{width:44px;height:44px;border-radius:10px;background:rgba(201,168,76,.08);display:flex;align-items:center;justify-content:center;color:#C9A84C;font-size:1.1rem;flex-shrink:0}
+.tech-name{font-weight:700;font-size:.88rem;color:#0B1D37}
+.tech-desc{font-size:.76rem;color:#7A8599;margin-top:.15rem}
 /* Sources */
-.sources-section{background:#fff;border-radius:16px;border:1px solid #DDE1EE;padding:2rem;margin-bottom:2.5rem;box-shadow:0 2px 12px rgba(15,36,68,.06)}
-.sources-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem;margin-top:1.5rem}
-.src-card{border-radius:10px;padding:1.2rem 1rem;text-align:center;border:1.5px solid}
-.src-name{font-weight:700;font-size:.9rem;margin-bottom:.2rem}
-.src-desc{font-size:.75rem;color:#6B7280}
-.src-count{font-size:.7rem;font-weight:700;margin-top:.5rem;padding:.15rem .5rem;border-radius:12px;display:inline-block}
-/* Techno */
-.tech-section{background:#fff;border-radius:16px;border:1px solid #DDE1EE;padding:2rem;box-shadow:0 2px 12px rgba(15,36,68,.06)}
-.tech-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.8rem;margin-top:1.5rem}
-.tech-card{display:flex;align-items:center;gap:.8rem;padding:.9rem 1rem;background:#F8F9FC;border-radius:10px;border:1px solid #EEF0F8}
-.tech-icon{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#0F2444,#C9A84C);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.85rem;flex-shrink:0}
-.tech-name{font-size:.83rem;font-weight:700;color:#0F2444}
-.tech-desc{font-size:.72rem;color:#6B7280}
+.src-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem}
+.src-card{background:#fff;border-radius:12px;border:1px solid #E2E6F0;padding:1.2rem;transition:all .25s}
+.src-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.06)}
+.src-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:.5rem}
+.src-name{font-weight:700;font-size:.88rem;color:#0B1D37}
+.src-desc{font-size:.76rem;color:#7A8599;margin-top:.3rem}
+.src-count{font-size:.7rem;color:#C9A84C;font-weight:600;margin-top:.3rem;font-family:'JetBrains Mono',monospace}
+/* Mission */
+.ab-mission{background:linear-gradient(135deg,#0B1D37,#132D52);border-radius:16px;padding:2.5rem;color:#fff;margin-bottom:3rem;position:relative;overflow:hidden}
+.ab-mission::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.1),transparent 70%)}
+.ab-mission h3{font-family:var(--heading);font-size:1.3rem;color:#C9A84C;margin-bottom:.8rem}
+.ab-mission p{color:rgba(255,255,255,.55);font-size:.88rem;line-height:1.8;max-width:700px}
+@media(max-width:768px){.ab-stats{grid-template-columns:repeat(2,1fr)}.ab-images{grid-template-columns:1fr}}
 </style>
 {% endblock %}
-
 {% block content %}
-<!-- Hero -->
-<div class="about-hero">
-  <div class="about-hero-inner">
-    <div>
-      <div class="hero-pill"><i class="fas fa-info-circle"></i>À PROPOS</div>
-      <h1 class="hero-title">La plateforme d'IA<br>immobilière du <span class="hl">Sénégal</span></h1>
-      <p class="hero-desc">ImmoPredict SN agrège les données de 4 grandes plateformes immobilières sénégalaises pour offrir des analyses de marché en temps réel, des estimations de prix précises et un assistant IA conversationnel.</p>
-    </div>
-    <div class="stats-grid">
-      {% for s in stats %}
-      <div class="stat-box">
-        <div class="stat-val">{{ s.value }}</div>
-        <div class="stat-lbl">{{ s.label }}</div>
-      </div>
-      {% endfor %}
-    </div>
+<div class="ab-hero">
+  <div class="ab-inner">
+    <h1>A propos d'<span>ImmoPredict SN</span></h1>
+    <p>La premiere plateforme d'intelligence artificielle dediee a l'analyse et la prediction du marche immobilier senegalais.</p>
   </div>
+  <div class="ab-wave"></div>
 </div>
 
-<div class="about-body">
-
-  <!-- Mission -->
-  <div style="margin-bottom:2.5rem">
-    <div class="section-pill"><i class="fas fa-bullseye"></i>NOTRE MISSION</div>
-    <div class="mission-grid">
-      <div>
-        <h2 class="section-title">Démocratiser l'accès aux données du <span class="hl">marché immobilier</span></h2>
-        <p class="section-desc">En centralisant les annonces dispersées sur 4 plateformes, ImmoPredict SN permet à tout acteur du marché — acheteur, vendeur, agent, investisseur — de prendre des décisions éclairées basées sur des données réelles.</p>
-        <div class="values-list" style="margin-top:1.2rem">
-          <div class="val-item">
-            <div class="val-icon" style="background:rgba(201,168,76,.12);color:#C9A84C"><i class="fas fa-chart-line"></i></div>
-            <div class="val-text"><strong>Transparence des prix</strong><span>Données de marché accessibles à tous</span></div>
-          </div>
-          <div class="val-item">
-            <div class="val-icon" style="background:rgba(14,107,74,.1);color:#0E6B4A"><i class="fas fa-brain"></i></div>
-            <div class="val-text"><strong>Intelligence artificielle</strong><span>Modèles ML entraînés sur données locales</span></div>
-          </div>
-          <div class="val-item">
-            <div class="val-icon" style="background:rgba(37,99,235,.1);color:#2563EB"><i class="fas fa-sync-alt"></i></div>
-            <div class="val-text"><strong>Temps réel</strong><span>Scraping continu des 4 plateformes</span></div>
-          </div>
-        </div>
-      </div>
-      <div class="mission-img">
-        <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&q=80" alt="Immobilier Sénégal">
-      </div>
-    </div>
+<div class="ab-body">
+  <!-- Images -->
+  <div class="ab-images">
+    <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=500&q=80" alt="Villa moderne" loading="lazy">
+    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&q=80" alt="Residence" loading="lazy">
+    <img src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=500&q=80" alt="Interieur luxe" loading="lazy">
   </div>
 
-  <!-- Sources -->
-  <div class="sources-section">
-    <div class="section-pill"><i class="fas fa-database"></i>SOURCES DE DONNÉES</div>
-    <h2 class="section-title" style="font-size:1.4rem">4 plateformes agrégées</h2>
-    <div class="sources-grid">
-      {% for s in data_sources %}
-      <div class="src-card" style="border-color:{{ s.color }}30;background:{{ s.color }}08">
-        <div class="src-name" style="color:{{ s.color }}">{{ s.name }}</div>
-        <div class="src-desc">{{ s.desc }}</div>
-        <div class="src-count" style="background:{{ s.color }}15;color:{{ s.color }}">{{ s.count }}</div>
-      </div>
-      {% endfor %}
+  <!-- Stats -->
+  <div class="ab-stats">
+    {% for s in stats %}
+    <div class="ab-stat">
+      <div class="ab-stat-val">{{ s.value }}</div>
+      <div class="ab-stat-lbl">{{ s.label }}</div>
     </div>
+    {% endfor %}
+  </div>
+
+  <!-- Mission -->
+  <div class="ab-mission">
+    <h3><i class="fas fa-bullseye" style="margin-right:.4rem"></i>Notre mission</h3>
+    <p>ImmoPredict SN a ete cree pour democratiser l'acces aux donnees immobilieres au Senegal. Grace a l'intelligence artificielle et au scraping de donnees en temps reel, nous offrons a chaque utilisateur les outils necessaires pour prendre des decisions eclairees, que ce soit pour acheter, vendre, louer ou investir dans l'immobilier.</p>
   </div>
 
   <!-- Technologies -->
-  <div class="tech-section">
-    <div class="section-pill"><i class="fas fa-microchip"></i>STACK TECHNIQUE</div>
-    <h2 class="section-title" style="font-size:1.4rem">Technologies utilisées</h2>
+  <div class="ab-section">
+    <div class="ab-section-tag">Stack technique</div>
+    <div class="ab-section-h">Technologies utilisees</div>
     <div class="tech-grid">
-      <!-- Image showcase -->
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:2rem;border-radius:12px;overflow:hidden">
-  <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=400&q=80" alt="Villa" style="width:100%;height:160px;object-fit:cover;border-radius:10px">
-  <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=80" alt="Residence" style="width:100%;height:160px;object-fit:cover;border-radius:10px">
-  <img src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=400&q=80" alt="Interieur" style="width:100%;height:160px;object-fit:cover;border-radius:10px">
-</div>
-
-{% for t in technologies %}
+      {% for t in technologies %}
       <div class="tech-card">
         <div class="tech-icon"><i class="{{ t.icon }}"></i></div>
         <div><div class="tech-name">{{ t.name }}</div><div class="tech-desc">{{ t.desc }}</div></div>
@@ -146,5 +95,19 @@
     </div>
   </div>
 
+  <!-- Sources -->
+  <div class="ab-section">
+    <div class="ab-section-tag">Donnees</div>
+    <div class="ab-section-h">Sources de donnees</div>
+    <div class="src-grid">
+      {% for s in data_sources %}
+      <div class="src-card">
+        <div><span class="src-dot" style="background:{{ s.color }}"></span><span class="src-name">{{ s.name }}</span></div>
+        <div class="src-desc">{{ s.desc }}</div>
+        <div class="src-count">{{ s.count }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
 </div>
 {% endblock %}
