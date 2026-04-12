@@ -17,7 +17,7 @@
 .kpi-card{background:#fff;border-radius:12px;border:1px solid var(--border);border-left:4px solid;padding:1rem 1.1rem;box-shadow:0 2px 8px rgba(15,36,68,.05);transition:all .2s}
 .kpi-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(15,36,68,.1)}
 .kpi-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.85rem;margin-bottom:.6rem}
-.kpi-val{font-family:var(--serif);font-size:1.45rem;font-weight:700;color:var(--navy);line-height:1.1}
+.kpi-val{font-family:'Playfair Display',Georgia,serif;font-size:1.45rem;font-weight:700;color:var(--navy);line-height:1.1}
 .kpi-lbl{font-size:.76rem;font-weight:600;color:var(--dark);margin-top:.2rem}
 .kpi-sub{font-size:.68rem;color:var(--muted);margin-top:.15rem}
 .charts-2{display:grid;grid-template-columns:2fr 1fr;gap:1.2rem;margin-bottom:1.2rem}
@@ -119,7 +119,7 @@
           {% for r in recent %}
           <tr>
             <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">{{ r.title_sh }}</td>
-            <td style="font-weight:700;color:var(--gold);white-space:nowrap;font-family:var(--serif)">{{ r.price_fmt }}</td>
+            <td style="font-weight:700;color:var(--gold);white-space:nowrap;font-family:'Playfair Display',Georgia,serif">{{ r.price_fmt }}</td>
             <td>{{ r.city }}</td>
             <td>{{ r.prop_type }}</td>
             <td><span style="background:{{ r.src_color }}18;color:{{ r.src_color }};padding:.15rem .45rem;border-radius:4px;font-size:.68rem;font-weight:700;font-family:var(--mono)">{{ r.source }}</span></td>
@@ -205,37 +205,38 @@ document.addEventListener('DOMContentLoaded', function(){
     var el = document.getElementById(divId);
     var src = document.getElementById(dataId);
     if(!el || !src) return;
-    var noData = '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:.82rem;flex-direction:column;gap:.5rem"><i class="fas fa-chart-bar" style="color:#E2E6F0;font-size:1.5rem"></i><span>Donnees insuffisantes</span></div>';
     try{
       var raw = (src.textContent || '').trim();
-      if(!raw || raw==='null' || raw==='None' || raw==='""' || raw.length < 10){el.innerHTML=noData;return}
+      if(!raw || raw.length < 5){
+        el.innerHTML='<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:.82rem">Chargement...</div>';
+        return;
+      }
       var fig = JSON.parse(raw);
-      if(!fig || !fig.data){el.innerHTML=noData;return}
-      var data = fig.data;
-      if(!Array.isArray(data) || data.length===0){el.innerHTML=noData;return}
       var layout = Object.assign({}, fig.layout||{});
       layout.paper_bgcolor='rgba(0,0,0,0)';
       layout.plot_bgcolor='rgba(0,0,0,0)';
       layout.font={family:'DM Sans,Arial,sans-serif',size:11,color:'#374151'};
       if(!layout.margin) layout.margin={l:50,r:20,t:20,b:50};
-      Plotly.newPlot(divId, data, layout, CFG);
+      // Always try to render - Plotly handles empty data gracefully
+      Plotly.newPlot(divId, fig.data||[], layout, CFG);
     }catch(e){
-      console.warn('Chart '+divId+':', e.message);
-      // Retry after delay
+      console.warn('Chart '+divId+':', e);
+      el.innerHTML='<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:.82rem">Chargement...</div>';
+      // Retry after DOM is fully ready
       setTimeout(function(){
         try{
-          var fig2=JSON.parse((src.textContent||'').trim());
-          if(fig2&&fig2.data&&fig2.data.length>0){
-            var ly=Object.assign({},fig2.layout||{});
-            ly.paper_bgcolor='rgba(0,0,0,0)';ly.plot_bgcolor='rgba(0,0,0,0)';
-            ly.font={family:'DM Sans,Arial,sans-serif',size:11,color:'#374151'};
-            Plotly.newPlot(divId,fig2.data,ly,CFG);
-          } else {el.innerHTML=noData}
-        }catch(e2){el.innerHTML=noData}
-      },800);
+          var fig2 = JSON.parse((src.textContent||'').trim());
+          var ly = Object.assign({},fig2.layout||{});
+          ly.paper_bgcolor='rgba(0,0,0,0)';ly.plot_bgcolor='rgba(0,0,0,0)';
+          ly.font={family:'DM Sans,Arial,sans-serif',size:11,color:'#374151'};
+          Plotly.newPlot(divId, fig2.data||[], ly, CFG);
+        }catch(e2){
+          el.innerHTML='<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:.82rem"><i class="fas fa-info-circle" style="margin-right:.4rem"></i>Pas de donnees</div>';
+        }
+      }, 1000);
     }
   }
-  rp('fig-dist','d-fig-dist'); rp('fig-pie','d-fig-pie');
+    rp('fig-dist','d-fig-dist'); rp('fig-pie','d-fig-pie');
   rp('fig-cities','d-fig-cities'); rp('fig-types','d-fig-types');
   rp('fig-trend','d-fig-trend'); rp('fig-box','d-fig-box');
   rp('fig-sc','d-fig-sc'); rp('fig-src','d-fig-src');

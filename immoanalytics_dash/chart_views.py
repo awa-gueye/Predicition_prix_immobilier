@@ -174,12 +174,16 @@ def _fig_json(fig):
     return json.dumps(fig, cls=PlotlyJSONEncoder)
 
 
-def _empty(msg="Données insuffisantes"):
+def _empty(msg="Donnees insuffisantes"):
     f = go.Figure()
+    # Add invisible trace so Plotly renders the figure
+    f.add_trace(go.Scatter(x=[0], y=[0], mode='markers',
+                           marker=dict(size=0, opacity=0), showlegend=False,
+                           hoverinfo='skip'))
     f.add_annotation(text=msg, showarrow=False,
                      font=dict(size=13, color=C["muted"]),
                      x=0.5, y=0.5, xref="paper", yref="paper")
-    f.update_layout(**_gl())
+    f.update_layout(**_gl(), xaxis=dict(visible=False), yaxis=dict(visible=False))
     return f
 
 

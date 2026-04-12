@@ -6,79 +6,96 @@
 .prof-hero{background:linear-gradient(135deg,#0B1D37,#132D52);padding:2.5rem 2rem;position:relative;overflow:hidden}
 .prof-hero::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(201,168,76,.03) 40px,rgba(201,168,76,.03) 41px)}
 .prof-inner{position:relative;z-index:2;max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:2rem;flex-wrap:wrap}
-.prof-avatar{width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid #C9A84C;flex-shrink:0}
-.prof-avatar-ph{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#C9A84C,#0E6B4A);display:flex;align-items:center;justify-content:center;font-size:2.2rem;color:#fff;border:3px solid #C9A84C;flex-shrink:0}
-.prof-info h1{font-family:var(--heading);font-size:1.8rem;font-weight:700;color:#fff;margin:0 0 .3rem}
-.role-badge{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .7rem;border-radius:20px;font-size:.72rem;font-weight:700;background:#C9A84C;color:#0B1D37}
+.prof-av{width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid #C9A84C;flex-shrink:0}
+.prof-av-default{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#C9A84C,#0E6B4A);display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:#fff;font-weight:700;border:3px solid #C9A84C;flex-shrink:0;font-family:'Playfair Display',Georgia,serif;letter-spacing:.02em}
+.prof-name{font-family:'Playfair Display',Georgia,serif;font-size:1.8rem;font-weight:700;color:#fff;margin:0 0 .3rem}
+.role-badge{display:inline-flex;align-items:center;gap:.3rem;padding:.22rem .7rem;border-radius:20px;font-size:.72rem;font-weight:700;background:#C9A84C;color:#0B1D37}
+.prof-meta{color:rgba(255,255,255,.45);font-size:.78rem;display:flex;align-items:center;gap:.3rem}
+.prof-meta i{color:#C9A84C}
 .prof-body{max-width:1100px;margin:2rem auto;padding:0 1.5rem 3rem;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
-@media(max-width:768px){.prof-body{grid-template-columns:1fr}}
-.pcard{background:#fff;border-radius:12px;border:1px solid #E2E6F0;overflow:hidden;box-shadow:0 2px 12px rgba(11,29,55,.06)}
+.pcard{background:#fff;border-radius:12px;border:1px solid #E2E6F0;overflow:hidden;box-shadow:0 2px 12px rgba(11,29,55,.05)}
 .pcard-hdr{background:#0B1D37;padding:.85rem 1.2rem;color:#fff;font-size:.82rem;font-weight:700;display:flex;align-items:center;gap:.5rem}
 .pcard-hdr i{color:#C9A84C}
-.pcard-body{padding:1.2rem}
-.info-row{display:flex;align-items:flex-start;gap:.6rem;padding:.6rem 0;border-bottom:1px solid #F4F6FA;font-size:.85rem}
+.pcard-body{padding:1.3rem}
+.info-row{display:flex;align-items:flex-start;gap:.7rem;padding:.65rem 0;border-bottom:1px solid #F4F6FA;font-size:.85rem;color:#0F172A}
 .info-row:last-child{border-bottom:none}
-.info-row i{color:#C9A84C;width:18px;flex-shrink:0;margin-top:.15rem}
-.info-row .lbl{color:#7A8599;font-size:.73rem;display:block}
-.listing-mini{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.7rem}
-.lm{border-radius:10px;overflow:hidden;border:1px solid #E2E6F0;text-decoration:none;display:block;transition:all .2s}
-.lm:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(11,29,55,.1)}
-.lm-ph{height:90px;width:100%;background:linear-gradient(135deg,#0B1D37,#0E6B4A);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.2);font-size:1.5rem}
+.info-row i{color:#C9A84C;width:18px;flex-shrink:0;margin-top:.15rem;font-size:.85rem}
+.info-lbl{color:#7A8599;font-size:.72rem;display:block;margin-bottom:.1rem}
+.listing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.7rem}
+.lm{border-radius:10px;overflow:hidden;border:1px solid #E2E6F0;text-decoration:none;display:block;transition:all .22s;color:inherit}
+.lm:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(11,29,55,.1)}
+.lm-img{height:90px;width:100%;object-fit:cover;display:block}
+.lm-default{height:90px;width:100%;background:linear-gradient(135deg,#0B1D37,#0E6B4A);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.15);font-size:1.8rem}
 .lm-info{padding:.5rem .6rem;background:#fff}
-.lm-price{font-family:var(--heading);font-size:.82rem;font-weight:700;color:#0B1D37}
+.lm-price{font-family:'Playfair Display',Georgia,serif;font-size:.82rem;font-weight:700;color:#0B1D37}
 .lm-city{font-size:.68rem;color:#7A8599}
-.btn-seller{display:inline-flex;align-items:center;gap:.4rem;padding:.65rem 1.5rem;background:linear-gradient(135deg,#C9A84C,#E2C47A);color:#0B1D37;border-radius:9px;text-decoration:none;font-size:.85rem;font-weight:700;transition:all .22s;box-shadow:0 2px 10px rgba(201,168,76,.25)}
-.btn-seller:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(201,168,76,.35)}
+.btn-gold{display:inline-flex;align-items:center;gap:.4rem;padding:.65rem 1.5rem;background:linear-gradient(135deg,#C9A84C,#E2C47A);color:#0B1D37;border-radius:9px;text-decoration:none;font-size:.85rem;font-weight:700;transition:all .22s;box-shadow:0 2px 10px rgba(201,168,76,.25)}
+.btn-gold:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(201,168,76,.35)}
+.btn-edit{padding:.55rem 1.2rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:9px;text-decoration:none;font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:.4rem;flex-shrink:0;margin-left:auto;transition:all .2s}
+.btn-edit:hover{background:rgba(255,255,255,.18)}
+@media(max-width:768px){.prof-body{grid-template-columns:1fr}.btn-edit{margin-left:0;margin-top:.5rem}}
 </style>
 {% endblock %}
 {% block content %}
 <div class="prof-hero">
   <div class="prof-inner">
-    {% if profile.avatar %}<img src="{{ profile.avatar.url }}" alt="" class="prof-avatar">
-    {% else %}<div class="prof-avatar-ph"><i class="fas fa-user"></i></div>{% endif %}
-    <div class="prof-info">
-      <h1>{{ user.get_full_name|default:user.username }}</h1>
-      <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.5rem">
+    {% if profile.avatar %}
+      <img src="{{ profile.avatar.url }}" alt="" class="prof-av">
+    {% else %}
+      <div class="prof-av-default">{{ user.first_name|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}</div>
+    {% endif %}
+    <div>
+      <h1 class="prof-name">{{ user.get_full_name|default:user.username }}</h1>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.5rem;align-items:center">
         <span class="role-badge"><i class="fas fa-{% if profile.role == 'seller' %}store{% else %}user{% endif %}"></i>{{ profile.get_role_display }}</span>
-        {% if profile.city %}<span style="color:rgba(255,255,255,.6);font-size:.8rem"><i class="fas fa-map-pin" style="color:#C9A84C;margin-right:.3rem"></i>{{ profile.city }}</span>{% endif %}
-        <span style="color:rgba(255,255,255,.4);font-size:.78rem"><i class="fas fa-calendar-alt" style="margin-right:.3rem"></i>Membre depuis {{ user.date_joined|date:"M Y" }}</span>
+        {% if profile.city %}<span class="prof-meta"><i class="fas fa-map-pin"></i>{{ profile.city }}</span>{% endif %}
+        <span class="prof-meta"><i class="fas fa-calendar-alt"></i>Membre depuis {{ user.date_joined|date:"M Y" }}</span>
       </div>
     </div>
-    <a href="{% url 'edit_profile' %}" style="margin-left:auto;padding:.55rem 1.2rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:9px;text-decoration:none;font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:.4rem;flex-shrink:0"><i class="fas fa-edit"></i>Modifier</a>
+    <a href="{% url 'edit_profile' %}" class="btn-edit"><i class="fas fa-edit"></i>Modifier</a>
   </div>
 </div>
+
 <div class="prof-body">
+  <!-- Informations -->
   <div class="pcard">
     <div class="pcard-hdr"><i class="fas fa-id-card"></i>Informations</div>
     <div class="pcard-body">
-      <div class="info-row"><i class="fas fa-envelope"></i><div><span class="lbl">Email</span>{{ user.email|default:"Non renseigne" }}</div></div>
-      <div class="info-row"><i class="fas fa-phone"></i><div><span class="lbl">Telephone</span>{{ profile.phone|default:"Non renseigne" }}</div></div>
-      <div class="info-row"><i class="fas fa-city"></i><div><span class="lbl">Ville</span>{{ profile.city|default:"Non renseigne" }}</div></div>
-      {% if profile.bio %}<div class="info-row"><i class="fas fa-align-left"></i><div><span class="lbl">Bio</span>{{ profile.bio }}</div></div>{% endif %}
+      <div class="info-row"><i class="fas fa-envelope"></i><div><span class="info-lbl">Email</span>{{ user.email|default:"Non renseigne" }}</div></div>
+      <div class="info-row"><i class="fas fa-phone"></i><div><span class="info-lbl">Telephone</span>{{ profile.phone|default:"Non renseigne" }}</div></div>
+      <div class="info-row"><i class="fas fa-city"></i><div><span class="info-lbl">Ville</span>{{ profile.city|default:"Non renseigne" }}</div></div>
+      {% if profile.bio %}<div class="info-row"><i class="fas fa-align-left"></i><div><span class="info-lbl">Bio</span>{{ profile.bio }}</div></div>{% endif %}
     </div>
   </div>
+
+  <!-- Mes annonces -->
   <div class="pcard">
     <div class="pcard-hdr"><i class="fas fa-home"></i>Mes annonces</div>
     <div class="pcard-body">
       {% if listings %}
-      <div class="listing-mini">
+      <div class="listing-grid">
         {% for l in listings %}
         <a href="{% url 'listing_detail' l.pk %}" class="lm">
-          {% with img=l.main_image %}{% if img %}<img src="{{ img.image.url }}" alt="" style="height:90px;width:100%;object-fit:cover">{% else %}<div class="lm-ph"><i class="fas fa-home"></i></div>{% endif %}{% endwith %}
+          {% with img=l.main_image %}
+            {% if img %}<img src="{{ img.image.url }}" alt="" class="lm-img">
+            {% else %}<div class="lm-default"><i class="fas fa-home"></i></div>{% endif %}
+          {% endwith %}
           <div class="lm-info"><div class="lm-price">{{ l.price_formatted }}</div><div class="lm-city">{{ l.city }}</div></div>
         </a>
         {% endfor %}
       </div>
-      <div style="margin-top:1rem;text-align:center"><a href="{% url 'my_listings' %}" style="font-size:.82rem;color:#C9A84C;text-decoration:none;font-weight:600">Voir toutes mes annonces <i class="fas fa-arrow-right" style="font-size:.7rem"></i></a></div>
+      <div style="margin-top:1rem;text-align:center">
+        <a href="{% url 'my_listings' %}" style="font-size:.82rem;color:#C9A84C;text-decoration:none;font-weight:600">Voir toutes mes annonces <i class="fas fa-arrow-right" style="font-size:.7rem"></i></a>
+      </div>
       {% else %}
-      <div style="text-align:center;padding:2rem 1rem;color:#7A8599">
-        <i class="fas fa-home" style="font-size:2rem;color:#E2E6F0;display:block;margin-bottom:.6rem"></i>
+      <div style="text-align:center;padding:2rem 1rem">
+        <i class="fas fa-home" style="font-size:2.2rem;color:#E2E6F0;display:block;margin-bottom:.7rem"></i>
         {% if profile.role == 'seller' %}
-        <p style="margin:0 0 1rem;font-size:.85rem">Vous n'avez pas encore publie d'annonce.</p>
-        <a href="{% url 'add_listing' %}" class="btn-seller"><i class="fas fa-plus"></i>Publier un bien</a>
+        <p style="margin:0 0 1rem;font-size:.85rem;color:#7A8599">Vous n'avez pas encore publie d'annonce.</p>
+        <a href="{% url 'add_listing' %}" class="btn-gold"><i class="fas fa-plus"></i>Publier un bien</a>
         {% else %}
-        <p style="margin:0 0 1rem;font-size:.85rem">Passez en mode vendeur pour publier des annonces.</p>
-        <a href="{% url 'edit_profile' %}" class="btn-seller"><i class="fas fa-store"></i>Devenir vendeur</a>
+        <p style="margin:0 0 1rem;font-size:.85rem;color:#7A8599">Passez en mode vendeur pour publier des annonces.</p>
+        <a href="{% url 'edit_profile' %}" class="btn-gold"><i class="fas fa-store"></i>Devenir vendeur</a>
         {% endif %}
       </div>
       {% endif %}

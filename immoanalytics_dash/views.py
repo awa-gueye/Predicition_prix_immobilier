@@ -618,3 +618,43 @@ def api_check_auth(request):
     if request.user.is_authenticated:
         return JsonResponse({'authenticated':True,'role':get_user_role(request.user)})
     return JsonResponse({'authenticated':False}, status=401)
+
+
+# -- Notifications / Recommandations API --
+@login_required(login_url='/immo/login/')
+def api_notifications(request):
+    """Retourne les biens recommandes selon le profil et la ville de l'utilisateur."""
+    try:
+        profile = request.user.profile
+        user_city = (profile.city or '').strip()
+    except Exception:
+        user_city = ''
+
+    results = []
+    try:
+        from properties.models import (CoinAfriqueProperty, ExpatDakarProperty,
+            LogerDakarProperty, DakarVenteProperty)
+        MODELS = [(CoinAfriqueProperty, 'coinafrique'), (ExpatDakarProperty, 'expat_dakar'),
+                  (LogerDakarProperty, 'loger_dakar'), (DakarVenteProperty, 'dakarvente')]
+        for model, src in MODELS:
+            try:
+                qs = model.objects.filter(price__gte=500_000, price__lte=2_000_000_000)
+                if user_city:
+                    qs = qs.filter(city__icontains=user_city[:6])
+                for p in qs.order_by('-id').values('title', 'price', 'city', 'property_type')[:3]:
+                    pr = float(p.get('price', 0))
+                    results.append({
+                        'title': str(p.get('title', ''))[:50] or 'Nouveau bien',
+                        'price': _fmt_price(pr),
+                        'city': str(p.get('city', '')).split(',')[0].strip().title(),
+                        'type': str(p.get('property_type', ''))[:20],
+                        'source': src,
+                        'alert_type': 'proximity' if user_city else 'new_listing',
+                    })
+            except Exception:
+                continue
+    except Exception:
+        pass
+
+    # Limit to 8 notifications
+    return JsonResponse({'notifications': results[:8], 'count': min(len(results), 8)})

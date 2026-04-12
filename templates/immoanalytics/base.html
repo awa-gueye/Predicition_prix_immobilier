@@ -178,6 +178,19 @@ footer a{font-size:.72rem;color:var(--gold)}
         <i class="fas fa-plus"></i>Publier
       </a>
       {% endif %}
+      <!-- Notifications -->
+      <div style="position:relative" id="notifWrap">
+        <button onclick="event.stopPropagation();document.getElementById('notifDrop').classList.toggle('open')" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:1rem;cursor:pointer;padding:.4rem;border-radius:8px" title="Notifications">
+          <i class="fas fa-bell"></i>
+          <span id="notifBadge" style="position:absolute;top:0;right:0;width:15px;height:15px;background:#C0392B;color:#fff;font-size:.55rem;font-weight:700;border-radius:50%;display:none;align-items:center;justify-content:center;border:2px solid #0B1D37">0</span>
+        </button>
+        <div class="dropdown" id="notifDrop" style="width:320px;max-height:380px;overflow-y:auto">
+          <div style="padding:.7rem 1rem;border-bottom:1px solid #E2E6F0;font-size:.82rem;font-weight:700;color:#0B1D37">Notifications & Recommandations</div>
+          <div id="notifList" style="padding:.3rem">
+            <div style="text-align:center;padding:1.5rem;color:#7A8599;font-size:.8rem"><i class="fas fa-bell-slash" style="display:block;font-size:1.3rem;color:#E2E6F0;margin-bottom:.4rem"></i>Aucune notification</div>
+          </div>
+        </div>
+      </div>
       <div class="user-menu">
         <button class="user-btn" id="userBtn">
           {% if profile.avatar %}
@@ -192,7 +205,6 @@ footer a{font-size:.72rem;color:var(--gold)}
         </button>
         <div class="dropdown" id="userDropdown">
           <a href="{% url 'profile' %}"><i class="fas fa-user" style="color:var(--gold)"></i>Mon profil</a>
-          <a href="{% url 'edit_profile' %}"><i class="fas fa-edit" style="color:var(--blue)"></i>Modifier le profil</a>
           {% if profile.role == 'seller' %}
           <div class="sep"></div>
           <a href="{% url 'my_listings' %}"><i class="fas fa-list" style="color:var(--green)"></i>Mes annonces</a>
@@ -240,7 +252,7 @@ const userBtn = document.getElementById('userBtn');
 const userDrop = document.getElementById('userDropdown');
 if(userBtn && userDrop){
   userBtn.addEventListener('click', e => { e.stopPropagation(); userDrop.classList.toggle('open'); });
-  document.addEventListener('click', () => userDrop.classList.remove('open'));
+  document.addEventListener('click', function(){ userDrop.classList.remove('open'); var nd=document.getElementById('notifDrop'); if(nd) nd.classList.remove('open'); });
 }
 // Menu mobile
 const toggle = document.getElementById('navToggle');
@@ -250,5 +262,74 @@ if(toggle && navLinks){
 }
 </script>
 {% block extra_js %}{% endblock %}
+
+{% if user.is_authenticated %}
+<style>
+.chat-fab{position:fixed;bottom:1.5rem;right:1.5rem;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#0B1D37,#132D52);color:#C9A84C;font-size:1.3rem;border:2px solid #C9A84C;cursor:pointer;z-index:90;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 24px rgba(11,29,55,.4);transition:all .3s}
+.chat-fab:hover{transform:scale(1.08)}
+.chat-modal{display:none;position:fixed;bottom:5.5rem;right:1.5rem;width:400px;max-height:520px;background:#fff;border-radius:16px;border:1px solid #E2E6F0;box-shadow:0 12px 40px rgba(11,29,55,.15);z-index:91;flex-direction:column;overflow:hidden}
+.chat-modal.open{display:flex}
+.chat-body{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.8rem;min-height:280px;background:#FAFBFD}
+.chat-msg{max-width:85%;padding:.7rem 1rem;border-radius:12px;font-size:.82rem;line-height:1.55}
+.chat-msg.bot{background:#fff;border:1px solid #E2E6F0;color:#0F172A;align-self:flex-start;border-bottom-left-radius:4px}
+.chat-msg.user{background:#0B1D37;color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.chat-msg .props-list{margin-top:.5rem;display:flex;flex-direction:column;gap:.3rem}
+.chat-msg .prop-item{background:#F4F6FA;border-radius:8px;padding:.4rem .6rem;font-size:.73rem;border:1px solid #E2E6F0}
+.chat-msg .prop-item strong{color:#C9A84C}
+@media(max-width:768px){.chat-modal{width:calc(100vw - 2rem);right:1rem;bottom:5rem}}
+</style>
+<button class="chat-fab" id="chatFab" title="Assistant ImmoAI"><i class="fas fa-headset"></i></button>
+<div class="chat-modal" id="chatModal">
+  <div style="background:#0B1D37;padding:1rem 1.2rem;display:flex;align-items:center;gap:.7rem;border-bottom:2px solid #C9A84C">
+    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#C9A84C,#E2C47A);display:flex;align-items:center;justify-content:center;color:#0B1D37;font-size:.9rem"><i class="fas fa-headset"></i></div>
+    <div style="flex:1"><strong style="color:#fff;font-size:.9rem;font-family:'Playfair Display',Georgia,serif">ImmoAI</strong><small style="color:rgba(255,255,255,.4);font-size:.7rem;display:block">Assistant intelligent</small></div>
+    <button id="chatClose" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:1.1rem;cursor:pointer"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="chat-body" id="chatBody">
+    <div class="chat-msg bot">Bonjour <strong>{{ user.first_name|default:user.username }}</strong> ! Je suis votre assistant immobilier. Posez-moi toutes vos questions.</div>
+  </div>
+  <div style="padding:.8rem 1rem;border-top:1px solid #E2E6F0;display:flex;gap:.5rem;background:#fff">
+    <input type="text" id="chatInput" placeholder="Votre question..." autocomplete="off" style="flex:1;padding:.5rem .8rem;border:1.5px solid #E2E6F0;border-radius:9px;font-size:.82rem;font-family:'DM Sans',Arial,sans-serif;outline:none;color:#0F172A">
+    <button id="chatSend" style="width:36px;height:36px;border-radius:50%;background:#C9A84C;color:#0B1D37;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem"><i class="fas fa-paper-plane"></i></button>
+  </div>
+</div>
+<script>
+(function(){
+var fab=document.getElementById('chatFab'),modal=document.getElementById('chatModal'),cls=document.getElementById('chatClose'),inp=document.getElementById('chatInput'),sbtn=document.getElementById('chatSend'),body=document.getElementById('chatBody'),hist=[];
+if(!fab)return;
+fab.onclick=function(){modal.classList.toggle('open');if(modal.classList.contains('open')&&inp)inp.focus()};
+if(cls)cls.onclick=function(){modal.classList.remove('open')};
+function addM(t,tp,props){var d=document.createElement('div');d.className='chat-msg '+tp;var h=t;if(props&&props.length>0){h+='<div class="props-list">';props.forEach(function(p){h+='<div class="prop-item"><strong>'+p.price_fmt+'</strong> - '+(p.title||p.type||'Bien')+' - '+(p.city||'')+'</div>'});h+='</div>'}d.innerHTML=h;body.appendChild(d);body.scrollTop=body.scrollHeight}
+function showT(){var t=document.createElement('div');t.id='tind';t.style.cssText='display:flex;gap:4px;padding:.5rem .8rem;align-self:flex-start';t.innerHTML='<span style="width:6px;height:6px;border-radius:50%;background:#7A8599;animation:tping .8s ease infinite"></span><span style="width:6px;height:6px;border-radius:50%;background:#7A8599;animation:tping .8s ease .15s infinite"></span><span style="width:6px;height:6px;border-radius:50%;background:#7A8599;animation:tping .8s ease .3s infinite"></span>';body.appendChild(t);body.scrollTop=body.scrollHeight}
+function hideT(){var t=document.getElementById('tind');if(t)t.remove()}
+async function doSend(){if(!inp)return;var q=inp.value.trim();if(!q)return;addM(q,'user');inp.value='';hist.push({role:'user',content:q});showT();try{var csrf='';var ce=document.querySelector('[name=csrfmiddlewaretoken]');if(ce)csrf=ce.value;var r=await fetch('/immo/api/chatbot/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':csrf},body:JSON.stringify({message:q,history:hist.slice(-6)}),credentials:'same-origin'});hideT();if(!r.ok)throw new Error();var d=await r.json();hist.push({role:'assistant',content:d.response||''});addM(d.response||'Erreur.','bot',d.properties||[])}catch(e){hideT();addM('Erreur de connexion.','bot')}}
+if(sbtn)sbtn.onclick=doSend;
+if(inp)inp.onkeydown=function(e){if(e.key==='Enter')doSend()};
+})();
+</script>
+<style>@keyframes tping{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}</style>
+{% endif %}
+
+
+<script>
+(function(){
+  var list=document.getElementById('notifList'),badge=document.getElementById('notifBadge');
+  if(!list)return;
+  fetch('/api/notifications/',{credentials:'same-origin'}).then(function(r){return r.json()}).then(function(d){
+    if(!d.notifications||d.notifications.length===0)return;
+    if(badge){badge.style.display='flex';badge.textContent=d.count}
+    var h='';d.notifications.forEach(function(n){
+      var ic=n.alert_type==='proximity'?'fa-map-pin':'fa-bell';
+      var bg=n.alert_type==='proximity'?'rgba(14,107,74,.1)':'rgba(201,168,76,.1)';
+      var cl=n.alert_type==='proximity'?'#0E6B4A':'#C9A84C';
+      h+='<div style="padding:.55rem .7rem;border-bottom:1px solid #F4F6FA;display:flex;gap:.5rem;align-items:flex-start;cursor:pointer" onmouseover="this.style.background='#F4F6FA'" onmouseout="this.style.background='transparent'">';
+      h+='<div style="width:28px;height:28px;border-radius:7px;background:'+bg+';display:flex;align-items:center;justify-content:center;flex-shrink:0;color:'+cl+';font-size:.7rem"><i class="fas '+ic+'"></i></div>';
+      h+='<div style="flex:1;min-width:0"><div style="font-size:.76rem;font-weight:600;color:#0B1D37;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+n.title+'</div>';
+      h+='<div style="font-size:.7rem;color:#7A8599">'+n.city+' <strong style="color:#C9A84C">'+n.price+'</strong></div></div></div>';
+    });list.innerHTML=h;
+  }).catch(function(){});
+})();
+</script>
+
 </body>
 </html>
