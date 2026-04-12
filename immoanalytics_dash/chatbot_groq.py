@@ -385,6 +385,23 @@ def _analyze_recommandation(question):
     return "<br>".join(lines), []
 
 
+
+def _answer_recent():
+    """Retourne les biens les plus recents."""
+    data = _get_db_data()
+    if not data: return "Pas de donnees disponibles.", []
+    recent = data[:10]  # First entries are typically most recent
+    lines = ["<b>Biens recents sur ImmoPredict SN</b> :"]
+    props = []
+    for d in recent[:6]:
+        city = str(d.get("city","") or "").strip().title()
+        ptype = str(d.get("property_type","") or "")
+        price = d.get("price", 0)
+        lines.append(f"- <b>{_fmt(price)}</b> - {ptype} a {city}")
+        props.append({"title":str(d.get("title",""))[:45],"price":price,"price_fmt":_fmt(price),"city":city,"type":ptype,"source":"","surface":"","bedrooms":""})
+    return "<br>".join(lines), props
+
+
 # ── Endpoint principal ────────────────────────────────────────────────────────
 
 from django.contrib.auth.decorators import login_required
@@ -460,17 +477,30 @@ def api_chatbot(request):
             has_crit = any(crit.get(k) for k in ['city','type','transaction','min_price','max_price','bedrooms'])
             if not has_crit:
                 # Try Groq for general questions
-                groq_gen = _groq_response(q, context, hist)
-                if groq_gen:
-                    resp = groq_gen
-                    props = []
+                # Repondre localement sans Groq
+                ql = q.lower()
+                if any(w in ql for w in ["recent","nouveau","dernier"]):
+                    resp, props = _answer_recent()
+                elif any(w in ql for w in ["cher","abordable","moins cher","pas cher"]):
+                    resp, props = _analyze_comparaison({})
+                elif any(w in ql for w in ["statistique","stat","marche","apercu","resume"]):
+                    resp, props = _analyze_stats_marche()
+                elif any(w in ql for w in ["quartier","ville","zone","investir","recommand"]):
+                    resp, props = _analyze_recommandation(q)
                 else:
-                    resp  = ("Je suis ImmoAI, votre assistant. Voici ce que je peux faire :<br>"
-                             "- <b>Prix</b> : <em>Que vaut une villa a Almadies ?</em><br>"
-                             "- <b>Budget</b> : <em>Avec 80M, que puis-je acheter ?</em><br>"
-                             "- <b>Comparaison</b> : <em>Quel quartier est le moins cher ?</em><br>"
-                             "- <b>Rentabilite</b> : <em>Calcule la rentabilite d'un bien a 80M loue 500K/mois</em><br><br>"
-                             "<em>Conseil : configurez GROQ_API_KEY pour des reponses plus completes.</em>")
+                    data = _get_db_data()
+                    total_d = len(data)
+                    if total_d > 0:
+                        prices = [d["price"] for d in data if d.get("price") and d["price"] >= PRICE_MIN]
+                        if prices:
+                            resp = (f"<b>Marche ImmoPredict SN</b> ({total_d:,} annonces)<br>"
+                                    f"Prix median : <b>{_fmt(stats.median(prices))}</b><br>"
+                                    f"De <b>{_fmt(min(prices))}</b> a <b>{_fmt(max(prices))}</b><br><br>"
+                                    f"Precisez votre question : quartier, type de bien, budget, etc.")
+                        else:
+                            resp = "Donnees en cours de chargement."
+                    else:
+                        resp = "Donnees en cours de chargement."
                     props = []
             else:
                 results, total = _search(crit)

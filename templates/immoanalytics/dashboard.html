@@ -5,37 +5,47 @@
 {% block extra_css %}
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <style>
-.db-wrap{padding:1.4rem 2rem;max-width:1300px;margin:0 auto;width:100%}
-.filter-bar{background:#fff;border-bottom:1px solid var(--border);padding:.8rem 2rem;display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap}
-.filter-group{display:flex;flex-direction:column;gap:.2rem}
-.filter-group label{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-.form-select{padding:.42rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem;font-family:var(--font);color:var(--dark);outline:none;background:#fff;cursor:pointer;min-width:140px}
-.form-select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
-.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:1rem;margin-bottom:1.5rem}
-@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:600px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
-.kpi-card{background:#fff;border-radius:12px;border:1px solid var(--border);border-left:4px solid;padding:1rem 1.1rem;box-shadow:0 2px 8px rgba(15,36,68,.05);transition:all .2s}
-.kpi-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(15,36,68,.1)}
-.kpi-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.85rem;margin-bottom:.6rem}
-.kpi-val{font-family:'Playfair Display',Georgia,serif;font-size:1.45rem;font-weight:700;color:var(--navy);line-height:1.1}
-.kpi-lbl{font-size:.76rem;font-weight:600;color:var(--dark);margin-top:.2rem}
-.kpi-sub{font-size:.68rem;color:var(--muted);margin-top:.15rem}
-.charts-2{display:grid;grid-template-columns:2fr 1fr;gap:1.2rem;margin-bottom:1.2rem}
-.charts-eq{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1.2rem}
-.charts-1{margin-bottom:1.2rem}
-.chart-box{background:#fff;border-radius:12px;border:1px solid var(--border);padding:1.1rem 1.2rem;box-shadow:0 2px 8px rgba(15,36,68,.05)}
-.chart-hdr{font-size:.8rem;font-weight:700;color:var(--dark);margin-bottom:.9rem;display:flex;align-items:center;gap:.4rem}
-.chart-hdr i{color:var(--gold);font-size:.73rem}
-.sect-title{font-size:.9rem;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.06em;padding:.5rem 0 1rem;border-top:2px solid var(--gold);margin:1.8rem 0 1rem;display:flex;align-items:center;gap:.5rem}
-.sect-title i{color:var(--gold)}
-.anly-filters{background:#fff;border-radius:10px;border:1px solid var(--border);padding:.8rem 1.2rem;margin-bottom:1.2rem;display:flex;gap:.7rem;align-items:center;flex-wrap:wrap}
-.charts-3{display:grid;grid-template-columns:1fr 1fr 260px;gap:1.2rem;margin-bottom:1.2rem}
-@media(max-width:900px){.charts-2,.charts-eq,.charts-3{grid-template-columns:1fr}}
+.db-wrap{padding:1.5rem 2rem;max-width:1340px;margin:0 auto;width:100%}
+.db-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem}
+.db-title{font-family:var(--heading);font-size:1.5rem;font-weight:700;color:var(--navy)}
+.db-title i{color:var(--gold);margin-right:.4rem}
+.db-filters{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+.db-sel{padding:.4rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.8rem;font-family:var(--font);color:var(--dark);outline:none;background:#fff;cursor:pointer;min-width:130px}
+.db-sel:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.1)}
+.db-badge{font-size:.78rem;color:var(--muted);display:flex;align-items:center;gap:.4rem}
+.db-badge strong{color:var(--navy)}
+.db-badge i{color:var(--gold)}
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:1rem;margin-bottom:1.8rem}
+@media(max-width:1100px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:#fff;border-radius:12px;border:1px solid var(--border);padding:1.1rem;box-shadow:0 2px 8px rgba(11,29,55,.04);transition:all .25s;border-left:4px solid var(--gold)}
+.kpi:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(11,29,55,.08)}
+.kpi-ic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.85rem;margin-bottom:.6rem}
+.kpi-v{font-family:var(--heading);font-size:1.5rem;font-weight:700;color:var(--navy);line-height:1}
+.kpi-l{font-size:.76rem;font-weight:600;color:var(--dark);margin-top:.25rem}
+.kpi-s{font-size:.68rem;color:var(--muted);margin-top:.15rem}
+/* Charts */
+.row-2{display:grid;grid-template-columns:2fr 1fr;gap:1.2rem;margin-bottom:1.2rem}
+.row-eq{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1.2rem}
+.row-3{display:grid;grid-template-columns:1fr 1fr 280px;gap:1.2rem;margin-bottom:1.2rem}
+.row-1{margin-bottom:1.2rem}
+.cbox{background:#fff;border-radius:12px;border:1px solid var(--border);padding:1.1rem 1.2rem;box-shadow:0 2px 8px rgba(11,29,55,.04)}
+.cbox-h{font-size:.82rem;font-weight:700;color:var(--dark);margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem}
+.cbox-h i{color:var(--gold);font-size:.75rem}
+.cbox-chart{width:100%}
+/* Section divider */
+.sec-div{font-size:.85rem;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.06em;padding:.6rem 0 1rem;border-top:2px solid var(--gold);margin:1.5rem 0 1rem;display:flex;align-items:center;gap:.5rem}
+.sec-div i{color:var(--gold)}
+/* Analytics filters */
+.anly-bar{background:#fff;border-radius:10px;border:1px solid var(--border);padding:.7rem 1rem;margin-bottom:1.2rem;display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+/* Table */
 .tbl-wrap{overflow-x:auto}
 .tbl-wrap table{width:100%;border-collapse:collapse;font-size:.82rem}
-.tbl-wrap thead th{background:var(--navy);color:#fff;padding:.5rem .8rem;font-size:.73rem;font-weight:600;text-align:left;white-space:nowrap}
-.tbl-wrap tbody td{padding:.5rem .8rem;border-bottom:1px solid var(--bg);vertical-align:middle}
-.tbl-wrap tbody tr:hover td{background:var(--bg)}
+.tbl-wrap thead th{background:var(--navy);color:#fff;padding:.55rem .8rem;font-size:.73rem;font-weight:600;text-align:left;white-space:nowrap}
+.tbl-wrap tbody td{padding:.55rem .8rem;border-bottom:1px solid var(--bg);vertical-align:middle}
+.tbl-wrap tbody tr:hover td{background:rgba(201,168,76,.04)}
+@media(max-width:900px){.row-2,.row-eq,.row-3{grid-template-columns:1fr}}
 </style>
 {% endblock %}
 
@@ -43,75 +53,75 @@
 <form method="GET" action="/dashboard/" class="filter-bar">
   <div class="filter-group">
     <label>Transaction</label>
-    <select name="txn" class="form-select" onchange="this.form.submit()">
-      <option value="all"      {% if txn_filter == 'all'      %}selected{% endif %}>Toutes</option>
-      <option value="Vente"    {% if txn_filter == 'Vente'    %}selected{% endif %}>Vente</option>
+    <select name="txn" class="db-sel" onchange="this.form.submit()">
+      <option value="all" {% if txn_filter == 'all' %}selected{% endif %}>Toutes</option>
+      <option value="Vente" {% if txn_filter == 'Vente' %}selected{% endif %}>Vente</option>
       <option value="Location" {% if txn_filter == 'Location' %}selected{% endif %}>Location</option>
     </select>
   </div>
   <div class="filter-group">
     <label>Source</label>
-    <select name="src" class="form-select" onchange="this.form.submit()">
+    <select name="src" class="db-sel" onchange="this.form.submit()">
       <option value="all" {% if src_filter == 'all' %}selected{% endif %}>Toutes les sources</option>
       {% for s in sources %}<option value="{{ s }}" {% if src_filter == s %}selected{% endif %}>{{ s|title }}</option>{% endfor %}
     </select>
   </div>
-  <div style="margin-left:auto;font-size:.8rem;color:var(--muted);align-self:center">
-    <i class="fas fa-database" style="color:var(--gold);margin-right:.3rem"></i>
-    <strong style="color:var(--navy)">{{ total|default:0 }}</strong> annonces
-    &nbsp;·&nbsp; <strong>{{ nv|default:0 }}</strong> ventes &nbsp;·&nbsp; <strong>{{ nl|default:0 }}</strong> locations
+  <div style="margin-left:auto" class="db-badge">
+    <i class="fas fa-database"></i>
+    <strong>{{ total|default:0 }}</strong> annonces &middot;
+    <strong>{{ nv|default:0 }}</strong> ventes &middot;
+    <strong>{{ nl|default:0 }}</strong> locations
   </div>
 </form>
 
 <div class="db-wrap fade-in">
-
   <!-- KPIs -->
-  <div class="kpi-grid">
+  <div class="kpi-row">
     {% for k in kpis %}
-    <div class="kpi-card fade-up" style="border-left-color:{{ k.color }};animation-delay:{{ forloop.counter0 }}00ms">
-      <div class="kpi-icon" style="background:{{ k.color }}18;color:{{ k.color }}"><i class="{{ k.icon }}"></i></div>
-      <div class="kpi-val">{{ k.value }}</div>
-      <div class="kpi-lbl">{{ k.label }}</div>
-      {% if k.sub %}<div class="kpi-sub">{{ k.sub }}</div>{% endif %}
+    <div class="kpi fade-up" style="border-left-color:{{ k.color }};animation-delay:{{ forloop.counter0 }}00ms">
+      <div class="kpi-ic" style="background:{{ k.color }}15;color:{{ k.color }}"><i class="{{ k.icon }}"></i></div>
+      <div class="kpi-v">{{ k.value }}</div>
+      <div class="kpi-l">{{ k.label }}</div>
+      {% if k.sub %}<div class="kpi-s">{{ k.sub }}</div>{% endif %}
     </div>
     {% endfor %}
   </div>
 
-  <!-- Ligne 1 : Histogramme + Donut -->
-  <div class="charts-2">
-    <div class="chart-box">
-      <div class="chart-hdr"><i class="fas fa-chart-bar"></i>Distribution des prix — Vente</div>
-      <div id="fig-dist" style="height:260px"></div>
+  <!-- Row 1: Distribution + Pie -->
+  <div class="row-2">
+    <div class="cbox">
+      <div class="cbox-h"><i class="fas fa-chart-bar"></i>Distribution des prix — Vente</div>
+      <div id="fig-dist" class="cbox-chart" style="height:270px"></div>
     </div>
-    <div class="chart-box">
-      <div class="chart-hdr"><i class="fas fa-chart-pie"></i>Répartition par source</div>
-      <div id="fig-pie" style="height:260px"></div>
-    </div>
-  </div>
-
-  <!-- Ligne 2 : Top quartiers + Types -->
-  <div class="charts-eq">
-    <div class="chart-box">
-      <div class="chart-hdr"><i class="fas fa-map-pin"></i>Top quartiers — Prix médian vente</div>
-      <div id="fig-cities" style="height:290px"></div>
-    </div>
-    <div class="chart-box">
-      <div class="chart-hdr"><i class="fas fa-building"></i>Répartition par type de bien</div>
-      <div id="fig-types" style="height:290px"></div>
+    <div class="cbox">
+      <div class="cbox-h"><i class="fas fa-chart-pie"></i>Repartition par source</div>
+      <div id="fig-pie" class="cbox-chart" style="height:270px"></div>
     </div>
   </div>
 
-  <!-- Ligne 3 : Vente vs Location par source -->
-  <div class="charts-1">
-    <div class="chart-box">
-      <div class="chart-hdr"><i class="fas fa-layer-group"></i>Vente vs Location par source</div>
-      <div id="fig-trend" style="height:240px"></div>
+  <!-- Row 2: Top quartiers + Types -->
+  <div class="row-eq">
+    <div class="cbox">
+      <div class="cbox-h"><i class="fas fa-map-pin"></i>Top quartiers — Prix median vente</div>
+      <div id="fig-cities" class="cbox-chart" style="height:300px"></div>
+    </div>
+    <div class="cbox">
+      <div class="cbox-h"><i class="fas fa-building"></i>Repartition par type de bien</div>
+      <div id="fig-types" class="cbox-chart" style="height:300px"></div>
     </div>
   </div>
 
-  <!-- Tableau -->
-  <div class="chart-box" style="margin-bottom:1.5rem">
-    <div class="chart-hdr"><i class="fas fa-list"></i>Annonces — prix les plus élevés</div>
+  <!-- Row 3: Vente vs Location -->
+  <div class="row-1">
+    <div class="cbox">
+      <div class="cbox-h"><i class="fas fa-layer-group"></i>Vente vs Location par source</div>
+      <div id="fig-trend" class="cbox-chart" style="height:250px"></div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="cbox" style="margin-bottom:1.5rem">
+    <div class="cbox-h"><i class="fas fa-list"></i>Annonces — prix les plus eleves</div>
     <div class="tbl-wrap">
       <table>
         <thead><tr>{% for h in headers %}<th>{{ h }}</th>{% endfor %}</tr></thead>
@@ -119,11 +129,11 @@
           {% for r in recent %}
           <tr>
             <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">{{ r.title_sh }}</td>
-            <td style="font-weight:700;color:var(--gold);white-space:nowrap;font-family:'Playfair Display',Georgia,serif">{{ r.price_fmt }}</td>
+            <td style="font-weight:700;color:var(--gold);white-space:nowrap;font-family:var(--heading)">{{ r.price_fmt }}</td>
             <td>{{ r.city }}</td>
             <td>{{ r.prop_type }}</td>
-            <td><span style="background:{{ r.src_color }}18;color:{{ r.src_color }};padding:.15rem .45rem;border-radius:4px;font-size:.68rem;font-weight:700;font-family:var(--mono)">{{ r.source }}</span></td>
-            <td><span style="background:{{ r.txn_color }}15;color:{{ r.txn_color }};padding:.15rem .45rem;border-radius:4px;font-size:.7rem;font-weight:600">{{ r.transaction }}</span></td>
+            <td><span style="background:{{ r.src_color }}15;color:{{ r.src_color }};padding:.15rem .45rem;border-radius:4px;font-size:.68rem;font-weight:700;font-family:var(--mono)">{{ r.source }}</span></td>
+            <td><span style="background:{{ r.txn_color }}12;color:{{ r.txn_color }};padding:.15rem .45rem;border-radius:4px;font-size:.7rem;font-weight:600">{{ r.transaction }}</span></td>
           </tr>
           {% endfor %}
         </tbody>
@@ -131,52 +141,51 @@
     </div>
   </div>
 
-  <!-- Section Analyses -->
-  <div class="sect-title"><i class="fas fa-microscope"></i>Analyses avancées</div>
+  <!-- Analytics Section -->
+  <div class="sec-div"><i class="fas fa-microscope"></i>Analyses avancees</div>
 
-  <div class="anly-filters">
-    <span style="font-size:.78rem;font-weight:700;color:var(--muted)"><i class="fas fa-filter" style="color:var(--gold);margin-right:.3rem"></i>Filtrer les analyses :</span>
-    <form method="GET" style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center">
+  <div class="anly-bar">
+    <span style="font-size:.78rem;font-weight:700;color:var(--muted)"><i class="fas fa-filter" style="color:var(--gold);margin-right:.3rem"></i>Filtrer :</span>
+    <form method="GET" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
       <input type="hidden" name="txn" value="{{ txn_filter }}">
       <input type="hidden" name="src" value="{{ src_filter }}">
-      <select name="type" class="form-select" onchange="this.form.submit()" style="min-width:120px">
-        <option value="all">Tous les types</option>
+      <select name="type" class="db-sel" onchange="this.form.submit()" style="min-width:110px">
+        <option value="all">Tous types</option>
         {% for t in types %}<option value="{{ t }}"{% if type_filter == t %} selected{% endif %}>{{ t }}</option>{% endfor %}
       </select>
-      <select name="city" class="form-select" onchange="this.form.submit()" style="min-width:130px">
-        <option value="">Toutes les villes</option>
+      <select name="city" class="db-sel" onchange="this.form.submit()" style="min-width:120px">
+        <option value="">Toutes villes</option>
         {% for c in cities %}<option value="{{ c }}"{% if city_filter == c %} selected{% endif %}>{{ c }}</option>{% endfor %}
       </select>
     </form>
   </div>
 
-  <!-- Box plot + Scatter -->
-  <div class="charts-eq">
-    <div class="chart-box">
-      <div class="chart-hdr"><i class="fas fa-box"></i>Distribution des prix par type</div>
-      <div id="fig-box" style="height:280px"></div>
+  <!-- Analytics Charts -->
+  <div class="row-eq">
+    <div class="cbox">
+      <div class="cbox-h"><i class="fas fa-box"></i>Distribution des prix par type</div>
+      <div id="fig-box" class="cbox-chart" style="height:290px"></div>
     </div>
-    <div class="chart-box">
-      <div class="chart-hdr"><i class="fas fa-braille"></i>Prix vs Superficie</div>
-      <div id="fig-sc" style="height:280px"></div>
+    <div class="cbox">
+      <div class="cbox-h"><i class="fas fa-braille"></i>Prix vs Superficie</div>
+      <div id="fig-sc" class="cbox-chart" style="height:290px"></div>
     </div>
   </div>
 
-  <!-- Sources + Chambres + Stats -->
-  <div class="charts-3">
-    <div class="chart-box">
-      <div class="chart-hdr"><i class="fas fa-layer-group"></i>Prix médian par source</div>
-      <div id="fig-src" style="height:260px"></div>
+  <div class="row-3">
+    <div class="cbox">
+      <div class="cbox-h"><i class="fas fa-layer-group"></i>Prix median par source</div>
+      <div id="fig-src" class="cbox-chart" style="height:270px"></div>
     </div>
-    <div class="chart-box">
-      <div class="chart-hdr"><i class="fas fa-bed"></i>Prix médian par nb chambres</div>
-      <div id="fig-beds" style="height:260px"></div>
+    <div class="cbox">
+      <div class="cbox-h"><i class="fas fa-bed"></i>Prix median par nb chambres</div>
+      <div id="fig-beds" class="cbox-chart" style="height:270px"></div>
     </div>
-    <div class="chart-box">
-      <div class="chart-hdr"><i class="fas fa-table"></i>Statistiques descriptives</div>
+    <div class="cbox">
+      <div class="cbox-h"><i class="fas fa-table"></i>Statistiques</div>
       <div style="margin-top:.2rem">
         {% for label,val in stats %}
-        <div style="display:flex;justify-content:space-between;padding:.35rem 0;border-bottom:1px solid var(--bg);font-size:.8rem">
+        <div style="display:flex;justify-content:space-between;padding:.38rem 0;border-bottom:1px solid var(--bg);font-size:.8rem">
           <span style="color:var(--muted)">{{ label }}</span>
           <span style="font-weight:700;color:var(--navy)">{{ val }}</span>
         </div>
@@ -184,63 +193,51 @@
       </div>
     </div>
   </div>
-
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script id="d-fig-dist"   type="application/json">{{ fig_dist|safe }}</script>
-<script id="d-fig-pie"    type="application/json">{{ fig_pie|safe }}</script>
-<script id="d-fig-cities" type="application/json">{{ fig_cities|safe }}</script>
-<script id="d-fig-types"  type="application/json">{{ fig_types|safe }}</script>
-<script id="d-fig-trend"  type="application/json">{{ fig_trend|safe }}</script>
-<script id="d-fig-box"    type="application/json">{{ fig_box|safe }}</script>
-<script id="d-fig-sc"     type="application/json">{{ fig_sc|safe }}</script>
-<script id="d-fig-src"    type="application/json">{{ fig_src|safe }}</script>
-<script id="d-fig-beds"   type="application/json">{{ fig_beds|safe }}</script>
 <script>
-document.addEventListener('DOMContentLoaded', function(){
+// INLINE DATA APPROACH - no JSON.parse needed, data injected directly as JS objects
+(function(){
   var CFG = {responsive:true, displayModeBar:false, locale:'fr'};
-  function rp(divId, dataId){
-    var el = document.getElementById(divId);
-    var src = document.getElementById(dataId);
-    if(!el || !src) return;
-    try{
-      var raw = (src.textContent || '').trim();
-      if(!raw || raw.length < 5){
-        el.innerHTML='<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:.82rem">Chargement...</div>';
+  var LY = {paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)',
+            font:{family:'DM Sans,Arial,sans-serif',size:11,color:'#374151'},
+            margin:{l:50,r:20,t:20,b:50}};
+
+  function render(id, figObj){
+    var el = document.getElementById(id);
+    if(!el) return;
+    try {
+      if(!figObj || !figObj.data || figObj.data.length === 0){
+        el.innerHTML = '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:.82rem;flex-direction:column;gap:.3rem"><i class="fas fa-chart-bar" style="color:#E2E6F0;font-size:1.3rem"></i><span>Pas assez de donnees</span></div>';
         return;
       }
-      var fig = JSON.parse(raw);
-      var layout = Object.assign({}, fig.layout||{});
-      layout.paper_bgcolor='rgba(0,0,0,0)';
-      layout.plot_bgcolor='rgba(0,0,0,0)';
-      layout.font={family:'DM Sans,Arial,sans-serif',size:11,color:'#374151'};
-      if(!layout.margin) layout.margin={l:50,r:20,t:20,b:50};
-      // Always try to render - Plotly handles empty data gracefully
-      Plotly.newPlot(divId, fig.data||[], layout, CFG);
-    }catch(e){
-      console.warn('Chart '+divId+':', e);
-      el.innerHTML='<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:.82rem">Chargement...</div>';
-      // Retry after DOM is fully ready
-      setTimeout(function(){
-        try{
-          var fig2 = JSON.parse((src.textContent||'').trim());
-          var ly = Object.assign({},fig2.layout||{});
-          ly.paper_bgcolor='rgba(0,0,0,0)';ly.plot_bgcolor='rgba(0,0,0,0)';
-          ly.font={family:'DM Sans,Arial,sans-serif',size:11,color:'#374151'};
-          Plotly.newPlot(divId, fig2.data||[], ly, CFG);
-        }catch(e2){
-          el.innerHTML='<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:.82rem"><i class="fas fa-info-circle" style="margin-right:.4rem"></i>Pas de donnees</div>';
-        }
-      }, 1000);
+      var layout = Object.assign({}, figObj.layout || {}, LY);
+      if(figObj.layout && figObj.layout.margin) layout.margin = figObj.layout.margin;
+      if(figObj.layout && figObj.layout.barmode) layout.barmode = figObj.layout.barmode;
+      if(figObj.layout && figObj.layout.showlegend !== undefined) layout.showlegend = figObj.layout.showlegend;
+      if(figObj.layout && figObj.layout.legend) layout.legend = figObj.layout.legend;
+      if(figObj.layout && figObj.layout.xaxis) layout.xaxis = Object.assign({}, LY.xaxis||{}, figObj.layout.xaxis);
+      if(figObj.layout && figObj.layout.yaxis) layout.yaxis = Object.assign({}, LY.yaxis||{}, figObj.layout.yaxis);
+      if(figObj.layout && figObj.layout.annotations) layout.annotations = figObj.layout.annotations;
+      Plotly.newPlot(id, figObj.data, layout, CFG);
+    } catch(e) {
+      console.error('Chart '+id+':', e);
+      el.innerHTML = '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:.82rem">Erreur: '+e.message+'</div>';
     }
   }
-    rp('fig-dist','d-fig-dist'); rp('fig-pie','d-fig-pie');
-  rp('fig-cities','d-fig-cities'); rp('fig-types','d-fig-types');
-  rp('fig-trend','d-fig-trend'); rp('fig-box','d-fig-box');
-  rp('fig-sc','d-fig-sc'); rp('fig-src','d-fig-src');
-  rp('fig-beds','d-fig-beds');
-});
+
+  // Direct JS object injection - no JSON.parse step
+  try{ render('fig-dist',   {{ fig_dist|safe|default:"{}" }}); }catch(e){ console.warn('fig-dist',e) }
+  try{ render('fig-pie',    {{ fig_pie|safe|default:"{}" }}); }catch(e){ console.warn('fig-pie',e) }
+  try{ render('fig-cities', {{ fig_cities|safe|default:"{}" }}); }catch(e){ console.warn('fig-cities',e) }
+  try{ render('fig-types',  {{ fig_types|safe|default:"{}" }}); }catch(e){ console.warn('fig-types',e) }
+  try{ render('fig-trend',  {{ fig_trend|safe|default:"{}" }}); }catch(e){ console.warn('fig-trend',e) }
+  try{ render('fig-box',    {{ fig_box|safe|default:"{}" }}); }catch(e){ console.warn('fig-box',e) }
+  try{ render('fig-sc',     {{ fig_sc|safe|default:"{}" }}); }catch(e){ console.warn('fig-sc',e) }
+  try{ render('fig-src',    {{ fig_src|safe|default:"{}" }}); }catch(e){ console.warn('fig-src',e) }
+  try{ render('fig-beds',   {{ fig_beds|safe|default:"{}" }}); }catch(e){ console.warn('fig-beds',e) }
+})();
 </script>
 {% endblock %}
