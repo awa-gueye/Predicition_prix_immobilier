@@ -160,8 +160,8 @@ def _fmt(p):
 
 def _gl():
     return dict(
-        paper_bgcolor=C["white"], plot_bgcolor=C["white"],
-        font=dict(family="Inter,sans-serif", color=C["dark"], size=12),
+        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor=C["white"],
+        font=dict(family="DM Sans,Arial,sans-serif", color=C["dark"], size=12),
         margin=dict(l=40, r=20, t=30, b=40),
         xaxis=dict(gridcolor=C["border"], linecolor=C["border"], zeroline=False),
         yaxis=dict(gridcolor=C["border"], linecolor=C["border"], zeroline=False),

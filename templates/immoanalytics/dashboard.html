@@ -9,7 +9,7 @@
 .filter-bar{background:#fff;border-bottom:1px solid var(--border);padding:.8rem 2rem;display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap}
 .filter-group{display:flex;flex-direction:column;gap:.2rem}
 .filter-group label{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-.form-select{padding:.42rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem;font-family:'DM Sans',Arial,sans-serif;color:var(--dark);outline:none;background:#fff;cursor:pointer;min-width:140px}
+.form-select{padding:.42rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem;font-family:var(--font);color:var(--dark);outline:none;background:#fff;cursor:pointer;min-width:140px}
 .form-select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
 .kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:1rem;margin-bottom:1.5rem}
 @media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
@@ -122,7 +122,7 @@
             <td style="font-weight:700;color:var(--gold);white-space:nowrap;font-family:var(--heading)">{{ r.price_fmt }}</td>
             <td>{{ r.city }}</td>
             <td>{{ r.prop_type }}</td>
-            <td><span style="background:{{ r.src_color }}18;color:{{ r.src_color }};padding:.15rem .45rem;border-radius:4px;font-size:.68rem;font-weight:700;font-family:'JetBrains Mono','Consolas',monospace">{{ r.source }}</span></td>
+            <td><span style="background:{{ r.src_color }}18;color:{{ r.src_color }};padding:.15rem .45rem;border-radius:4px;font-size:.68rem;font-weight:700;font-family:var(--mono)">{{ r.source }}</span></td>
             <td><span style="background:{{ r.txn_color }}15;color:{{ r.txn_color }};padding:.15rem .45rem;border-radius:4px;font-size:.7rem;font-weight:600">{{ r.transaction }}</span></td>
           </tr>
           {% endfor %}
@@ -206,20 +206,42 @@ document.addEventListener('DOMContentLoaded', function(){
     var src = document.getElementById(dataId);
     if(!el || !src) return;
     try{
-      var fig = JSON.parse(src.textContent);
+      var raw = src.textContent.trim();
+      if(!raw || raw === 'null' || raw === 'None' || raw === '{}' || raw === '""') {
+        el.innerHTML='<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:.82rem"><i class="fas fa-chart-bar" style="margin-right:.5rem;color:#E2E6F0;font-size:1.2rem"></i>Donnees insuffisantes</div>';
+        return;
+      }
+      var fig = JSON.parse(raw);
+      if(!fig || typeof fig !== 'object') {
+        el.innerHTML='<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:.82rem">Pas de donnees</div>';
+        return;
+      }
       var layout = Object.assign({}, fig.layout||{});
       layout.paper_bgcolor='rgba(0,0,0,0)';
       layout.plot_bgcolor='rgba(0,0,0,0)';
-      layout.font={family:'Inter,sans-serif',size:11,color:'#374151'};
+      layout.font={family:'DM Sans,Arial,sans-serif',size:11,color:'#374151'};
       layout.margin=layout.margin||{l:50,r:20,t:20,b:50};
-      if(fig.data && fig.data.length>0){
-        Plotly.newPlot(divId, fig.data, layout, CFG);
+      var data = fig.data || [];
+      if(data.length > 0){
+        Plotly.newPlot(divId, data, layout, CFG);
       } else {
-        el.innerHTML='<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:.8rem"><i class="fas fa-chart-bar" style="margin-right:.4rem;color:#DDE1EE"></i>Données insuffisantes</div>';
+        el.innerHTML='<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:.82rem"><i class="fas fa-chart-bar" style="margin-right:.5rem;color:#E2E6F0;font-size:1.2rem"></i>Donnees insuffisantes</div>';
       }
     }catch(e){
-      console.warn('Plotly '+divId, e);
-      el.innerHTML='<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:.8rem">Erreur de rendu</div>';
+      console.warn('Plotly render '+divId+':', e.message);
+      el.innerHTML='<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:.82rem"><i class="fas fa-exclamation-triangle" style="margin-right:.5rem;color:#E2E6F0"></i>Chargement en cours...</div>';
+      // Retry once after a short delay
+      setTimeout(function(){
+        try{
+          var fig2 = JSON.parse(src.textContent.trim());
+          if(fig2 && fig2.data && fig2.data.length > 0){
+            var ly = Object.assign({}, fig2.layout||{});
+            ly.paper_bgcolor='rgba(0,0,0,0)'; ly.plot_bgcolor='rgba(0,0,0,0)';
+            ly.font={family:'DM Sans,Arial,sans-serif',size:11,color:'#374151'};
+            Plotly.newPlot(divId, fig2.data, ly, CFG);
+          }
+        }catch(e2){}
+      }, 500);
     }
   }
   rp('fig-dist','d-fig-dist'); rp('fig-pie','d-fig-pie');

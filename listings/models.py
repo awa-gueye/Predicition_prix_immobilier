@@ -1,7 +1,6 @@
 """
 listings/models.py
-Modeles pour les annonces des vendeurs, profil utilisateur,
-historique de recherche (recommandations) et alertes.
+Modèles pour les annonces des vendeurs et le profil utilisateur étendu.
 """
 from django.db import models
 from django.contrib.auth.models import User
@@ -10,10 +9,10 @@ import uuid
 
 
 class UserProfile(models.Model):
-    """Extension du modele User Django."""
+    """Extension du modèle User Django."""
     ROLE_CHOICES = [
         ('user',   'Utilisateur'),
-        ('seller', 'Vendeur / Bailleur'),
+        ('seller', 'Vendeur'),
     ]
     user        = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     phone       = models.CharField(max_length=20, blank=True)
@@ -21,10 +20,6 @@ class UserProfile(models.Model):
     avatar      = models.ImageField(upload_to='avatars/', blank=True, null=True)
     bio         = models.TextField(blank=True)
     city        = models.CharField(max_length=100, blank=True)
-    latitude    = models.FloatField(null=True, blank=True, help_text="Latitude de l'utilisateur pour les alertes de proximite")
-    longitude   = models.FloatField(null=True, blank=True, help_text="Longitude de l'utilisateur pour les alertes de proximite")
-    alert_radius_km = models.FloatField(default=5.0, help_text="Rayon d'alerte en km")
-    alerts_enabled  = models.BooleanField(default=True, help_text="Recevoir des alertes de proximite")
     created_at  = models.DateTimeField(auto_now_add=True)
     updated_at  = models.DateTimeField(auto_now=True)
 
@@ -47,7 +42,7 @@ class UserProfile(models.Model):
 
 
 class Listing(models.Model):
-    """Annonce ajoutee par un vendeur."""
+    """Annonce ajoutée par un vendeur."""
     TYPE_CHOICES = [
         ('chambre',      'Chambre'),
         ('studio',       'Studio'),
@@ -66,8 +61,8 @@ class Listing(models.Model):
     STATUS_CHOICES = [
         ('active',   'Active'),
         ('pending',  'En attente de validation'),
-        ('sold',     'Vendu / Loue'),
-        ('inactive', 'Desactivee'),
+        ('sold',     'Vendu / Loué'),
+        ('inactive', 'Désactivée'),
     ]
 
     id           = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -96,7 +91,7 @@ class Listing(models.Model):
         verbose_name_plural = "Annonces"
 
     def __str__(self):
-        return f"{self.title} -- {self.price:,} FCFA ({self.city})"
+        return f"{self.title} — {self.price:,} FCFA ({self.city})"
 
     @property
     def main_image(self):
@@ -119,7 +114,7 @@ class Listing(models.Model):
 
 
 class ListingImage(models.Model):
-    """Images associees a une annonce vendeur."""
+    """Images associées à une annonce vendeur."""
     listing  = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='images')
     image    = models.ImageField(upload_to='listings/')
     caption  = models.CharField(max_length=200, blank=True)
@@ -132,52 +127,4 @@ class ListingImage(models.Model):
         verbose_name_plural = "Images d'annonces"
 
     def __str__(self):
-        return f"Image {self.order} -- {self.listing.title}"
-
-
-class SearchHistory(models.Model):
-    """Historique de recherche pour le systeme de recommandation."""
-    user          = models.ForeignKey(User, on_delete=models.CASCADE, related_name='search_history')
-    city          = models.CharField(max_length=100, blank=True)
-    property_type = models.CharField(max_length=50, blank=True)
-    transaction   = models.CharField(max_length=10, blank=True)
-    query_text    = models.CharField(max_length=300, blank=True)
-    created_at    = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering            = ['-created_at']
-        verbose_name        = "Historique de recherche"
-        verbose_name_plural = "Historiques de recherche"
-
-    def __str__(self):
-        return f"{self.user.username} - {self.city} {self.property_type} ({self.created_at:%d/%m/%Y})"
-
-
-class Alert(models.Model):
-    """Alerte pour un bien a proximite de l'utilisateur."""
-    ALERT_TYPE_CHOICES = [
-        ('proximity', 'Bien a proximite'),
-        ('price_drop', 'Baisse de prix'),
-        ('new_listing', 'Nouvelle annonce'),
-        ('recommendation', 'Recommandation'),
-    ]
-
-    user        = models.ForeignKey(User, on_delete=models.CASCADE, related_name='alerts')
-    alert_type  = models.CharField(max_length=20, choices=ALERT_TYPE_CHOICES, default='proximity')
-    title       = models.CharField(max_length=200)
-    message     = models.TextField()
-    listing     = models.ForeignKey(Listing, on_delete=models.SET_NULL, null=True, blank=True, related_name='alerts')
-    # For scraped property alerts (no Listing FK)
-    property_title = models.CharField(max_length=200, blank=True)
-    property_price = models.BigIntegerField(null=True, blank=True)
-    property_city  = models.CharField(max_length=100, blank=True)
-    is_read     = models.BooleanField(default=False)
-    created_at  = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering            = ['-created_at']
-        verbose_name        = "Alerte"
-        verbose_name_plural = "Alertes"
-
-    def __str__(self):
-        return f"[{'Lu' if self.is_read else 'Non lu'}] {self.title} - {self.user.username}"
+        return f"Image {self.order} — {self.listing.title}"
