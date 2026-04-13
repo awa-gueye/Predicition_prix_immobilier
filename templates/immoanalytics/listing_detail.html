@@ -34,8 +34,8 @@
 {% block content %}
 <div class="det-hero">
   <div style="max-width:1100px;margin:0 auto">
-    <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;font-size:.8rem;color:rgba(255,255,255,.5)">
-      <a href="{% if listing.transaction == 'vente' %}{% url 'vente' %}{% else %}{% url 'location' %}{% endif %}" style="color:rgba(255,255,255,.5);text-decoration:none">← Retour aux annonces</a>
+    <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;font-size:.8rem;color:rgba(255,255,255,.7)">
+      <a href="{% if listing.transaction == 'vente' %}{% url 'vente' %}{% else %}{% url 'location' %}{% endif %}" style="color:rgba(255,255,255,.7);text-decoration:none">← Retour aux annonces</a>
     </div>
     <h1>{{ listing.title }}</h1>
     <div class="det-price">{{ listing.price_formatted }}<span class="det-price-unit"> {{ listing.price_unit }}</span></div>
@@ -74,7 +74,7 @@
 
     <div class="det-section-t">Localisation</div>
     <div style="background:#F0F2F8;border-radius:10px;padding:1rem;font-size:.88rem;color:#374151">
-      <i class="fas fa-map-marker-alt" style="color:#1A8ED8;margin-right:.4rem"></i>
+      <i class="fas fa-map-marker-alt" style="color:#5BBCE8;margin-right:.4rem"></i>
       {% if listing.address %}{{ listing.address }}, {% endif %}
       {% if listing.neighborhood %}{{ listing.neighborhood }}, {% endif %}{{ listing.city }}
     </div>
@@ -91,7 +91,7 @@
 
   <div>
     <div class="det-card">
-      <div class="det-card-hdr"><i class="fas fa-chart-bar" style="color:#1A8ED8;margin-right:.4rem"></i>Caractéristiques</div>
+      <div class="det-card-hdr"><i class="fas fa-chart-bar" style="color:#5BBCE8;margin-right:.4rem"></i>Caractéristiques</div>
       <div class="det-card-body">
         <div class="det-specs">
           {% if listing.surface_area %}<div class="det-spec"><i class="fas fa-ruler-combined"></i><div class="sv">{{ listing.surface_area|floatformat:0 }} m²</div><div class="sl">Superficie</div></div>{% endif %}
@@ -109,7 +109,7 @@
           {% endif %}
           <div>
             <div style="font-weight:700;font-size:.88rem;color:#0C2D4D">{{ listing.seller.get_full_name|default:listing.seller.username }}</div>
-            {% if seller_profile.city %}<div style="font-size:.75rem;color:#6B7280"><i class="fas fa-map-pin" style="color:#1A8ED8;margin-right:.3rem"></i>{{ seller_profile.city }}</div>{% endif %}
+            {% if seller_profile.city %}<div style="font-size:.75rem;color:#6B7280"><i class="fas fa-map-pin" style="color:#5BBCE8;margin-right:.3rem"></i>{{ seller_profile.city }}</div>{% endif %}
             <div style="font-size:.72rem;color:#9CA3AF;margin-top:.2rem">Membre depuis {{ listing.seller.date_joined|date:"M Y" }}</div>
           </div>
         </div>

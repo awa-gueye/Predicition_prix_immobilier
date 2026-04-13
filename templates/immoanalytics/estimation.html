@@ -76,7 +76,7 @@ footer,.site-footer{display:none}
           {% endif %}
 
           <div class="form-group">
-            <label class="form-label"><i class="fas fa-map-pin" style="color:#1A8ED8"></i> Quartier / Ville *</label>
+            <label class="form-label"><i class="fas fa-map-pin" style="color:#5BBCE8"></i> Quartier / Ville *</label>
             <select name="city" class="form-control form-select" required>
               <option value="">-- Sélectionner un quartier --</option>
               {% for c in cities %}
@@ -86,7 +86,7 @@ footer,.site-footer{display:none}
           </div>
 
           <div class="form-group">
-            <label class="form-label"><i class="fas fa-home" style="color:#1A8ED8"></i> Type de bien *</label>
+            <label class="form-label"><i class="fas fa-home" style="color:#5BBCE8"></i> Type de bien *</label>
             <select name="property_type" class="form-control form-select" required>
               <option value="">-- Sélectionner --</option>
               {% for t in types %}
@@ -96,7 +96,7 @@ footer,.site-footer{display:none}
           </div>
 
           <div class="form-group">
-            <label class="form-label"><i class="fas fa-exchange-alt" style="color:#1A8ED8"></i> Type de transaction *</label>
+            <label class="form-label"><i class="fas fa-exchange-alt" style="color:#5BBCE8"></i> Type de transaction *</label>
             <select name="transaction" class="form-control form-select" required>
               {% for val, lbl in transactions %}
               <option value="{{ val }}" {% if form.transaction == val %}selected{% endif %}>{{ lbl }}</option>
@@ -106,17 +106,17 @@ footer,.site-footer{display:none}
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label"><i class="fas fa-expand" style="color:#1A8ED8"></i> Superficie (m²)</label>
+              <label class="form-label"><i class="fas fa-expand" style="color:#5BBCE8"></i> Superficie (m²)</label>
               <input type="number" name="surface_area" class="form-control" placeholder="ex: 120" min="10" max="10000" value="{{ form.surface_area }}">
             </div>
             <div class="form-group">
-              <label class="form-label"><i class="fas fa-bed" style="color:#1A8ED8"></i> Chambres</label>
+              <label class="form-label"><i class="fas fa-bed" style="color:#5BBCE8"></i> Chambres</label>
               <input type="number" name="bedrooms" class="form-control" placeholder="ex: 3" min="0" max="20" value="{{ form.bedrooms }}">
             </div>
           </div>
 
           <div class="form-group">
-            <label class="form-label"><i class="fas fa-bath" style="color:#1A8ED8"></i> Salles de bain</label>
+            <label class="form-label"><i class="fas fa-bath" style="color:#5BBCE8"></i> Salles de bain</label>
             <input type="number" name="bathrooms" class="form-control" placeholder="ex: 2" min="0" max="10" value="{{ form.bathrooms }}" style="max-width:50%">
           </div>
 
@@ -165,7 +165,7 @@ footer,.site-footer{display:none}
         {% else %}
         <div class="result-placeholder">
           <i class="fas fa-calculator"></i>
-          <div style="font-size:.9rem">Remplissez le formulaire et cliquez sur<br><strong style="color:#1A8ED8">Estimer le prix</strong></div>
+          <div style="font-size:.9rem">Remplissez le formulaire et cliquez sur<br><strong style="color:#5BBCE8">Estimer le prix</strong></div>
         </div>
         <div class="prix-guide">
           <div class="prix-guide-title"><i class="fas fa-chart-bar"></i> Guide des prix — Dakar</div>

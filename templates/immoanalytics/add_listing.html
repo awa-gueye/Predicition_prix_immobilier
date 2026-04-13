@@ -5,7 +5,7 @@
 <style>
 .fhero{background:linear-gradient(135deg,#0C2D4D,#143D68);padding:2rem;text-align:center}
 .fhero h1{font-family:Georgia,serif;font-size:1.8rem;color:#fff;margin:0 0 .3rem}
-.fhero p{color:rgba(255,255,255,.5);font-size:.85rem;margin:0}
+.fhero p{color:rgba(255,255,255,.7);font-size:.85rem;margin:0}
 .fc{max-width:820px;margin:2rem auto;padding:0 1.5rem 3rem}
 .fcard{background:#fff;border-radius:14px;border:1px solid #D6E3F0;box-shadow:0 4px 20px rgba(15,36,68,.08);overflow:hidden}
 .fsec{padding:1.5rem 2rem;border-bottom:1px solid #F0F2F8}
@@ -42,7 +42,7 @@
 {% endblock %}
 {% block content %}
 <div class="fhero">
-  <h1><i class="fas fa-{% if edit %}edit{% else %}plus-circle{% endif %}" style="color:#1A8ED8;margin-right:.4rem"></i>{% if edit %}Modifier l'annonce{% else %}Publier un bien{% endif %}</h1>
+  <h1><i class="fas fa-{% if edit %}edit{% else %}plus-circle{% endif %}" style="color:#5BBCE8;margin-right:.4rem"></i>{% if edit %}Modifier l'annonce{% else %}Publier un bien{% endif %}</h1>
   <p>{% if edit %}Mettez à jour les informations{% else %}Remplissez le formulaire pour publier votre bien{% endif %}</p>
 </div>
 <div class="fc">

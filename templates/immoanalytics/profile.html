@@ -34,7 +34,7 @@
       <h1 style="font-family:'Playfair Display',Georgia,serif;font-size:1.8rem;font-weight:700;color:#fff;margin:0 0 .3rem">{{ user.get_full_name|default:user.username }}</h1>
       <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.5rem;align-items:center">
         <span style="display:inline-flex;align-items:center;gap:.3rem;padding:.22rem .7rem;border-radius:20px;font-size:.72rem;font-weight:700;background:#1A8ED8;color:#fff"><i class="fas fa-{% if profile.role == 'seller' %}store{% else %}user{% endif %}"></i>{{ profile.get_role_display }}</span>
-        {% if profile.city %}<span style="color:rgba(255,255,255,.6);font-size:.8rem"><i class="fas fa-map-pin" style="color:#1A8ED8;margin-right:.3rem"></i>{{ profile.city }}</span>{% endif %}
+        {% if profile.city %}<span style="color:rgba(255,255,255,.6);font-size:.8rem"><i class="fas fa-map-pin" style="color:#5BBCE8;margin-right:.3rem"></i>{{ profile.city }}</span>{% endif %}
         <span style="color:rgba(255,255,255,.4);font-size:.78rem"><i class="fas fa-calendar-alt" style="margin-right:.3rem"></i>Membre depuis {{ user.date_joined|date:"M Y" }}</span>
       </div>
     </div>

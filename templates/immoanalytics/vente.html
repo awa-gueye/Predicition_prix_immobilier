@@ -4,12 +4,12 @@
 {% block extra_css %}
 <style>
 
-.lh{padding:2rem 2rem 0;overflow:hidden;position:relative}
+.lh{padding:1.2rem 2rem 0;overflow:hidden;position:relative}
 .lh::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(26,142,216,.04) 40px,rgba(26,142,216,.04) 41px)}
 .lh-in{position:relative;z-index:2;max-width:1200px;margin:0 auto}
 .lh h1{font-family:Georgia,serif;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;color:#fff;margin:0 0 .3rem}
-.lh p{color:rgba(255,255,255,.55);font-size:.85rem;margin:0 0 1.5rem}
-.lh-wave{width:100%;height:32px;background:var(--bg);clip-path:ellipse(60% 100% at 50% 100%);position:relative;z-index:2}
+.lh p{color:rgba(255,255,255,.6);font-size:.8rem;margin:0 0 .8rem}
+.lh-wave{width:100%;height:20px;background:var(--bg);clip-path:ellipse(60% 100% at 50% 100%);position:relative;z-index:2}
 .fb{background:#fff;border-bottom:1px solid var(--border);padding:.75rem 2rem;display:flex;gap:.7rem;align-items:center;flex-wrap:wrap;position:relative;z-index:10}
 .fb input,.fb select{padding:.42rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem;font-family:var(--font);outline:none;color:var(--dark);background:#fff}
 .fb input:focus,.fb select:focus{border-color:#1A8ED8;box-shadow:0 0 0 3px rgba(26,142,216,.12)}
@@ -52,7 +52,7 @@
 {% block content %}
 <div class="lh">
   <div class="lh-in">
-    <h1><i class="fas fa-home" style="color:#1A8ED8;margin-right:.5rem"></i>Biens en <span style="color:#1A8ED8">Vente</span></h1>
+    <h1><i class="fas fa-home" style="color:#1A8ED8;margin-right:.5rem"></i>Biens en <span style="color:#5BBCE8">Vente</span></h1>
     <p>{{ seller_total }} annonce{{seller_total|pluralize}} vendeur &nbsp;&middot;&nbsp; {{ scraped_total }} annonce{{scraped_total|pluralize}} collectée{{scraped_total|pluralize}} en temps réel</p>
   </div>
   <div class="lh-wave"></div>
@@ -79,7 +79,7 @@
   <select name="sort">
     {% for v,l in sort_opts %}<option value="{{ v }}" {% if sort_f == v %}selected{% endif %}>{{ l }}</option>{% endfor %}
   </select>
-  <button type="submit" class="fbtn" style="background:#1A8ED8;color:#fff"><i class="fas fa-search"></i>Filtrer</button>
+  <button type="submit" class="fbtn" style="background:#1A8ED8;color:#fff;border:none;cursor:pointer"><i class="fas fa-search"></i>Filtrer</button>
   <a href="{% url 'vente' %}" class="fbtn" style="background:var(--bg);color:var(--muted)">Réinitialiser</a>
   {% if role == 'seller' %}
   <a href="{% url 'add_listing' %}" class="fbtn" style="background:var(--green);color:#fff;margin-left:auto"><i class="fas fa-plus"></i>Ajouter un bien</a>
@@ -87,7 +87,7 @@
 </form>
 
 {% if seller_listings %}
-<div class="shdr"><i class="fas fa-star" style="color:#1A8ED8"></i>Annonces des vendeurs ImmoPredict<span class="bge bge-green" style="margin-left:.3rem">{{ seller_total }}</span></div>
+<div class="shdr"><i class="fas fa-star" style="color:#5BBCE8"></i>Annonces des vendeurs ImmoPredict<span class="bge bge-green" style="margin-left:.3rem">{{ seller_total }}</span></div>
 <div class="cg">
 {% for l in seller_listings %}
 <a href="{% url 'listing_detail' l.pk %}" style="text-decoration:none;color:inherit">
