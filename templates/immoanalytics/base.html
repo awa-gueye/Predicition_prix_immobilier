@@ -10,10 +10,10 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Georgia&display=swap">
 <style>
 :root{
-  --navy:#0F2444;--navy2:#1A3560;--gold:#C9A84C;--gold2:#E2C47A;
-  --green:#0E6B4A;--blue:#2563EB;--red:#C0392B;--purple:#7C3AED;
+  --navy:#0C2D4D;--navy2:#143D68;--gold:#1A8ED8;--gold2:#5BBCE8;
+  --green:#1B7A50;--blue:#2563EB;--red:#C0392B;--purple:#7C3AED;
   --teal:#0891B2;--muted:#6B7280;--dark:#111827;--white:#FFFFFF;
-  --bg:#F0F2F8;--border:#DDE1EE;--card:#FFFFFF;
+  --bg:#F0F2F8;--border:#D6E3F0;--card:#FFFFFF;
   --font:'DM Sans',Arial,sans-serif;--heading:'Playfair Display',Georgia,serif;--mono:'Consolas',monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -21,16 +21,16 @@ body{font-family:var(--font);background:var(--bg);color:var(--dark);min-height:1
 a{color:inherit;text-decoration:none}
 /* ── Navbar ── */
 .navbar{
-  background:var(--navy);border-bottom:3px solid var(--gold);
+  background:var(--navy);border-bottom:3px solid var(--blue-p);
   padding:0 1.5rem;height:54px;display:flex;align-items:center;
   position:sticky;top:0;z-index:100;gap:.5rem;
 }
 .nav-brand{display:flex;align-items:center;gap:.55rem;text-decoration:none;margin-right:1.5rem;flex-shrink:0}
-.nav-logo{width:32px;height:32px;border-radius:7px;overflow:hidden;background:var(--navy2);display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(201,168,76,.3)}
+.nav-logo{width:32px;height:32px;border-radius:7px;overflow:hidden;background:var(--navy2);display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(26,142,216,.3)}
 .nav-logo img{width:100%;height:100%;object-fit:cover}
-.nav-logo-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--heading);font-size:.75rem;font-weight:700;color:var(--gold);letter-spacing:-.02em}
+.nav-logo-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--heading);font-size:.75rem;font-weight:700;color:var(--blue-p);letter-spacing:-.02em}
 .nav-title{font-family:var(--heading);font-weight:700;font-size:1.05rem;color:var(--white)}
-.nav-title span{color:var(--gold)}
+.nav-title span{color:var(--blue-p)}
 .nav-links{display:flex;align-items:center;gap:.1rem;flex:1}
 .nav-link{
   padding:.38rem .65rem;border-radius:7px;font-size:.78rem;font-weight:500;
@@ -38,9 +38,9 @@ a{color:inherit;text-decoration:none}
   white-space:nowrap;
 }
 .nav-link:hover{background:rgba(255,255,255,.08);color:var(--white)}
-.nav-link.active{background:rgba(201,168,76,.15);color:var(--gold);font-weight:600}
+.nav-link.active{background:rgba(26,142,216,.15);color:var(--blue-p);font-weight:600}
 .nav-link i{font-size:.72rem;opacity:.8}
-.nav-link.vente-link.active{background:rgba(201,168,76,.18);color:var(--gold)}
+.nav-link.vente-link.active{background:rgba(26,142,216,.18);color:var(--blue-p)}
 .nav-link.location-link.active{background:rgba(14,107,74,.2);color:#6EE7B7}
 .nav-divider{width:1px;height:22px;background:rgba(255,255,255,.1);margin:0 .3rem;flex-shrink:0}
 .nav-right{display:flex;align-items:center;gap:.5rem;margin-left:auto;flex-shrink:0}
@@ -52,7 +52,7 @@ a{color:inherit;text-decoration:none}
   transition:all .18s;
 }
 .user-btn:hover{background:rgba(255,255,255,.1)}
-.user-avatar-sm{width:24px;height:24px;border-radius:50%;object-fit:cover;border:1.5px solid var(--gold)}
+.user-avatar-sm{width:24px;height:24px;border-radius:50%;object-fit:cover;border:1.5px solid var(--blue-p)}
 .dropdown{
   display:none;position:absolute;right:0;top:calc(100% + 8px);
   background:#fff;border:1px solid var(--border);border-radius:10px;
@@ -68,11 +68,11 @@ a{color:inherit;text-decoration:none}
 .dropdown a:hover,.dropdown button:hover{background:var(--bg)}
 .dropdown .sep{height:1px;background:var(--border);margin:.3rem 0}
 .add-btn{
-  padding:.35rem .8rem;border-radius:7px;background:var(--gold);color:var(--navy);
+  padding:.35rem .8rem;border-radius:7px;background:var(--blue-p);color:#fff;
   font-size:.75rem;font-weight:700;display:flex;align-items:center;gap:.3rem;
   transition:all .18s;white-space:nowrap;
 }
-.add-btn:hover{background:var(--gold2);transform:translateY(-1px)}
+.add-btn:hover{background:var(--blue-l);transform:translateY(-1px)}
 .nav-toggle{display:none;background:none;border:none;color:var(--white);font-size:1.1rem;cursor:pointer;padding:.3rem}
 /* ── Utilitaires ── */
 .fade-in{animation:fadeIn .4s ease}
@@ -85,12 +85,12 @@ a{color:inherit;text-decoration:none}
 .filter-group{display:flex;flex-direction:column;gap:.2rem}
 .filter-group label{font-size:.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
 .form-select{padding:.38rem .7rem;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem;font-family:var(--font);color:var(--dark);outline:none;background:var(--white);cursor:pointer;min-width:140px}
-.form-select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
+.form-select:focus{border-color:var(--blue-p);box-shadow:0 0 0 3px rgba(26,142,216,.12)}
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem}
-.kpi-card{background:var(--card);border-radius:12px;border:1px solid var(--border);border-left:4px solid var(--gold);padding:1.1rem 1.2rem;box-shadow:0 2px 8px rgba(15,36,68,.05);transition:all .2s}
+.kpi-card{background:var(--card);border-radius:12px;border:1px solid var(--border);border-left:4px solid var(--blue-p);padding:1.1rem 1.2rem;box-shadow:0 2px 8px rgba(15,36,68,.05);transition:all .2s}
 .kpi-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(15,36,68,.1)}
 .kpi-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9rem;margin-bottom:.7rem}
-.kpi-val{font-family:var(--heading);font-size:1.6rem;font-weight:700;color:var(--navy);line-height:1}
+.kpi-val{font-family:var(--heading);font-size:1.6rem;font-weight:700;color:#fff;line-height:1}
 .kpi-lbl{font-size:.78rem;font-weight:600;color:var(--dark);margin-top:.3rem}
 .text-xs{font-size:.72rem}.text-muted{color:var(--muted)}.mt-1{margin-top:.3rem}
 .charts-row{display:grid;gap:1.2rem;margin-bottom:1.2rem}
@@ -98,7 +98,7 @@ a{color:inherit;text-decoration:none}
 .chart-wrap.wide{grid-column:span 1}
 .chart-card{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:1.1rem 1.2rem;box-shadow:0 2px 8px rgba(15,36,68,.05);height:100%}
 .chart-header{font-size:.8rem;font-weight:700;color:var(--dark);margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem}
-.chart-header i{color:var(--gold);font-size:.75rem}
+.chart-header i{color:var(--blue-p);font-size:.75rem}
 .table-wrap{overflow-x:auto}
 .table-wrap table{width:100%;border-collapse:collapse;font-size:.82rem}
 .table-wrap thead th{background:var(--navy);color:var(--white);padding:.55rem .8rem;font-size:.75rem;font-weight:600;text-align:left;white-space:nowrap}
@@ -106,9 +106,9 @@ a{color:inherit;text-decoration:none}
 .table-wrap tbody tr:hover td{background:var(--bg)}
 .mb-3{margin-bottom:1.2rem}
 /* ── Footer ── */
-footer{background:var(--navy);border-top:3px solid var(--gold);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-top:auto}
+footer{background:var(--navy);border-top:3px solid var(--blue-p);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-top:auto}
 footer span{font-size:.72rem;color:rgba(255,255,255,.35)}
-footer a{font-size:.72rem;color:var(--gold)}
+footer a{font-size:.72rem;color:var(--blue-p)}
 /* ── Responsive ── */
 @media(max-width:768px){
   .nav-links{display:none;flex-direction:column;position:absolute;top:54px;left:0;right:0;background:var(--navy);border-top:1px solid rgba(255,255,255,.08);padding:.5rem 1rem;gap:.2rem;z-index:99}
@@ -131,7 +131,7 @@ footer a{font-size:.72rem;color:var(--gold)}
       {% if logo_url %}
         <img src="{{ logo_url }}" alt="Logo ImmoPredict SN">
       {% else %}
-        <img src="{% static 'immoanalytics/img/logo.png' %}" alt="Logo" style="width:100%;height:100%;object-fit:contain;border-radius:5px" onerror="this.onerror=null;this.src='';this.style.display='none';this.parentNode.innerHTML='<div style=padding:.2rem;font-family:Playfair Display,serif;font-size:.75rem;font-weight:800;color:#0B1D37>IP</div>'">
+        <img src="{% static 'immoanalytics/img/logo.png' %}" alt="Logo" style="width:100%;height:100%;object-fit:contain;border-radius:5px" onerror="this.onerror=null;this.src='';this.style.display='none';this.parentNode.innerHTML='<div style=padding:.2rem;font-family:Playfair Display,serif;font-size:.75rem;font-weight:800;color:#0C2D4D>IP</div>'">
       {% endif %}
     </div>
     <span class="nav-title">Immo<span>Predict</span> SN</span>
@@ -164,7 +164,7 @@ footer a{font-size:.72rem;color:var(--gold)}
     </a>
     {% if user.is_superuser %}
     <div class="nav-divider"></div>
-    <a href="{% url 'dash_page' %}" class="nav-link {% if request.resolver_match.url_name == 'dash_page' %}active{% endif %}" style="color:rgba(201,168,76,.8)">
+    <a href="{% url 'dash_page' %}" class="nav-link {% if request.resolver_match.url_name == 'dash_page' %}active{% endif %}" style="color:rgba(26,142,216,.8)">
       <i class="fas fa-crown"></i>Admin
     </a>
     {% endif %}
@@ -182,12 +182,12 @@ footer a{font-size:.72rem;color:var(--gold)}
       <div style="position:relative" id="notifWrap">
         <button onclick="event.stopPropagation();document.getElementById('notifDrop').classList.toggle('open')" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:1rem;cursor:pointer;padding:.4rem;border-radius:8px" title="Notifications">
           <i class="fas fa-bell"></i>
-          <span id="notifBadge" style="position:absolute;top:0;right:0;width:15px;height:15px;background:#C0392B;color:#fff;font-size:.55rem;font-weight:700;border-radius:50%;display:none;align-items:center;justify-content:center;border:2px solid #0B1D37">0</span>
+          <span id="notifBadge" style="position:absolute;top:0;right:0;width:15px;height:15px;background:#C0392B;color:#fff;font-size:.55rem;font-weight:700;border-radius:50%;display:none;align-items:center;justify-content:center;border:2px solid #0C2D4D">0</span>
         </button>
         <div class="dropdown" id="notifDrop" style="width:320px;max-height:380px;overflow-y:auto">
-          <div style="padding:.7rem 1rem;border-bottom:1px solid #E2E6F0;font-size:.82rem;font-weight:700;color:#0B1D37">Notifications & Recommandations</div>
+          <div style="padding:.7rem 1rem;border-bottom:1px solid #D6E3F0;font-size:.82rem;font-weight:700;color:#0C2D4D">Notifications & Recommandations</div>
           <div id="notifList" style="padding:.3rem">
-            <div style="text-align:center;padding:1.5rem;color:#7A8599;font-size:.8rem"><i class="fas fa-bell-slash" style="display:block;font-size:1.3rem;color:#E2E6F0;margin-bottom:.4rem"></i>Aucune notification</div>
+            <div style="text-align:center;padding:1.5rem;color:#7A8599;font-size:.8rem"><i class="fas fa-bell-slash" style="display:block;font-size:1.3rem;color:#D6E3F0;margin-bottom:.4rem"></i>Aucune notification</div>
           </div>
         </div>
       </div>
@@ -196,7 +196,7 @@ footer a{font-size:.72rem;color:var(--gold)}
           {% if profile.avatar %}
             <img src="{{ profile.avatar.url }}" alt="" class="user-avatar-sm">
           {% else %}
-            <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--navy2),var(--gold));display:flex;align-items:center;justify-content:center;font-size:.68rem;color:#fff;font-weight:700;flex-shrink:0">
+            <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--navy2),var(--blue-p));display:flex;align-items:center;justify-content:center;font-size:.68rem;color:#fff;font-weight:700;flex-shrink:0">
               {{ user.username|slice:":1"|upper }}
             </div>
           {% endif %}
@@ -204,11 +204,11 @@ footer a{font-size:.72rem;color:var(--gold)}
           <i class="fas fa-chevron-down" style="font-size:.55rem;opacity:.5"></i>
         </button>
         <div class="dropdown" id="userDropdown">
-          <a href="{% url 'profile' %}"><i class="fas fa-user" style="color:var(--gold)"></i>Mon profil</a>
+          <a href="{% url 'profile' %}"><i class="fas fa-user" style="color:var(--blue-p)"></i>Mon profil</a>
           {% if profile.role == 'seller' %}
           <div class="sep"></div>
           <a href="{% url 'my_listings' %}"><i class="fas fa-list" style="color:var(--green)"></i>Mes annonces</a>
-          <a href="{% url 'add_listing' %}"><i class="fas fa-plus-circle" style="color:var(--gold)"></i>Publier un bien</a>
+          <a href="{% url 'add_listing' %}"><i class="fas fa-plus-circle" style="color:var(--blue-p)"></i>Publier un bien</a>
           {% endif %}
           <div class="sep"></div>
           <form method="POST" action="{% url 'logout' %}">
@@ -236,12 +236,12 @@ footer a{font-size:.72rem;color:var(--gold)}
   {% block content %}{% endblock %}
 </main>
 
-<footer style="background:linear-gradient(135deg,#0B1D37,#132D52);border-top:2px solid #C9A84C;color:rgba(255,255,255,.4);font-size:.82rem">
+<footer style="background:linear-gradient(135deg,#0C2D4D,#143D68);border-top:2px solid #1A8ED8;color:rgba(255,255,255,.4);font-size:.82rem">
   <div style="max-width:1300px;margin:0 auto;padding:2.5rem 2rem 1.5rem;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2.5rem">
-    <div><h3 style="font-family:'Playfair Display',Georgia,serif;font-size:1.1rem;color:#fff;margin-bottom:.5rem">Immo<span style="color:#C9A84C">Predict</span> SN</h3><p style="font-size:.78rem;color:rgba(255,255,255,.3);line-height:1.7;max-width:260px">Premiere plateforme IA dediee au marche immobilier senegalais.</p></div>
-    <div><h4 style="font-size:.72rem;font-weight:700;color:#C9A84C;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.8rem">Navigation</h4><a href="{% url 'vente' %}" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">Vente</a><a href="{% url 'location' %}" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">Location</a><a href="{% url 'dashboard' %}" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">Dashboard</a><a href="{% url 'estimation' %}" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">Estimation</a></div>
-    <div><h4 style="font-size:.72rem;font-weight:700;color:#C9A84C;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.8rem">Informations</h4><a href="{% url 'about' %}" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">A propos</a><a href="{% url 'contact' %}" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">Contact</a><a href="{% url 'register' %}" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">S'inscrire</a></div>
-    <div><h4 style="font-size:.72rem;font-weight:700;color:#C9A84C;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.8rem">Technologies</h4><a href="#" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">Django / Python</a><a href="#" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">XGBoost / LightGBM</a><a href="#" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">PostgreSQL / Neon</a></div>
+    <div><h3 style="font-family:'Playfair Display',Georgia,serif;font-size:1.1rem;color:#fff;margin-bottom:.5rem">Immo<span style="color:#1A8ED8">Predict</span> SN</h3><p style="font-size:.78rem;color:rgba(255,255,255,.3);line-height:1.7;max-width:260px">Premiere plateforme IA dediee au marche immobilier senegalais.</p></div>
+    <div><h4 style="font-size:.72rem;font-weight:700;color:#1A8ED8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.8rem">Navigation</h4><a href="{% url 'vente' %}" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">Vente</a><a href="{% url 'location' %}" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">Location</a><a href="{% url 'dashboard' %}" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">Dashboard</a><a href="{% url 'estimation' %}" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">Estimation</a></div>
+    <div><h4 style="font-size:.72rem;font-weight:700;color:#1A8ED8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.8rem">Informations</h4><a href="{% url 'about' %}" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">A propos</a><a href="{% url 'contact' %}" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">Contact</a><a href="{% url 'register' %}" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">S'inscrire</a></div>
+    <div><h4 style="font-size:.72rem;font-weight:700;color:#1A8ED8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.8rem">Technologies</h4><a href="#" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">Django / Python</a><a href="#" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">XGBoost / LightGBM</a><a href="#" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">PostgreSQL / Neon</a></div>
   </div>
   <div style="max-width:1300px;margin:0 auto;padding:1rem 2rem;border-top:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem"><span style="font-size:.7rem;color:rgba(255,255,255,.18)">ImmoPredict SN &copy; 2025 - Tous droits reserves</span><div style="display:flex;gap:.6rem"><a href="#" style="width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.25);font-size:.75rem"><i class="fab fa-linkedin-in"></i></a><a href="#" style="width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.25);font-size:.75rem"><i class="fab fa-github"></i></a></div></div>
 </footer>
@@ -265,32 +265,32 @@ if(toggle && navLinks){
 
 {% if user.is_authenticated %}
 <style>
-.chat-fab{position:fixed;bottom:1.5rem;right:1.5rem;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#0B1D37,#132D52);color:#C9A84C;font-size:1.3rem;border:2px solid #C9A84C;cursor:pointer;z-index:90;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 24px rgba(11,29,55,.4);transition:all .3s}
+.chat-fab{position:fixed;bottom:1.5rem;right:1.5rem;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#0C2D4D,#143D68);color:#1A8ED8;font-size:1.3rem;border:2px solid #1A8ED8;cursor:pointer;z-index:90;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 24px rgba(11,29,55,.4);transition:all .3s}
 .chat-fab:hover{transform:scale(1.08)}
-.chat-modal{display:none;position:fixed;bottom:5.5rem;right:1.5rem;width:400px;max-height:520px;background:#fff;border-radius:16px;border:1px solid #E2E6F0;box-shadow:0 12px 40px rgba(11,29,55,.15);z-index:91;flex-direction:column;overflow:hidden}
+.chat-modal{display:none;position:fixed;bottom:5.5rem;right:1.5rem;width:400px;max-height:520px;background:#fff;border-radius:16px;border:1px solid #D6E3F0;box-shadow:0 12px 40px rgba(11,29,55,.15);z-index:91;flex-direction:column;overflow:hidden}
 .chat-modal.open{display:flex}
 .chat-body{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.8rem;min-height:280px;background:#FAFBFD}
 .chat-msg{max-width:85%;padding:.7rem 1rem;border-radius:12px;font-size:.82rem;line-height:1.55}
-.chat-msg.bot{background:#fff;border:1px solid #E2E6F0;color:#0F172A;align-self:flex-start;border-bottom-left-radius:4px}
-.chat-msg.user{background:#0B1D37;color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.chat-msg.bot{background:#fff;border:1px solid #D6E3F0;color:#0F172A;align-self:flex-start;border-bottom-left-radius:4px}
+.chat-msg.user{background:#0C2D4D;color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
 .chat-msg .props-list{margin-top:.5rem;display:flex;flex-direction:column;gap:.3rem}
-.chat-msg .prop-item{background:#F4F6FA;border-radius:8px;padding:.4rem .6rem;font-size:.73rem;border:1px solid #E2E6F0}
-.chat-msg .prop-item strong{color:#C9A84C}
+.chat-msg .prop-item{background:#EEF4FB;border-radius:8px;padding:.4rem .6rem;font-size:.73rem;border:1px solid #D6E3F0}
+.chat-msg .prop-item strong{color:#1A8ED8}
 @media(max-width:768px){.chat-modal{width:calc(100vw - 2rem);right:1rem;bottom:5rem}}
 </style>
 <button class="chat-fab" id="chatFab" title="Assistant ImmoAI"><i class="fas fa-headset"></i></button>
 <div class="chat-modal" id="chatModal">
-  <div style="background:#0B1D37;padding:1rem 1.2rem;display:flex;align-items:center;gap:.7rem;border-bottom:2px solid #C9A84C">
-    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#C9A84C,#E2C47A);display:flex;align-items:center;justify-content:center;color:#0B1D37;font-size:.9rem"><i class="fas fa-headset"></i></div>
+  <div style="background:#0C2D4D;padding:1rem 1.2rem;display:flex;align-items:center;gap:.7rem;border-bottom:2px solid #1A8ED8">
+    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1A8ED8,#5BBCE8);display:flex;align-items:center;justify-content:center;color:#0C2D4D;font-size:.9rem"><i class="fas fa-headset"></i></div>
     <div style="flex:1"><strong style="color:#fff;font-size:.9rem;font-family:'Playfair Display',Georgia,serif">ImmoAI</strong><small style="color:rgba(255,255,255,.4);font-size:.7rem;display:block">Assistant intelligent</small></div>
     <button id="chatClose" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:1.1rem;cursor:pointer"><i class="fas fa-times"></i></button>
   </div>
   <div class="chat-body" id="chatBody">
     <div class="chat-msg bot">Bonjour <strong>{{ user.first_name|default:user.username }}</strong> ! Je suis votre assistant immobilier. Posez-moi toutes vos questions.</div>
   </div>
-  <div style="padding:.8rem 1rem;border-top:1px solid #E2E6F0;display:flex;gap:.5rem;background:#fff">
-    <input type="text" id="chatInput" placeholder="Votre question..." autocomplete="off" style="flex:1;padding:.5rem .8rem;border:1.5px solid #E2E6F0;border-radius:9px;font-size:.82rem;font-family:'DM Sans',Arial,sans-serif;outline:none;color:#0F172A">
-    <button id="chatSend" style="width:36px;height:36px;border-radius:50%;background:#C9A84C;color:#0B1D37;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem"><i class="fas fa-paper-plane"></i></button>
+  <div style="padding:.8rem 1rem;border-top:1px solid #D6E3F0;display:flex;gap:.5rem;background:#fff">
+    <input type="text" id="chatInput" placeholder="Votre question..." autocomplete="off" style="flex:1;padding:.5rem .8rem;border:1.5px solid #D6E3F0;border-radius:9px;font-size:.82rem;font-family:'DM Sans',Arial,sans-serif;outline:none;color:#0F172A">
+    <button id="chatSend" style="width:36px;height:36px;border-radius:50%;background:#1A8ED8;color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem"><i class="fas fa-paper-plane"></i></button>
   </div>
 </div>
 <script>
@@ -320,12 +320,12 @@ if(inp)inp.onkeydown=function(e){if(e.key==='Enter')doSend()};
     if(badge){badge.style.display='flex';badge.textContent=d.count}
     var h='';d.notifications.forEach(function(n){
       var ic=n.alert_type==='proximity'?'fa-map-pin':'fa-bell';
-      var bg=n.alert_type==='proximity'?'rgba(14,107,74,.1)':'rgba(201,168,76,.1)';
-      var cl=n.alert_type==='proximity'?'#0E6B4A':'#C9A84C';
-      h+='<div style="padding:.55rem .7rem;border-bottom:1px solid #F4F6FA;display:flex;gap:.5rem;align-items:flex-start;cursor:pointer" onmouseover="this.style.background='#F4F6FA'" onmouseout="this.style.background='transparent'">';
+      var bg=n.alert_type==='proximity'?'rgba(14,107,74,.1)':'rgba(26,142,216,.1)';
+      var cl=n.alert_type==='proximity'?'#1B7A50':'#1A8ED8';
+      h+='<div style="padding:.55rem .7rem;border-bottom:1px solid #EEF4FB;display:flex;gap:.5rem;align-items:flex-start;cursor:pointer" onmouseover="this.style.background='#EEF4FB'" onmouseout="this.style.background='transparent'">';
       h+='<div style="width:28px;height:28px;border-radius:7px;background:'+bg+';display:flex;align-items:center;justify-content:center;flex-shrink:0;color:'+cl+';font-size:.7rem"><i class="fas '+ic+'"></i></div>';
-      h+='<div style="flex:1;min-width:0"><div style="font-size:.76rem;font-weight:600;color:#0B1D37;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+n.title+'</div>';
-      h+='<div style="font-size:.7rem;color:#7A8599">'+n.city+' <strong style="color:#C9A84C">'+n.price+'</strong></div></div></div>';
+      h+='<div style="flex:1;min-width:0"><div style="font-size:.76rem;font-weight:600;color:#0C2D4D;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+n.title+'</div>';
+      h+='<div style="font-size:.7rem;color:#7A8599">'+n.city+' <strong style="color:#1A8ED8">'+n.price+'</strong></div></div></div>';
     });list.innerHTML=h;
   }).catch(function(){});
 })();

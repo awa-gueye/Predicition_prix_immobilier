@@ -3,36 +3,36 @@
 {% block title %}Modifier le profil — ImmoPredict SN{% endblock %}
 {% block extra_css %}
 <style>
-.ep-hero{background:linear-gradient(135deg,#0F2444,#1A3560);padding:1.8rem 2rem;text-align:center}
+.ep-hero{background:linear-gradient(135deg,#0C2D4D,#143D68);padding:1.8rem 2rem;text-align:center}
 .ep-hero h1{font-family:Georgia,serif;font-size:1.7rem;color:#fff;margin:0 0 .3rem}
 .ep-hero p{color:rgba(255,255,255,.5);font-size:.85rem;margin:0}
 .ep-body{max-width:720px;margin:2rem auto;padding:0 1.5rem 3rem}
-.ep-card{background:#fff;border-radius:14px;border:1px solid #DDE1EE;box-shadow:0 4px 20px rgba(15,36,68,.08);overflow:hidden}
+.ep-card{background:#fff;border-radius:14px;border:1px solid #D6E3F0;box-shadow:0 4px 20px rgba(15,36,68,.08);overflow:hidden}
 .ep-sec{padding:1.5rem 2rem;border-bottom:1px solid #F0F2F8}
 .ep-sec:last-child{border-bottom:none}
 .ep-sec-t{font-size:.8rem;font-weight:800;color:#6B7280;text-transform:uppercase;letter-spacing:.08em;margin:0 0 1.2rem;display:flex;align-items:center;gap:.5rem}
-.ep-sec-t i{color:#C9A84C}
+.ep-sec-t i{color:#1A8ED8}
 .fg{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem}
 .fg:last-child{margin-bottom:0}
 .fg label{font-size:.82rem;font-weight:600;color:#374151}
-.fg input,.fg select,.fg textarea{padding:.55rem .85rem;border:1.5px solid #DDE1EE;border-radius:9px;font-size:.88rem;font-family:inherit;color:#1F2937;outline:none;transition:all .2s;background:#fff;width:100%;box-sizing:border-box}
-.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:#C9A84C;box-shadow:0 0 0 3px rgba(201,168,76,.12)}
+.fg input,.fg select,.fg textarea{padding:.55rem .85rem;border:1.5px solid #D6E3F0;border-radius:9px;font-size:.88rem;font-family:inherit;color:#1F2937;outline:none;transition:all .2s;background:#fff;width:100%;box-sizing:border-box}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:#1A8ED8;box-shadow:0 0 0 3px rgba(26,142,216,.12)}
 .fg textarea{resize:vertical;min-height:80px}
 .fr{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 @media(max-width:550px){.fr{grid-template-columns:1fr}}
 .av-preview{display:flex;align-items:center;gap:1.2rem;margin-bottom:1rem}
-.av-preview img,.av-preview .av-ph{width:70px;height:70px;border-radius:50%;object-fit:cover;border:2px solid #DDE1EE;flex-shrink:0}
-.av-preview .av-ph{background:linear-gradient(135deg,#0F2444,#C9A84C);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem}
-.role-info{background:#F0F2F8;border-radius:10px;padding:.8rem 1rem;font-size:.82rem;color:#374151;margin-top:.5rem;border-left:3px solid #C9A84C}
+.av-preview img,.av-preview .av-ph{width:70px;height:70px;border-radius:50%;object-fit:cover;border:2px solid #D6E3F0;flex-shrink:0}
+.av-preview .av-ph{background:linear-gradient(135deg,#0C2D4D,#1A8ED8);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem}
+.role-info{background:#F0F2F8;border-radius:10px;padding:.8rem 1rem;font-size:.82rem;color:#374151;margin-top:.5rem;border-left:3px solid #1A8ED8}
 .ep-actions{display:flex;gap:1rem;align-items:center;padding:1.5rem 2rem;background:#FAFAFA;border-top:1px solid #F0F2F8}
-.bs{padding:.7rem 2rem;background:#C9A84C;color:#0F2444;border:none;border-radius:9px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.bs{padding:.7rem 2rem;background:#1A8ED8;color:#0C2D4D;border:none;border-radius:9px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
 .bs:hover{background:#b8953e}
 .bc{padding:.7rem 1.5rem;background:#F0F2F8;color:#6B7280;border:none;border-radius:9px;font-size:.88rem;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:none}
 </style>
 {% endblock %}
 {% block content %}
 <div class="ep-hero">
-  <h1><i class="fas fa-user-edit" style="color:#C9A84C;margin-right:.4rem"></i>Modifier le profil</h1>
+  <h1><i class="fas fa-user-edit" style="color:#1A8ED8;margin-right:.4rem"></i>Modifier le profil</h1>
   <p>Mettez à jour vos informations personnelles</p>
 </div>
 
@@ -88,7 +88,7 @@
           </select>
         </div>
         <div class="role-info">
-          <i class="fas fa-info-circle" style="color:#C9A84C;margin-right:.4rem"></i>
+          <i class="fas fa-info-circle" style="color:#1A8ED8;margin-right:.4rem"></i>
           En tant que <strong>vendeur</strong>, vous pouvez publier vos biens immobiliers (vente ou location) qui apparaîtront dans les onglets Vente et Location.
         </div>
       </div>

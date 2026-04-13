@@ -6,33 +6,36 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}body{font-family:'DM Sans',Arial,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0B1D37;position:relative;overflow:hidden}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'DM Sans',Arial,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0C2D4D;position:relative;overflow:hidden}
 body::before{content:'';position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1613977257363-707ba9348227?w=1400&q=80') center/cover;opacity:.08}
-body::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(14,107,74,.15),transparent 60%),radial-gradient(ellipse at 70% 70%,rgba(201,168,76,.1),transparent 50%)}
+body::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(26,142,216,.2),transparent 60%),radial-gradient(ellipse at 70% 70%,rgba(91,188,232,.1),transparent 50%)}
 .card{position:relative;z-index:2;background:#fff;border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,.3);width:100%;max-width:440px;overflow:hidden;margin:1rem}
-.card-hdr{background:linear-gradient(135deg,#0B1D37,#132D52);padding:2.5rem 2rem 2rem;text-align:center;position:relative;overflow:hidden}
-.card-hdr::before{content:'';position:absolute;top:-40px;right:-40px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.15),transparent 70%)}
-.logo{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#C9A84C,#E2C47A);display:flex;align-items:center;justify-content:center;margin:0 auto 1.1rem;box-shadow:0 4px 20px rgba(201,168,76,.35);position:relative;z-index:2}
-.logo i{color:#0B1D37;font-size:1.3rem}
+.card-hdr{background:linear-gradient(135deg,#0C2D4D,#143D68);padding:2.5rem 2rem 2rem;text-align:center;position:relative;overflow:hidden}
+.card-hdr::before{content:'';position:absolute;top:-40px;right:-40px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(26,142,216,.2),transparent 70%)}
+.logo{width:56px;height:56px;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 1.1rem;box-shadow:0 4px 20px rgba(26,142,216,.3);position:relative;z-index:2;padding:4px}
+.logo img{width:100%;height:100%;object-fit:contain;border-radius:10px}
 .card-hdr h1{font-family:'Playfair Display',serif;font-size:1.7rem;color:#fff;margin:0 0 .3rem;position:relative;z-index:2}
 .card-hdr p{color:rgba(255,255,255,.45);font-size:.82rem;position:relative;z-index:2}
 .card-body{padding:2rem}
 .fg{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem}
 .fg label{font-size:.82rem;font-weight:600;color:#374151;display:flex;align-items:center;gap:.4rem}
-.fg label i{color:#C9A84C;font-size:.72rem}
-.fg input{padding:.6rem .9rem;border:1.5px solid #E2E6F0;border-radius:10px;font-size:.88rem;font-family:inherit;color:#0F172A;outline:none;transition:all .25s;width:100%}
-.fg input:focus{border-color:#C9A84C;box-shadow:0 0 0 4px rgba(201,168,76,.1)}
+.fg label i{color:#1A8ED8;font-size:.72rem}
+.fg input{padding:.6rem .9rem;border:1.5px solid #D6E3F0;border-radius:10px;font-size:.88rem;font-family:inherit;color:#0C1B2E;outline:none;transition:all .25s;width:100%}
+.fg input:focus{border-color:#1A8ED8;box-shadow:0 0 0 4px rgba(26,142,216,.1)}
 .err{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;padding:.6rem .85rem;border-radius:9px;font-size:.82rem;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
-.remember{display:flex;align-items:center;gap:.5rem;margin-bottom:1.2rem}.remember input{accent-color:#C9A84C}.remember label{font-size:.82rem;color:#7A8599}
-.btn{width:100%;padding:.72rem;background:linear-gradient(135deg,#C9A84C,#E2C47A);color:#0B1D37;border:none;border-radius:10px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:.4rem;box-shadow:0 4px 16px rgba(201,168,76,.3)}
-.btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,168,76,.4)}
-.card-ftr{text-align:center;padding:1.2rem;border-top:1px solid #F4F6FA;font-size:.82rem;color:#7A8599}
-.card-ftr a{color:#C9A84C;font-weight:600;text-decoration:none}.card-ftr a:hover{text-decoration:underline}
+.remember{display:flex;align-items:center;gap:.5rem;margin-bottom:1.2rem}.remember input{accent-color:#1A8ED8}.remember label{font-size:.82rem;color:#7A8599}
+.btn{width:100%;padding:.72rem;background:linear-gradient(135deg,#1A8ED8,#5BBCE8);color:#fff;border:none;border-radius:10px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:.4rem;box-shadow:0 4px 16px rgba(26,142,216,.3)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(26,142,216,.4)}
+.card-ftr{text-align:center;padding:1.2rem;border-top:1px solid #EEF4FB;font-size:.82rem;color:#7A8599}
+.card-ftr a{color:#1A8ED8;font-weight:600;text-decoration:none}.card-ftr a:hover{text-decoration:underline}
 </style>
 </head>
 <body>
 <div class="card">
-  <div class="card-hdr"><div class="logo"><i class="fas fa-building"></i></div><h1>Bienvenue</h1><p>Connectez-vous a ImmoPredict SN</p></div>
+  <div class="card-hdr">
+    <div class="logo"><img src="{% load static %}{% static 'immoanalytics/img/logo.png' %}" alt="Logo" onerror="this.parentNode.innerHTML='<i class=\'fas fa-building\' style=\'color:#1A8ED8;font-size:1.3rem\'></i>'"></div>
+    <h1>Bienvenue</h1><p>Connectez-vous a ImmoPredict SN</p>
+  </div>
   <div class="card-body">
     {% if error %}<div class="err"><i class="fas fa-exclamation-circle"></i>{{ error }}</div>{% endif %}
     <form method="POST">{% csrf_token %}

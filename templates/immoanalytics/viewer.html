@@ -1,7 +1,7 @@
 {% extends 'immoanalytics/base.html' %}
 {% load static %}
 {% block title %}Recherche IA{% endblock %}
-{% block page_title %}<i class="fas fa-search" style="color:var(--gold)"></i> Recherche IA{% endblock %}
+{% block page_title %}<i class="fas fa-search" style="color:#1A8ED8"></i> Recherche IA{% endblock %}
 
 {% block content %}
 <div class="viewer-layout">
@@ -201,7 +201,7 @@
     {% else %}
     <div class="card" style="border:2px dashed #E8EAF0;background:#FAFBFC">
       <div class="card-body" style="text-align:center;padding:3rem">
-        <i class="fas fa-robot" style="font-size:2rem;color:var(--gold);margin-bottom:1rem;display:block"></i>
+        <i class="fas fa-robot" style="font-size:2rem;color:#1A8ED8;margin-bottom:1rem;display:block"></i>
         <div class="fw-600 mb-1">Prêt à rechercher</div>
         <div class="text-muted text-sm">
           Décrivez votre bien dans le chatbot ou utilisez les filtres.
@@ -294,7 +294,7 @@ async function sendChat() {
       return;
     }
 
-    addMsg('<i class="fas fa-check-circle" style="color:var(--gold)"></i> ' + data.response, 'bot', true);
+    addMsg('<i class="fas fa-check-circle" style="color:#1A8ED8"></i> ' + data.response, 'bot', true);
 
     // Afficher les résultats
     if (data.properties && data.properties.length > 0) {

@@ -5,16 +5,16 @@
 {% block extra_css %}
 <style>
 .admin-hero {
-  background: linear-gradient(135deg, #0F2444 0%, #1A3560 100%);
+  background: linear-gradient(135deg, #0C2D4D 0%, #143D68 100%);
   padding: 2rem 2rem 0; position: relative; overflow: hidden;
 }
 .admin-hero::before {
   content: ''; position: absolute; inset: 0;
-  background: repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(201,168,76,.04) 40px,rgba(201,168,76,.04) 41px);
+  background: repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(26,142,216,.04) 40px,rgba(26,142,216,.04) 41px);
 }
 .admin-hero-inner { position: relative; z-index: 2; max-width: 1200px; margin: 0 auto; }
 .admin-hero h1 { font-family: var(--serif); font-size: 1.8rem; font-weight: 700; color: #fff; }
-.admin-hero h1 span { color: var(--gold); }
+.admin-hero h1 span { color: #1A8ED8; }
 .admin-hero p { color: rgba(255,255,255,.5); font-size: .85rem; margin-top: .3rem; }
 .admin-wave { width: 100%; height: 36px; background: var(--bg); clip-path: ellipse(60% 100% at 50% 100%); }
 
@@ -25,7 +25,7 @@
 .admin-stat {
   background: #fff; border-radius: 12px; border: 1px solid var(--border);
   padding: 1.2rem; box-shadow: 0 2px 12px rgba(15,36,68,.06);
-  border-left: 4px solid var(--color, var(--gold));
+  border-left: 4px solid var(--color, #1A8ED8);
   animation: fade-up .4s ease both;
 }
 .admin-stat-n {
@@ -39,23 +39,23 @@
 .admin-section-title {
   font-weight: 700; font-size: .85rem; color: var(--navy);
   display: flex; align-items: center; gap: .5rem;
-  padding: .8rem 0; border-bottom: 2px solid rgba(201,168,76,.2);
+  padding: .8rem 0; border-bottom: 2px solid rgba(26,142,216,.2);
   margin-bottom: 1rem;
 }
-.admin-section-title i { color: var(--gold); }
+.admin-section-title i { color: #1A8ED8; }
 
 .src-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 1rem; }
 .src-card {
   background: #fff; border-radius: 10px; border: 1px solid var(--border);
-  padding: 1rem; border-left: 3px solid var(--sc, var(--gold));
+  padding: 1rem; border-left: 3px solid var(--sc, #1A8ED8);
   transition: all .2s;
 }
 .src-card:hover { transform: translateX(3px); }
 .src-name { font-weight: 700; font-size: .85rem; color: var(--navy); }
-.src-count { font-family: var(--serif); font-size: 1.5rem; font-weight: 700; color: var(--sc, var(--gold)); }
+.src-count { font-family: var(--serif); font-size: 1.5rem; font-weight: 700; color: var(--sc, #1A8ED8); }
 .src-label { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-family: var(--mono); }
 .src-bar { height: 4px; border-radius: 2px; background: var(--border); margin-top: .6rem; overflow: hidden; }
-.src-bar-fill { height: 100%; background: var(--sc, var(--gold)); border-radius: 2px; transition: width 1s ease; }
+.src-bar-fill { height: 100%; background: var(--sc, #1A8ED8); border-radius: 2px; transition: width 1s ease; }
 
 .admin-actions { display: flex; gap: .8rem; flex-wrap: wrap; margin-top: 1.5rem; }
 
@@ -85,10 +85,10 @@
     <div class="admin-stat-l">Expat-Dakar</div>
     <div class="admin-stat-src" style="color:#2563EB">● expat_dakar_properties</div>
   </div>
-  <div class="admin-stat" style="--color:#0E6B4A;animation-delay:.15s">
+  <div class="admin-stat" style="--color:#1B7A50;animation-delay:.15s">
     <div class="admin-stat-n" id="st-loger">—</div>
     <div class="admin-stat-l">Loger-Dakar</div>
-    <div class="admin-stat-src" style="color:#0E6B4A">● loger_dakar_properties</div>
+    <div class="admin-stat-src" style="color:#1B7A50">● loger_dakar_properties</div>
   </div>
   <div class="admin-stat" style="--color:#C0392B;animation-delay:.2s">
     <div class="admin-stat-n" id="st-dakarvente">—</div>
@@ -146,7 +146,7 @@
 <script>
 var COLORS = {
   coinafrique: '#F59E0B', expat_dakar: '#2563EB',
-  loger_dakar: '#0E6B4A', dakarvente: '#C0392B'
+  loger_dakar: '#1B7A50', dakarvente: '#C0392B'
 };
 var NAMES = {
   coinafrique:'CoinAfrique', expat_dakar:'Expat-Dakar',
@@ -181,7 +181,7 @@ function loadStats() {
         card.className = 'src-card';
         card.style.setProperty('--sc', COLORS[name] || '#999');
         var status = info.status === 'OK'
-          ? '<span style="color:#0E6B4A;font-size:.7rem"><i class="fas fa-check-circle"></i> Connectée</span>'
+          ? '<span style="color:#1B7A50;font-size:.7rem"><i class="fas fa-check-circle"></i> Connectée</span>'
           : '<span style="color:#C0392B;font-size:.7rem"><i class="fas fa-exclamation-circle"></i> Table manquante</span>';
         card.innerHTML =
           '<div class="src-name">' + (NAMES[name]||name) + ' ' + status + '</div>' +

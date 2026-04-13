@@ -4,39 +4,39 @@
 {% block extra_css %}
 .ab-body{max-width:1100px;margin:0 auto;padding:2rem}
 .ab-section{margin-bottom:3rem}
-.ab-stag{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:#C9A84C;margin-bottom:.5rem}
-.ab-sh{font-family:'Playfair Display',Georgia,serif;font-size:1.5rem;font-weight:700;color:#0B1D37;margin-bottom:1.5rem}
+.ab-stag{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:#1A8ED8;margin-bottom:.5rem}
+.ab-sh{font-family:'Playfair Display',Georgia,serif;font-size:1.5rem;font-weight:700;color:#fff;margin-bottom:1.5rem}
 .ab-images{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:3rem;border-radius:12px;overflow:hidden}
 .ab-images img{width:100%;height:200px;object-fit:cover;border-radius:10px;transition:all .3s;border:2px solid transparent}
-.ab-images img:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.1);border-color:#C9A84C}
+.ab-images img:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.1);border-color:#1A8ED8}
 .ab-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:3rem}
-.ab-stat{background:#fff;border-radius:12px;border:1px solid #E2E6F0;padding:1.5rem;text-align:center;transition:all .25s;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.ab-stat{background:#fff;border-radius:12px;border:1px solid #D6E3F0;padding:1.5rem;text-align:center;transition:all .25s;box-shadow:0 2px 8px rgba(0,0,0,.04)}
 .ab-stat:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
-.ab-stat-val{font-family:'Playfair Display',Georgia,serif;font-size:1.8rem;font-weight:700;color:#C9A84C;line-height:1}
+.ab-stat-val{font-family:'Playfair Display',Georgia,serif;font-size:1.8rem;font-weight:700;color:#1A8ED8;line-height:1}
 .ab-stat-lbl{font-size:.78rem;color:#7A8599;margin-top:.3rem}
 .tech-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
-.tech-card{background:#fff;border:1px solid #E2E6F0;border-radius:12px;padding:1.3rem;display:flex;align-items:center;gap:1rem;transition:all .25s}
-.tech-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.06);border-color:rgba(201,168,76,.3)}
-.tech-icon{width:44px;height:44px;border-radius:10px;background:rgba(201,168,76,.08);display:flex;align-items:center;justify-content:center;color:#C9A84C;font-size:1.1rem;flex-shrink:0}
-.tech-name{font-weight:700;font-size:.88rem;color:#0B1D37}
+.tech-card{background:#fff;border:1px solid #D6E3F0;border-radius:12px;padding:1.3rem;display:flex;align-items:center;gap:1rem;transition:all .25s}
+.tech-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.06);border-color:rgba(26,142,216,.3)}
+.tech-icon{width:44px;height:44px;border-radius:10px;background:rgba(26,142,216,.08);display:flex;align-items:center;justify-content:center;color:#1A8ED8;font-size:1.1rem;flex-shrink:0}
+.tech-name{font-weight:700;font-size:.88rem;color:#fff}
 .tech-desc{font-size:.76rem;color:#7A8599;margin-top:.15rem}
 .src-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem}
-.src-card{background:#fff;border-radius:12px;border:1px solid #E2E6F0;padding:1.2rem;transition:all .25s}
+.src-card{background:#fff;border-radius:12px;border:1px solid #D6E3F0;padding:1.2rem;transition:all .25s}
 .src-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.06)}
-.src-name{font-weight:700;font-size:.88rem;color:#0B1D37}
+.src-name{font-weight:700;font-size:.88rem;color:#fff}
 .src-desc{font-size:.76rem;color:#7A8599;margin-top:.3rem}
-.src-count{font-size:.7rem;color:#C9A84C;font-weight:600;margin-top:.3rem;font-family:'JetBrains Mono',monospace}
+.src-count{font-size:.7rem;color:#1A8ED8;font-weight:600;margin-top:.3rem;font-family:'JetBrains Mono',monospace}
 @media(max-width:768px){.ab-stats{grid-template-columns:repeat(2,1fr)}.ab-images{grid-template-columns:1fr}}
 {% endblock %}
 {% block content %}
 <!-- Hero with INLINE dark background (not CSS class) -->
-<div style="background:linear-gradient(135deg,#0B1D37 0%,#0E6B4A 100%);padding:3rem 2rem 0;position:relative;overflow:hidden">
+<div style="background:linear-gradient(135deg,#0C2D4D 0%,#1B7A50 100%);padding:3rem 2rem 0;position:relative;overflow:hidden">
   <div style="position:absolute;inset:0;opacity:.1;background:url('https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1400&q=60') center/cover no-repeat"></div>
   <div style="position:relative;z-index:2;max-width:900px;margin:0 auto;text-align:center">
-    <h1 style="font-family:'Playfair Display',Georgia,serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:700;color:#fff;margin-bottom:.5rem">A propos d'<span style="color:#C9A84C">ImmoPredict SN</span></h1>
+    <h1 style="font-family:'Playfair Display',Georgia,serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:700;color:#fff;margin-bottom:.5rem">A propos d'<span style="color:#1A8ED8">ImmoPredict SN</span></h1>
     <p style="color:rgba(255,255,255,.55);font-size:.92rem;max-width:600px;margin:0 auto 2rem;line-height:1.7">La premiere plateforme d'intelligence artificielle dediee a l'analyse et la prediction du marche immobilier senegalais.</p>
   </div>
-  <div style="width:100%;height:40px;background:#F4F6FA;clip-path:ellipse(55% 100% at 50% 100%);position:relative;z-index:2"></div>
+  <div style="width:100%;height:40px;background:#EEF4FB;clip-path:ellipse(55% 100% at 50% 100%);position:relative;z-index:2"></div>
 </div>
 
 <div class="ab-body">
@@ -55,9 +55,9 @@
   </div>
 
   <!-- Mission -->
-  <div style="background:linear-gradient(135deg,#0B1D37,#132D52);border-radius:16px;padding:2.5rem;color:#fff;margin-bottom:3rem;position:relative;overflow:hidden">
-    <div style="position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.1),transparent 70%)"></div>
-    <h3 style="font-family:'Playfair Display',Georgia,serif;font-size:1.3rem;color:#C9A84C;margin-bottom:.8rem;position:relative;z-index:2"><i class="fas fa-bullseye" style="margin-right:.4rem"></i>Notre mission</h3>
+  <div style="background:linear-gradient(135deg,#0C2D4D,#143D68);border-radius:16px;padding:2.5rem;color:#fff;margin-bottom:3rem;position:relative;overflow:hidden">
+    <div style="position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(26,142,216,.1),transparent 70%)"></div>
+    <h3 style="font-family:'Playfair Display',Georgia,serif;font-size:1.3rem;color:#1A8ED8;margin-bottom:.8rem;position:relative;z-index:2"><i class="fas fa-bullseye" style="margin-right:.4rem"></i>Notre mission</h3>
     <p style="color:rgba(255,255,255,.6);font-size:.88rem;line-height:1.8;max-width:700px;position:relative;z-index:2">ImmoPredict SN a ete cree pour democratiser l'acces aux donnees immobilieres au Senegal. Grace a l'intelligence artificielle et au scraping de donnees en temps reel, nous offrons a chaque utilisateur les outils necessaires pour prendre des decisions eclairees.</p>
   </div>
 

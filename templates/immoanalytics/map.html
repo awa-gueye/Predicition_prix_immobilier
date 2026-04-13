@@ -1,7 +1,7 @@
 {% extends 'immoanalytics/base.html' %}
 {% load static %}
 {% block title %}Carte interactive{% endblock %}
-{% block page_title %}<i class="fas fa-map-marked-alt" style="color:var(--gold)"></i> Carte des annonces{% endblock %}
+{% block page_title %}<i class="fas fa-map-marked-alt" style="color:#1A8ED8"></i> Carte des annonces{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -13,7 +13,7 @@
   .map-filter  { padding:.35rem .7rem; border:1px solid #D0D3DC; border-radius:6px;
                  font-size:.78rem; background:#fff; cursor:pointer; color:#333;
                  font-family:'Inter',sans-serif; transition:all .18s; }
-  .map-filter.active { background:var(--gold); color:var(--dark); border-color:var(--gold); }
+  .map-filter.active { background:#1A8ED8; color:var(--dark); border-color:#1A8ED8; }
   #map { height:calc(100vh - 160px); border-radius:10px;
          border:1px solid #E8EAF0; z-index:1; }
   .map-legend { position:absolute; bottom:30px; right:10px; z-index:999;
@@ -25,11 +25,11 @@
   .map-stats   { display:flex; gap:1rem; }
   .map-stat    { background:#fff; border:1px solid #E8EAF0; border-radius:8px;
                  padding:.5rem .9rem; font-size:.78rem; }
-  .map-stat strong { color:var(--gold); }
+  .map-stat strong { color:#1A8ED8; }
   .leaflet-popup-content { font-family:'Inter',sans-serif; min-width:180px; }
   .popup-title  { font-weight:600; font-size:.85rem; margin-bottom:.3rem; color:#1A1A2E; }
   .popup-price  { font-family:'Playfair Display',serif; font-size:1.1rem;
-                  font-weight:700; color:var(--gold); }
+                  font-weight:700; color:#1A8ED8; }
   .popup-detail { font-size:.76rem; color:#666; margin-top:.2rem; }
   .popup-src    { font-size:.65rem; color:#999; font-family:'JetBrains Mono',monospace;
                   margin-top:.3rem; }
@@ -40,7 +40,7 @@
 <div class="map-topbar">
   <div class="map-stats">
     <div class="map-stat">
-      <i class="fas fa-map-pin" style="color:var(--gold)"></i>
+      <i class="fas fa-map-pin" style="color:#1A8ED8"></i>
       <strong id="visible-count">{{ total }}</strong> annonces
     </div>
   </div>

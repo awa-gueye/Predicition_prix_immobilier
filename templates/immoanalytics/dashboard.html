@@ -9,18 +9,18 @@
 .db-wrap{padding:1.5rem 2rem;max-width:1340px;margin:0 auto;width:100%}
 .db-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem}
 .db-title{font-family:var(--heading);font-size:1.5rem;font-weight:700;color:var(--navy)}
-.db-title i{color:var(--gold);margin-right:.4rem}
+.db-title i{color:#1A8ED8;margin-right:.4rem}
 .db-filters{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
 .db-sel{padding:.4rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.8rem;font-family:var(--font);color:var(--dark);outline:none;background:#fff;cursor:pointer;min-width:130px}
-.db-sel:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.1)}
+.db-sel:focus{border-color:#1A8ED8;box-shadow:0 0 0 3px rgba(26,142,216,.1)}
 .db-badge{font-size:.78rem;color:var(--muted);display:flex;align-items:center;gap:.4rem}
 .db-badge strong{color:var(--navy)}
-.db-badge i{color:var(--gold)}
+.db-badge i{color:#1A8ED8}
 /* KPI */
 .kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:1rem;margin-bottom:1.8rem}
 @media(max-width:1100px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:600px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
-.kpi{background:#fff;border-radius:12px;border:1px solid var(--border);padding:1.1rem;box-shadow:0 2px 8px rgba(11,29,55,.04);transition:all .25s;border-left:4px solid var(--gold)}
+.kpi{background:#fff;border-radius:12px;border:1px solid var(--border);padding:1.1rem;box-shadow:0 2px 8px rgba(11,29,55,.04);transition:all .25s;border-left:4px solid #1A8ED8}
 .kpi:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(11,29,55,.08)}
 .kpi-ic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.85rem;margin-bottom:.6rem}
 .kpi-v{font-family:var(--heading);font-size:1.5rem;font-weight:700;color:var(--navy);line-height:1}
@@ -33,11 +33,11 @@
 .row-1{margin-bottom:1.2rem}
 .cbox{background:#fff;border-radius:12px;border:1px solid var(--border);padding:1.1rem 1.2rem;box-shadow:0 2px 8px rgba(11,29,55,.04)}
 .cbox-h{font-size:.82rem;font-weight:700;color:var(--dark);margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem}
-.cbox-h i{color:var(--gold);font-size:.75rem}
+.cbox-h i{color:#1A8ED8;font-size:.75rem}
 .cbox-chart{width:100%}
 /* Section divider */
-.sec-div{font-size:.85rem;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.06em;padding:.6rem 0 1rem;border-top:2px solid var(--gold);margin:1.5rem 0 1rem;display:flex;align-items:center;gap:.5rem}
-.sec-div i{color:var(--gold)}
+.sec-div{font-size:.85rem;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.06em;padding:.6rem 0 1rem;border-top:2px solid #1A8ED8;margin:1.5rem 0 1rem;display:flex;align-items:center;gap:.5rem}
+.sec-div i{color:#1A8ED8}
 /* Analytics filters */
 .anly-bar{background:#fff;border-radius:10px;border:1px solid var(--border);padding:.7rem 1rem;margin-bottom:1.2rem;display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
 /* Table */
@@ -45,7 +45,7 @@
 .tbl-wrap table{width:100%;border-collapse:collapse;font-size:.82rem}
 .tbl-wrap thead th{background:var(--navy);color:#fff;padding:.55rem .8rem;font-size:.73rem;font-weight:600;text-align:left;white-space:nowrap}
 .tbl-wrap tbody td{padding:.55rem .8rem;border-bottom:1px solid var(--bg);vertical-align:middle}
-.tbl-wrap tbody tr:hover td{background:rgba(201,168,76,.04)}
+.tbl-wrap tbody tr:hover td{background:rgba(26,142,216,.04)}
 @media(max-width:900px){.row-2,.row-eq,.row-3{grid-template-columns:1fr}}
 </style>
 {% endblock %}
@@ -130,7 +130,7 @@
           {% for r in recent %}
           <tr>
             <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">{{ r.title_sh }}</td>
-            <td style="font-weight:700;color:var(--gold);white-space:nowrap;font-family:var(--heading)">{{ r.price_fmt }}</td>
+            <td style="font-weight:700;color:#1A8ED8;white-space:nowrap;font-family:var(--heading)">{{ r.price_fmt }}</td>
             <td>{{ r.city }}</td>
             <td>{{ r.prop_type }}</td>
             <td><span style="background:{{ r.src_color }}15;color:{{ r.src_color }};padding:.15rem .45rem;border-radius:4px;font-size:.68rem;font-weight:700;font-family:var(--mono)">{{ r.source }}</span></td>
@@ -146,7 +146,7 @@
   <div class="sec-div"><i class="fas fa-microscope"></i>Analyses avancees</div>
 
   <div class="anly-bar">
-    <span style="font-size:.78rem;font-weight:700;color:var(--muted)"><i class="fas fa-filter" style="color:var(--gold);margin-right:.3rem"></i>Filtrer :</span>
+    <span style="font-size:.78rem;font-weight:700;color:var(--muted)"><i class="fas fa-filter" style="color:#1A8ED8;margin-right:.3rem"></i>Filtrer :</span>
     <form method="GET" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
       <input type="hidden" name="txn" value="{{ txn_filter }}">
       <input type="hidden" name="src" value="{{ src_filter }}">
@@ -211,7 +211,7 @@
     if(!el) return;
     try {
       if(!figObj || !figObj.data || figObj.data.length === 0){
-        el.innerHTML = '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:.82rem;flex-direction:column;gap:.3rem"><i class="fas fa-chart-bar" style="color:#E2E6F0;font-size:1.3rem"></i><span>Pas assez de donnees</span></div>';
+        el.innerHTML = '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:.82rem;flex-direction:column;gap:.3rem"><i class="fas fa-chart-bar" style="color:#D6E3F0;font-size:1.3rem"></i><span>Pas assez de donnees</span></div>';
         return;
       }
       var layout = Object.assign({}, figObj.layout || {}, LY);

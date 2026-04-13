@@ -3,15 +3,15 @@
 {% block title %}{% if edit %}Modifier{% else %}Ajouter un bien{% endif %} — ImmoPredict SN{% endblock %}
 {% block extra_css %}
 <style>
-.fhero{background:linear-gradient(135deg,#0F2444,#1A3560);padding:2rem;text-align:center}
+.fhero{background:linear-gradient(135deg,#0C2D4D,#143D68);padding:2rem;text-align:center}
 .fhero h1{font-family:Georgia,serif;font-size:1.8rem;color:#fff;margin:0 0 .3rem}
 .fhero p{color:rgba(255,255,255,.5);font-size:.85rem;margin:0}
 .fc{max-width:820px;margin:2rem auto;padding:0 1.5rem 3rem}
-.fcard{background:#fff;border-radius:14px;border:1px solid #DDE1EE;box-shadow:0 4px 20px rgba(15,36,68,.08);overflow:hidden}
+.fcard{background:#fff;border-radius:14px;border:1px solid #D6E3F0;box-shadow:0 4px 20px rgba(15,36,68,.08);overflow:hidden}
 .fsec{padding:1.5rem 2rem;border-bottom:1px solid #F0F2F8}
 .fsec:last-child{border-bottom:none}
 .fsec-t{font-size:.8rem;font-weight:800;color:#6B7280;text-transform:uppercase;letter-spacing:.08em;margin:0 0 1.2rem;display:flex;align-items:center;gap:.5rem}
-.fsec-t i{color:#C9A84C}
+.fsec-t i{color:#1A8ED8}
 .fr{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 .fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
 .fr1{display:grid;grid-template-columns:1fr;gap:1rem}
@@ -19,13 +19,13 @@
 .fg{display:flex;flex-direction:column;gap:.4rem}
 .fg label{font-size:.82rem;font-weight:600;color:#374151}
 .req{color:#C0392B;margin-left:.2rem}
-.fg input,.fg select,.fg textarea{padding:.55rem .85rem;border:1.5px solid #DDE1EE;border-radius:9px;font-size:.88rem;font-family:inherit;color:#1F2937;outline:none;transition:all .2s;background:#fff;width:100%;box-sizing:border-box}
-.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:#C9A84C;box-shadow:0 0 0 3px rgba(201,168,76,.12)}
+.fg input,.fg select,.fg textarea{padding:.55rem .85rem;border:1.5px solid #D6E3F0;border-radius:9px;font-size:.88rem;font-family:inherit;color:#1F2937;outline:none;transition:all .2s;background:#fff;width:100%;box-sizing:border-box}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:#1A8ED8;box-shadow:0 0 0 3px rgba(26,142,216,.12)}
 .fg textarea{resize:vertical;min-height:100px}
-.upz{border:2px dashed #DDE1EE;border-radius:10px;padding:2rem;text-align:center;cursor:pointer;transition:all .2s;position:relative;background:#FAFAFA}
-.upz:hover{border-color:#C9A84C;background:rgba(201,168,76,.04)}
+.upz{border:2px dashed #D6E3F0;border-radius:10px;padding:2rem;text-align:center;cursor:pointer;transition:all .2s;position:relative;background:#FAFAFA}
+.upz:hover{border-color:#1A8ED8;background:rgba(26,142,216,.04)}
 .upz input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.upz i{font-size:2rem;color:#C9A84C;display:block;margin-bottom:.5rem}
+.upz i{font-size:2rem;color:#1A8ED8;display:block;margin-bottom:.5rem}
 .ipg{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:.6rem;margin-top:1rem}
 .ipi{position:relative;border-radius:8px;overflow:hidden;aspect-ratio:1}
 .ipi img{width:100%;height:100%;object-fit:cover}
@@ -34,7 +34,7 @@
 .ei img{width:100%;height:100%;object-fit:cover}
 .ei .db{position:absolute;top:3px;right:3px;width:20px;height:20px;background:rgba(192,57,43,.9);color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:.65rem;display:flex;align-items:center;justify-content:center}
 .factions{display:flex;gap:1rem;align-items:center;padding:1.5rem 2rem;background:#FAFAFA;border-top:1px solid #F0F2F8}
-.bs{padding:.7rem 2rem;background:#C9A84C;color:#0F2444;border:none;border-radius:9px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.bs{padding:.7rem 2rem;background:#1A8ED8;color:#0C2D4D;border:none;border-radius:9px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
 .bs:hover{background:#b8953e;transform:translateY(-1px)}
 .bc{padding:.7rem 1.5rem;background:#F0F2F8;color:#6B7280;border:none;border-radius:9px;font-size:.88rem;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:none}
 .err{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;padding:.4rem .7rem;border-radius:7px;font-size:.8rem;margin-top:.25rem}
@@ -42,7 +42,7 @@
 {% endblock %}
 {% block content %}
 <div class="fhero">
-  <h1><i class="fas fa-{% if edit %}edit{% else %}plus-circle{% endif %}" style="color:#C9A84C;margin-right:.4rem"></i>{% if edit %}Modifier l'annonce{% else %}Publier un bien{% endif %}</h1>
+  <h1><i class="fas fa-{% if edit %}edit{% else %}plus-circle{% endif %}" style="color:#1A8ED8;margin-right:.4rem"></i>{% if edit %}Modifier l'annonce{% else %}Publier un bien{% endif %}</h1>
   <p>{% if edit %}Mettez à jour les informations{% else %}Remplissez le formulaire pour publier votre bien{% endif %}</p>
 </div>
 <div class="fc">

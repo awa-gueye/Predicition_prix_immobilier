@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (fig.data && fig.data.length > 0) {
         Plotly.newPlot(divId, fig.data, layout, CFG);
       } else {
-        el.innerHTML = '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:.82rem"><i class="fas fa-chart-bar" style="margin-right:.4rem;color:#DDE1EE"></i>Données insuffisantes</div>';
+        el.innerHTML = '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:.82rem"><i class="fas fa-chart-bar" style="margin-right:.4rem;color:#D6E3F0"></i>Données insuffisantes</div>';
       }
     } catch(e) {
       console.error('Plotly error on ' + divId + ':', e);

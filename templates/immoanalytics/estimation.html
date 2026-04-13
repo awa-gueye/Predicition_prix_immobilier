@@ -4,50 +4,45 @@
 
 {% block extra_css %}
 <style>
-.site-footer,.site-footer{display:none}
+footer,.site-footer{display:none}
 .est-hero {
-  background: linear-gradient(135deg, #0F2444 0%, #0E6B4A 100%);
+  background: linear-gradient(135deg, #0C2D4D 0%, #1B7A50 100%);
   padding: 2.5rem 2rem 0;
   position: relative; overflow: hidden;
 }
-.site-footer,.site-footer{display:none}
 .est-hero::before {
   content: ''; position: absolute; inset: 0;
-  background: repeating-linear-gradient(45deg,transparent,transparent 30px,rgba(201,168,76,.04) 30px,rgba(201,168,76,.04) 31px);
+  background: repeating-linear-gradient(45deg,transparent,transparent 30px,rgba(26,142,216,.04) 30px,rgba(26,142,216,.04) 31px);
 }
-.site-footer,.site-footer{display:none}
 .est-hero-inner { position: relative; z-index: 2; max-width: 700px; }
-.site-footer,.site-footer{display:none}
 .est-hero h1 { font-family: 'Playfair Display',Georgia,serif; font-size: clamp(1.6rem,3vw,2.4rem); font-weight: 700; color: #fff; margin-bottom: .4rem; }
-.site-footer,.site-footer{display:none}
-.est-hero h1 span { color: var(--gold); }
-.site-footer,.site-footer{display:none}
+.est-hero h1 span { color: #1A8ED8; }
 .est-hero p { color: rgba(255,255,255,.55); font-size: .9rem; }
 .est-wave { width: 100%; height: 40px; margin-top: 1.5rem; background: var(--bg); clip-path: ellipse(55% 100% at 50% 100%); }
 .est-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; padding: 1.5rem 2rem 2rem; max-width: 1100px; margin: 0 auto; }
 .form-card { background: #fff; border-radius: 14px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(15,36,68,.07); overflow: hidden; }
-.form-card-header { background: linear-gradient(135deg,#F8F9FF 0%,#fff 100%); padding: .8rem 1.3rem; border-bottom: 2px solid rgba(201,168,76,.2); font-weight: 700; font-size: .85rem; color: var(--navy); display: flex; align-items: center; gap: .5rem; }
-.form-card-header i { color: var(--gold); }
+.form-card-header { background: linear-gradient(135deg,#F8F9FF 0%,#fff 100%); padding: .8rem 1.3rem; border-bottom: 2px solid rgba(26,142,216,.2); font-weight: 700; font-size: .85rem; color: var(--navy); display: flex; align-items: center; gap: .5rem; }
+.form-card-header i { color: #1A8ED8; }
 .form-card-body { padding: 1.4rem; }
-.result-panel { background: linear-gradient(160deg,#0F2444 0%,#0E6B4A 100%); border-radius: 14px; padding: 1.6rem; color: #fff; position: sticky; top: calc(var(--navbar-h) + 1rem); border: 1px solid rgba(201,168,76,.2); box-shadow: 0 8px 32px rgba(15,36,68,.25); overflow: hidden; }
-.result-panel::before { content: ''; position: absolute; top: -40px; right: -40px; width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle,rgba(201,168,76,.12) 0%,transparent 70%); }
+.result-panel { background: linear-gradient(160deg,#0C2D4D 0%,#1B7A50 100%); border-radius: 14px; padding: 1.6rem; color: #fff; position: sticky; top: calc(var(--navbar-h) + 1rem); border: 1px solid rgba(26,142,216,.2); box-shadow: 0 8px 32px rgba(15,36,68,.25); overflow: hidden; }
+.result-panel::before { content: ''; position: absolute; top: -40px; right: -40px; width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle,rgba(26,142,216,.12) 0%,transparent 70%); }
 .result-inner { position: relative; z-index: 2; }
 .result-placeholder { text-align: center; padding: 2rem 1rem; color: rgba(255,255,255,.3); }
 .result-placeholder i { font-size: 3rem; margin-bottom: 1rem; display: block; }
-.result-tag { display: inline-flex; align-items: center; gap: .35rem; background: rgba(201,168,76,.15); border: 1px solid rgba(201,168,76,.3); color: var(--gold); font-size: .7rem; font-weight: 600; padding: .2rem .65rem; border-radius: 20px; text-transform: uppercase; letter-spacing: .08em; font-family: var(--mono); margin-bottom: .9rem; }
-.result-price { font-family: 'Playfair Display',Georgia,serif; font-size: 2.4rem; font-weight: 700; color: var(--gold); line-height: 1; margin-bottom: .3rem; }
+.result-tag { display: inline-flex; align-items: center; gap: .35rem; background: rgba(26,142,216,.15); border: 1px solid rgba(26,142,216,.3); color: #1A8ED8; font-size: .7rem; font-weight: 600; padding: .2rem .65rem; border-radius: 20px; text-transform: uppercase; letter-spacing: .08em; font-family: var(--mono); margin-bottom: .9rem; }
+.result-price { font-family: 'Playfair Display',Georgia,serif; font-size: 2.4rem; font-weight: 700; color: #1A8ED8; line-height: 1; margin-bottom: .3rem; }
 .result-range { font-size: .75rem; color: rgba(255,255,255,.4); margin-bottom: 1.2rem; }
 .result-divider { height: 1px; background: rgba(255,255,255,.1); margin: 1rem 0; }
 .result-row { display: flex; justify-content: space-between; font-size: .77rem; padding: .3rem 0; }
 .result-row-lbl { color: rgba(255,255,255,.45); }
 .result-row-val { color: rgba(255,255,255,.85); font-weight: 600; }
 .prix-guide { margin-top: 1.2rem; padding: .9rem 1rem; background: rgba(255,255,255,.06); border-radius: 8px; border: 1px solid rgba(255,255,255,.08); }
-.prix-guide-title { font-size: .7rem; color: var(--gold); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-family: var(--mono); margin-bottom: .6rem; }
+.prix-guide-title { font-size: .7rem; color: #1A8ED8; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-family: var(--mono); margin-bottom: .6rem; }
 .prix-guide-row { display: flex; justify-content: space-between; font-size: .73rem; padding: .22rem 0; border-bottom: 1px solid rgba(255,255,255,.05); color: rgba(255,255,255,.6); }
 .prix-guide-row:last-child { border-bottom: none; }
 .prix-guide-row span:last-child { color: rgba(255,255,255,.85); font-weight: 500; }
 .tip { display: flex; align-items: flex-start; gap: .6rem; padding: .5rem; background: var(--bg); border-radius: 8px; border: 1px solid var(--border); font-size: .75rem; color: var(--muted); margin-bottom: .5rem; }
-.tip i { color: var(--gold); flex-shrink: 0; margin-top: .1rem; }
+.tip i { color: #1A8ED8; flex-shrink: 0; margin-top: .1rem; }
 @media(max-width:768px) { .est-layout { grid-template-columns: 1fr; } }
 </style>
 {% endblock %}
@@ -56,7 +51,7 @@
 <div class="est-hero" style="position:relative">
   <div style="position:absolute;inset:0;opacity:.1;background:url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1400&q=80') center/cover"></div>
   <div class="est-hero-inner fade-up">
-    <h1><i class="fas fa-calculator" style="color:var(--gold);margin-right:.5rem"></i>Estimer un <span>bien immobilier</span></h1>
+    <h1><i class="fas fa-calculator" style="color:#1A8ED8;margin-right:.5rem"></i>Estimer un <span>bien immobilier</span></h1>
     <p>Estimation basée sur les données réelles du marché sénégalais et notre modèle d'IA (XGBoost/LightGBM).</p>
   </div>
   <div class="est-wave"></div>
@@ -81,7 +76,7 @@
           {% endif %}
 
           <div class="form-group">
-            <label class="form-label"><i class="fas fa-map-pin" style="color:var(--gold)"></i> Quartier / Ville *</label>
+            <label class="form-label"><i class="fas fa-map-pin" style="color:#1A8ED8"></i> Quartier / Ville *</label>
             <select name="city" class="form-control form-select" required>
               <option value="">-- Sélectionner un quartier --</option>
               {% for c in cities %}
@@ -91,7 +86,7 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label"><i class="fas fa-home" style="color:var(--gold)"></i> Type de bien *</label>
+            <label class="form-label"><i class="fas fa-home" style="color:#1A8ED8"></i> Type de bien *</label>
             <select name="property_type" class="form-control form-select" required>
               <option value="">-- Sélectionner --</option>
               {% for t in types %}
@@ -101,7 +96,7 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label"><i class="fas fa-exchange-alt" style="color:var(--gold)"></i> Type de transaction *</label>
+            <label class="form-label"><i class="fas fa-exchange-alt" style="color:#1A8ED8"></i> Type de transaction *</label>
             <select name="transaction" class="form-control form-select" required>
               {% for val, lbl in transactions %}
               <option value="{{ val }}" {% if form.transaction == val %}selected{% endif %}>{{ lbl }}</option>
@@ -111,17 +106,17 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label"><i class="fas fa-expand" style="color:var(--gold)"></i> Superficie (m²)</label>
+              <label class="form-label"><i class="fas fa-expand" style="color:#1A8ED8"></i> Superficie (m²)</label>
               <input type="number" name="surface_area" class="form-control" placeholder="ex: 120" min="10" max="10000" value="{{ form.surface_area }}">
             </div>
             <div class="form-group">
-              <label class="form-label"><i class="fas fa-bed" style="color:var(--gold)"></i> Chambres</label>
+              <label class="form-label"><i class="fas fa-bed" style="color:#1A8ED8"></i> Chambres</label>
               <input type="number" name="bedrooms" class="form-control" placeholder="ex: 3" min="0" max="20" value="{{ form.bedrooms }}">
             </div>
           </div>
 
           <div class="form-group">
-            <label class="form-label"><i class="fas fa-bath" style="color:var(--gold)"></i> Salles de bain</label>
+            <label class="form-label"><i class="fas fa-bath" style="color:#1A8ED8"></i> Salles de bain</label>
             <input type="number" name="bathrooms" class="form-control" placeholder="ex: 2" min="0" max="10" value="{{ form.bathrooms }}" style="max-width:50%">
           </div>
 
@@ -164,13 +159,13 @@
         {% if form.surface_area %}<div class="result-row"><span class="result-row-lbl">Surface</span><span class="result-row-val">{{ form.surface_area }} m²</span></div>{% endif %}
         {% if form.bedrooms %}<div class="result-row"><span class="result-row-lbl">Chambres</span><span class="result-row-val">{{ form.bedrooms }}</span></div>{% endif %}
         <div class="result-divider"></div>
-        <div class="result-row"><span class="result-row-lbl">Modèle</span><span class="result-row-val" style="font-family:var(--mono);font-size:.65rem;color:var(--gold)">{{ result.model_used }}</span></div>
+        <div class="result-row"><span class="result-row-lbl">Modèle</span><span class="result-row-val" style="font-family:var(--mono);font-size:.65rem;color:#1A8ED8">{{ result.model_used }}</span></div>
         <div class="result-row"><span class="result-row-lbl">Confiance</span><span class="result-row-val">{{ result.confidence }}</span></div>
 
         {% else %}
         <div class="result-placeholder">
           <i class="fas fa-calculator"></i>
-          <div style="font-size:.9rem">Remplissez le formulaire et cliquez sur<br><strong style="color:var(--gold)">Estimer le prix</strong></div>
+          <div style="font-size:.9rem">Remplissez le formulaire et cliquez sur<br><strong style="color:#1A8ED8">Estimer le prix</strong></div>
         </div>
         <div class="prix-guide">
           <div class="prix-guide-title"><i class="fas fa-chart-bar"></i> Guide des prix — Dakar</div>

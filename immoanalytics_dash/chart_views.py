@@ -18,7 +18,7 @@ PRICE_MIN = 10_000
 PRICE_MAX = 2_000_000_000
 
 C = {
-    "gold":"#C9A84C","navy":"#0F2444","green":"#0E6B4A",
+    "blue_p":"#1A8ED8","navy":"#0C2D4D","green":"#0E6B4A",
     "blue":"#2563EB","red":"#C0392B","purple":"#7C3AED",
     "teal":"#0891B2","muted":"#6B7280","white":"#FFFFFF",
     "border":"#DDE1EE","dark":"#111827",
@@ -27,7 +27,7 @@ C = {
         "loger_dakar":"#0E6B4A","dakarvente":"#C0392B",
     },
 }
-PAL = [C["gold"],C["blue"],C["green"],C["red"],C["purple"],C["teal"],"#F59E0B","#16A085"]
+PAL = [C["blue_p"],C["blue"],C["green"],C["red"],C["purple"],C["teal"],"#F59E0B","#16A085"]
 KW_LOC = ["louer","location","locat","bail","mensuel","loyer"]
 KW_VTE = ["vendre","vente","achat","cession"]
 
@@ -209,7 +209,7 @@ def dashboard_page(request):
     nvilla= len(df[df["property_type"].str.lower().str.contains("villa", na=False)])
     kpis = [
         {"label":"Annonces totales",  "value":f"{total:,}",               "color":C["navy"],   "icon":"fas fa-database",   "sub":f"{nv} ventes · {nl} locations"},
-        {"label":"Prix médian vente", "value":_fmt(pmed) if pmed else "—", "color":C["gold"],   "icon":"fas fa-tag",        "sub":"Valeur centrale"},
+        {"label":"Prix médian vente", "value":_fmt(pmed) if pmed else "—", "color":C["blue_p"],   "icon":"fas fa-tag",        "sub":"Valeur centrale"},
         {"label":"Prix moyen vente",  "value":_fmt(pmoy) if pmoy else "—", "color":C["green"],  "icon":"fas fa-chart-line", "sub":"Moyenne"},
         {"label":"Sources actives",   "value":str(df["source"].nunique()), "color":C["blue"],   "icon":"fas fa-layer-group","sub":"Plateformes"},
         {"label":"Villas",            "value":f"{nvilla:,}",               "color":C["purple"], "icon":"fas fa-home",       "sub":"Type villa"},
@@ -220,7 +220,7 @@ def dashboard_page(request):
         dp = dv[(dv["price"] >= 500_000) & (dv["price"] <= 1_000_000_000)]
         fig_dist = go.Figure(go.Histogram(
             x=dp["price"]/1e6, nbinsx=50,
-            marker_color=C["gold"], marker_line_width=0,
+            marker_color=C["blue_p"], marker_line_width=0,
             hovertemplate="Tranche: %{x:.0f}M FCFA<br>Annonces: %{y}<extra></extra>",
         ))
         fig_dist.update_xaxes(title_text="Prix (M FCFA)")
@@ -247,7 +247,7 @@ def dashboard_page(request):
     if len(top_q) > 0:
         fig_cities = go.Figure(go.Bar(
             x=top_q["median"]/1e6, y=top_q["city"], orientation="h",
-            marker=dict(color=top_q["median"]/1e6, colorscale=[[0,"#E8EAF0"],[1,C["gold"]]], showscale=False),
+            marker=dict(color=top_q["median"]/1e6, colorscale=[[0,"#E8EAF0"],[1,C["blue_p"]]], showscale=False),
             text=[f"{v:.0f}M" for v in top_q["median"]/1e6], textposition="outside",
             hovertemplate="%{y}<br><b>%{x:.1f}M</b> · %{customdata} ann.<extra></extra>",
             customdata=top_q["count"],
@@ -270,7 +270,7 @@ def dashboard_page(request):
     # Vente vs Location par source
     txn_src = df.groupby(["source","transaction"]).size().reset_index(name="count")
     fig_trend = go.Figure()
-    for txn, color in [("Vente",C["gold"]),("Location",C["blue"])]:
+    for txn, color in [("Vente",C["blue_p"]),("Location",C["blue"])]:
         sub = txn_src[txn_src["transaction"]==txn]
         if len(sub) > 0:
             fig_trend.add_trace(go.Bar(
@@ -324,7 +324,7 @@ def dashboard_page(request):
         lbl = ss["source"].str.replace("_", " ").str.title()
         fig_src = go.Figure()
         fig_src.add_trace(go.Bar(name="Médiane", x=lbl, y=ss["median"]/1e6,
-            marker_color=C["gold"], text=[f"{v:.0f}M" for v in ss["median"]/1e6], textposition="outside"))
+            marker_color=C["blue_p"], text=[f"{v:.0f}M" for v in ss["median"]/1e6], textposition="outside"))
         fig_src.add_trace(go.Bar(name="Moyenne", x=lbl, y=ss["mean"]/1e6,
             marker_color=C["blue"], text=[f"{v:.0f}M" for v in ss["mean"]/1e6], textposition="outside"))
         fig_src.update_layout(barmode="group", legend=dict(orientation="h", y=-0.2))
@@ -430,7 +430,7 @@ def analytics_page(request):
     if len(cs) > 0:
         fig_bar = go.Figure(go.Bar(
             x=cs["median"]/1e6, y=cs["city"], orientation="h",
-            marker=dict(color=cs["median"]/1e6, colorscale=[[0,"#EEF0F8"],[1,C["gold"]]], showscale=False),
+            marker=dict(color=cs["median"]/1e6, colorscale=[[0,"#EEF0F8"],[1,C["blue_p"]]], showscale=False),
             text=[f"{v:.0f}M" for v in cs["median"]/1e6], textposition="outside",
             hovertemplate="%{y}<br>Médiane: <b>%{x:.1f}M</b><extra></extra>",
         ))
@@ -444,7 +444,7 @@ def analytics_page(request):
     if len(ss) > 0:
         lbl = ss["source"].str.replace("_"," ").str.title()
         fig_src = go.Figure()
-        fig_src.add_trace(go.Bar(name="Médiane",x=lbl,y=ss["median"]/1e6,marker_color=C["gold"],
+        fig_src.add_trace(go.Bar(name="Médiane",x=lbl,y=ss["median"]/1e6,marker_color=C["blue_p"],
                                   text=[f"{v:.0f}M" for v in ss["median"]/1e6],textposition="outside"))
         fig_src.add_trace(go.Bar(name="Moyenne",x=lbl,y=ss["mean"]/1e6,marker_color=C["blue"],
                                   text=[f"{v:.0f}M" for v in ss["mean"]/1e6],textposition="outside"))
