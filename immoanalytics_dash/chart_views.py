@@ -1,13 +1,11 @@
 """
 ImmoPredict SN — chart_views.py
-Dashboard et Analytics avec données réelles.
+Dashboard avec donnees reelles. Les donnees sont passees comme listes/dicts simples.
+Les graphiques Plotly sont construits cote client en JavaScript.
 """
 import json, logging
-import pandas as pd
-import numpy as np
-import plotly.graph_objects as go
-import plotly.express as px
-from plotly.utils import PlotlyJSONEncoder
+import statistics as _stats
+from collections import Counter, defaultdict
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse as _JsonResponse
@@ -17,34 +15,43 @@ logger = logging.getLogger(__name__)
 PRICE_MIN = 10_000
 PRICE_MAX = 2_000_000_000
 
-C = {
-    "blue_p":"#1A8ED8","navy":"#0C2D4D","green":"#0E6B4A",
-    "blue":"#2563EB","red":"#C0392B","purple":"#7C3AED",
-    "teal":"#0891B2","muted":"#6B7280","white":"#FFFFFF",
-    "border":"#DDE1EE","dark":"#111827",
-    "src":{
-        "coinafrique":"#F59E0B","expat_dakar":"#2563EB",
-        "loger_dakar":"#0E6B4A","dakarvente":"#C0392B",
-    },
+SRC_COLORS = {
+    "coinafrique": "#F59E0B",
+    "expat_dakar": "#2563EB",
+    "loger_dakar": "#1B7A50",
+    "dakarvente":  "#C0392B",
 }
-PAL = [C["blue_p"],C["blue"],C["green"],C["red"],C["purple"],C["teal"],"#F59E0B","#16A085"]
 KW_LOC = ["louer","location","locat","bail","mensuel","loyer"]
 KW_VTE = ["vendre","vente","achat","cession"]
 
 
 def _txn(row):
-    # Vérifier property_type brut pour dakarvente
     pt = str(row.get("property_type") or "").lower()
     if any(k in pt for k in ["louer","location","locat"]): return "Location"
     t = str(row.get("statut") or row.get("transaction") or "").lower()
-    if any(k in t for k in ["vente","vendre","cession"]): return "Vente"
-    if any(k in t for k in ["locat","louer","bail","mensuel"]): return "Location"
+    if any(k in t for k in KW_VTE): return "Vente"
+    if any(k in t for k in KW_LOC): return "Location"
     txt = str(row.get("title") or "").lower()
     if any(k in txt for k in KW_LOC): return "Location"
     if any(k in txt for k in KW_VTE): return "Vente"
     price = row.get("price", 0) or 0
     if 10_000 <= price <= 2_000_000: return "Location"
     return "Vente"
+
+
+VALID_TYPES = {
+    "villa":"Villa","appartement":"Appartement","terrain":"Terrain",
+    "duplex":"Duplex","studio":"Studio","maison":"Maison",
+    "bureau":"Bureau","local":"Bureau","chambre":"Chambre","immeuble":"Immeuble",
+}
+
+def _clean_type(val):
+    if not val: return "Autre"
+    v = str(val).lower().strip()
+    if "senegal" in v or "dakar" in v or len(v) > 35: return "Autre"
+    for key, label in VALID_TYPES.items():
+        if key in v: return label
+    return "Autre"
 
 
 def _load_data(max_per_source=5000):
@@ -57,134 +64,67 @@ def _load_data(max_per_source=5000):
             (LogerDakarProperty,  "loger_dakar"),
             (DakarVenteProperty,  "dakarvente"),
         ]
-        BASE = ["id","price","surface_area","bedrooms","city","property_type"]
-        dfs = []
+        BASE = ["id","price","surface_area","bedrooms","bathrooms","city","property_type","statut","title"]
+        rows = []
         for model, src in SRCS:
             try:
-                avail  = [f.name for f in model._meta.get_fields()]
+                avail = [f.name for f in model._meta.get_fields()]
                 fields = [f for f in BASE if f in avail]
-                rows = list(model.objects.values(*fields)[:max_per_source])
-                if not rows: continue
-                df = pd.DataFrame(rows)
-                df["source"] = src
-                dfs.append(df)
+                for p in model.objects.filter(price__isnull=False, price__gt=0).values(*fields)[:max_per_source]:
+                    price = p.get("price")
+                    if not price or price < PRICE_MIN or price > PRICE_MAX:
+                        continue
+                    city = str(p.get("city") or "").split(",")[0].strip().title() or "Inconnu"
+                    rows.append({
+                        "price": float(price),
+                        "surface": float(p["surface_area"]) if p.get("surface_area") else None,
+                        "beds": int(p["bedrooms"]) if p.get("bedrooms") else None,
+                        "baths": int(p["bathrooms"]) if p.get("bathrooms") else None,
+                        "city": city,
+                        "type": _clean_type(p.get("property_type")),
+                        "source": src,
+                        "txn": _txn(p),
+                        "title": str(p.get("title") or "")[:50],
+                    })
             except Exception as e:
-                logger.error(f"Erreur source {src}: {e}")
-                continue
-        if not dfs: return _demo()
-        df = pd.concat(dfs, ignore_index=True)
-        df["price"]        = pd.to_numeric(df["price"], errors="coerce")
-        df["surface_area"] = pd.to_numeric(df.get("surface_area", pd.Series(dtype=float)), errors="coerce")
-        df["bedrooms"]     = pd.to_numeric(df.get("bedrooms", pd.Series(dtype=float)), errors="coerce")
-        df["city"]         = (df["city"].fillna("Inconnu").astype(str)
-                              .str.split(",").str[0].str.strip().str.title())
-
-        # Nettoyer property_type — retirer les adresses et valeurs aberrantes
-        VALID_TYPES = {
-            "villa": "Villa",
-            "appartement": "Appartement",
-            "terrain": "Terrain",
-            "duplex": "Duplex",
-            "studio": "Studio",
-            "maison": "Maison",
-            "bureau": "Bureau",
-            "local": "Local",
-            "chambre": "Chambre",
-            "immeuble": "Immeuble",
-        }
-        def clean_ptype(val):
-            if not val or pd.isna(val): return "Autre"
-            v = str(val).lower().strip()
-            # Retirer les adresses (contiennent virgule + Sénégal ou Dakar)
-            if "sénégal" in v or "senegal" in v or "dakar" in v: return "Autre"
-            # Détecter le type réel
-            for key, label in VALID_TYPES.items():
-                if key in v: return label
-            # Si trop long (adresse), retourner Autre
-            if len(v) > 30: return "Autre"
-            return str(val).strip().title()
-
-        df["property_type"] = df["property_type"].apply(clean_ptype)
-
-        # Corriger transaction pour dakarvente :
-        # property_type "Appartements  À Louer" → Location
-        def fix_txn(row):
-            pt = str(row.get("property_type_raw","") or "").lower()
-            if "louer" in pt or "location" in pt: return "Location"
-            return row.get("transaction", "Vente")
-
-        df = df[df["price"].notna() & (df["price"] > 0)].copy()
-        if len(df) > 10:
-            p_low  = df["price"].quantile(0.02)
-            p_high = df["price"].quantile(0.99)
-            df = df[df["price"].between(p_low, p_high)].copy()
-        df["transaction"] = df.apply(_txn, axis=1)
-        df["prix_m2"]     = df.apply(
-            lambda r: r["price"]/r["surface_area"]
-            if pd.notna(r.get("surface_area")) and r["surface_area"] > 10 else None, axis=1)
-        logger.info(f"_load_data: {len(df)} annonces valides")
-        return df
+                logger.error(f"Source {src}: {e}")
+        if not rows:
+            return _demo_data()
+        logger.info(f"Dashboard: {len(rows)} annonces chargees")
+        return rows
     except Exception as e:
-        logger.error(f"_load_data erreur: {e}")
-        return _demo()
+        logger.error(f"_load_data: {e}")
+        return _demo_data()
 
 
-def _demo():
-    rng = np.random.default_rng(42)
-    cities  = ["Dakar","Almadies","Ngor","Ouakam","Mermoz","Pikine","Fann","Yoff","Plateau","Sicap"]
-    types   = ["Villa","Appartement","Terrain","Duplex","Studio","Maison"]
+def _demo_data():
+    import random; random.seed(42)
+    cities = ["Dakar","Almadies","Ngor","Ouakam","Mermoz","Pikine","Fann","Yoff","Plateau","Sicap"]
+    types = ["Villa","Appartement","Terrain","Duplex","Studio","Maison"]
     sources = ["coinafrique","expat_dakar","loger_dakar","dakarvente"]
-    n = 2000
-    df = pd.DataFrame({
-        "price":         np.clip(rng.lognormal(17.8,1.2,n), 500_000, 2_000_000_000),
-        "surface_area":  np.clip(rng.lognormal(4.5,.9,n), 20, 3000),
-        "bedrooms":      rng.integers(1,7,n).astype(float),
-        "city":          rng.choice(cities, n),
-        "property_type": rng.choice(types, n),
-        "source":        rng.choice(sources, n),
-        "transaction":   rng.choice(["Vente","Location"], n, p=[.6,.4]),
-        "title":         ["Annonce"]*n,
-    })
-    df["prix_m2"] = df["price"]/df["surface_area"]
-    return df
+    rows = []
+    for _ in range(2000):
+        rows.append({
+            "price": random.lognormvariate(17.8, 1.2),
+            "surface": random.lognormvariate(4.5, 0.9),
+            "beds": random.randint(1,6),
+            "baths": random.randint(1,3),
+            "city": random.choice(cities),
+            "type": random.choice(types),
+            "source": random.choice(sources),
+            "txn": random.choice(["Vente","Location"]),
+            "title": "Demo",
+        })
+    return rows
 
 
 def _fmt(p):
-    if not p or float(p) < 1000: return "—"
+    if not p or p < 1000: return "—"
     p = float(p)
-    if p >= 1e9:  return f"{p/1e9:.2f} Mds FCFA"
-    if p >= 1e6:  return f"{p/1e6:.1f}M FCFA"
-    if p >= 1e3:  return f"{p/1e3:.0f}K FCFA"
-    return f"{p:,.0f} FCFA"
-
-
-def _gl():
-    return dict(
-        paper_bgcolor=C["white"], plot_bgcolor=C["white"],
-        font=dict(family="DM Sans,Arial,sans-serif", color=C["dark"], size=12),
-        margin=dict(l=40, r=20, t=30, b=40),
-        xaxis=dict(gridcolor=C["border"], linecolor=C["border"], zeroline=False),
-        yaxis=dict(gridcolor=C["border"], linecolor=C["border"], zeroline=False),
-        legend=dict(font=dict(size=11), bgcolor="rgba(0,0,0,0)"),
-    )
-
-
-def _fig_json(fig):
-    fig.update_layout(**_gl())
-    return json.dumps(fig, cls=PlotlyJSONEncoder)
-
-
-def _empty(msg="Donnees insuffisantes"):
-    f = go.Figure()
-    f.add_trace(go.Scatter(x=[None], y=[None], mode="markers",
-                           marker=dict(size=0, opacity=0),
-                           showlegend=False, hoverinfo="skip"))
-    f.add_annotation(text=msg, showarrow=False,
-                     font=dict(size=13, color=C["muted"]),
-                     x=0.5, y=0.5, xref="paper", yref="paper")
-    f.update_layout(xaxis=dict(visible=False), yaxis=dict(visible=False))
-    f.update_layout(**_gl())
-    return f
+    if p >= 1e9:  return f"{p/1e9:.2f} Mds"
+    if p >= 1e6:  return f"{p/1e6:.1f}M"
+    if p >= 1e3:  return f"{p/1e3:.0f}K"
+    return f"{p:,.0f}"
 
 
 def _ctx(request):
@@ -196,348 +136,231 @@ def _ctx(request):
 def dashboard_page(request):
     txn_f = request.GET.get("txn", "all")
     src_f = request.GET.get("src", "all")
-    df_full = _load_data()
-    sources = sorted(df_full["source"].unique().tolist())
-    df = df_full.copy()
-    if txn_f != "all": df = df[df["transaction"] == txn_f]
-    if src_f != "all": df = df[df["source"]      == src_f]
-    dv = df[df["transaction"] == "Vente"]
-    dl = df[df["transaction"] == "Location"]
-    total = len(df); nv = len(dv); nl = len(dl)
-    pmed  = float(dv["price"].median()) if nv > 0 else 0
-    pmoy  = float(dv["price"].mean())   if nv > 0 else 0
-    nvilla= len(df[df["property_type"].str.lower().str.contains("villa", na=False)])
+    type_f = request.GET.get("type", "all")
+    city_f = request.GET.get("city", "")
+
+    all_data = _load_data()
+    sources_list = sorted(set(r["source"] for r in all_data))
+    types_list = sorted(set(r["type"] for r in all_data if r["type"] != "Autre"))
+    cities_list = sorted(set(r["city"] for r in all_data if r["city"] != "Inconnu"))[:80]
+
+    # Apply filters
+    data = all_data
+    if txn_f != "all": data = [r for r in data if r["txn"] == txn_f]
+    if src_f != "all": data = [r for r in data if r["source"] == src_f]
+    if type_f != "all": data = [r for r in data if r["type"] == type_f]
+    if city_f: data = [r for r in data if r["city"] == city_f]
+
+    ventes = [r for r in data if r["txn"] == "Vente"]
+    locations = [r for r in data if r["txn"] == "Location"]
+    total = len(data); nv = len(ventes); nl = len(locations)
+
+    prices_v = [r["price"] for r in ventes]
+    prices_all = [r["price"] for r in data]
+    pmed = _stats.median(prices_v) if prices_v else 0
+    pmoy = _stats.mean(prices_v) if prices_v else 0
+
+    # KPIs
     kpis = [
-        {"label":"Annonces totales",  "value":f"{total:,}",               "color":C["navy"],   "icon":"fas fa-database",   "sub":f"{nv} ventes · {nl} locations"},
-        {"label":"Prix médian vente", "value":_fmt(pmed) if pmed else "—", "color":C["blue_p"],   "icon":"fas fa-tag",        "sub":"Valeur centrale"},
-        {"label":"Prix moyen vente",  "value":_fmt(pmoy) if pmoy else "—", "color":C["green"],  "icon":"fas fa-chart-line", "sub":"Moyenne"},
-        {"label":"Sources actives",   "value":str(df["source"].nunique()), "color":C["blue"],   "icon":"fas fa-layer-group","sub":"Plateformes"},
-        {"label":"Villas",            "value":f"{nvilla:,}",               "color":C["purple"], "icon":"fas fa-home",       "sub":"Type villa"},
-        {"label":"Villes couvertes",  "value":str(df["city"].nunique()),   "color":C["teal"],   "icon":"fas fa-map-pin",    "sub":"Quartiers"},
+        {"label":"Annonces totales","value":f"{total:,}","color":"#0C2D4D","icon":"fas fa-database","sub":f"{nv} ventes - {nl} locations"},
+        {"label":"Prix median vente","value":_fmt(pmed)+" FCFA" if pmed else "—","color":"#1A8ED8","icon":"fas fa-tag","sub":"Valeur centrale"},
+        {"label":"Prix moyen vente","value":_fmt(pmoy)+" FCFA" if pmoy else "—","color":"#1B7A50","icon":"fas fa-chart-line","sub":"Moyenne"},
+        {"label":"Sources actives","value":str(len(set(r["source"] for r in data))),"color":"#2563EB","icon":"fas fa-layer-group","sub":"Plateformes"},
+        {"label":"Types de biens","value":str(len(set(r["type"] for r in data))),"color":"#7C3AED","icon":"fas fa-home","sub":"Categories"},
+        {"label":"Villes couvertes","value":str(len(set(r["city"] for r in data if r["city"]!="Inconnu"))),"color":"#0891B2","icon":"fas fa-map-pin","sub":"Quartiers"},
     ]
-    # Distribution prix
-    if nv > 5:
-        dp = dv[(dv["price"] >= 500_000) & (dv["price"] <= 1_000_000_000)]
-        fig_dist = go.Figure(go.Histogram(
-            x=dp["price"]/1e6, nbinsx=50,
-            marker_color=C["blue_p"], marker_line_width=0,
-            hovertemplate="Tranche: %{x:.0f}M FCFA<br>Annonces: %{y}<extra></extra>",
-        ))
-        fig_dist.update_xaxes(title_text="Prix (M FCFA)")
-        fig_dist.update_yaxes(title_text="Annonces")
-    else:
-        fig_dist = _empty("Aucune donnée de vente")
-    # Répartition par source — VRAIES PROPORTIONS
-    sc = df_full["source"].value_counts().reset_index()
-    sc.columns = ["s","c"]
-    colors_src = [C["src"].get(s, "#999") for s in sc["s"]]
-    fig_pie = go.Figure(go.Pie(
-        labels=sc["s"].str.replace("_"," ").str.title(),
-        values=sc["c"], hole=.5,
-        marker_colors=colors_src,
-        textinfo="label+percent",
-        hovertemplate="%{label}<br><b>%{value:,}</b> annonces (%{percent})<extra></extra>",
-    ))
-    fig_pie.update_layout(showlegend=True, margin=dict(l=10,r=10,t=20,b=10),
-                          legend=dict(orientation="h", y=-0.1))
-    # Top quartiers
-    top_q = (dv[dv["price"] >= 500_000].groupby("city")["price"]
-               .agg(["median","count"]).query("count >= 3")
-               .sort_values("median", ascending=True).tail(12).reset_index())
-    if len(top_q) > 0:
-        fig_cities = go.Figure(go.Bar(
-            x=top_q["median"]/1e6, y=top_q["city"], orientation="h",
-            marker=dict(color=top_q["median"]/1e6, colorscale=[[0,"#E8EAF0"],[1,C["blue_p"]]], showscale=False),
-            text=[f"{v:.0f}M" for v in top_q["median"]/1e6], textposition="outside",
-            hovertemplate="%{y}<br><b>%{x:.1f}M</b> · %{customdata} ann.<extra></extra>",
-            customdata=top_q["count"],
-        ))
-        fig_cities.update_xaxes(title_text="Prix médian (M FCFA)")
-        fig_cities.update_layout(margin=dict(l=10,r=70,t=15,b=30))
-    else:
-        fig_cities = _empty()
-    # Types de biens
-    tc = df["property_type"].value_counts().head(8).reset_index(); tc.columns=["t","c"]
-    if len(tc) > 0:
-        fig_types = go.Figure(go.Bar(
-            x=tc["t"], y=tc["c"], marker_color=PAL[:len(tc)],
-            text=tc["c"], textposition="outside",
-        ))
-        fig_types.update_xaxes(tickangle=-25)
-        fig_types.update_yaxes(title_text="Annonces")
-    else:
-        fig_types = _empty()
-    # Vente vs Location par source
-    txn_src = df.groupby(["source","transaction"]).size().reset_index(name="count")
-    fig_trend = go.Figure()
-    for txn, color in [("Vente",C["blue_p"]),("Location",C["blue"])]:
-        sub = txn_src[txn_src["transaction"]==txn]
-        if len(sub) > 0:
-            fig_trend.add_trace(go.Bar(
-                name=txn, x=sub["source"].str.replace("_"," ").str.title(),
-                y=sub["count"], marker_color=color,
-                text=sub["count"], textposition="outside",
-            ))
-    fig_trend.update_layout(barmode="group", legend=dict(orientation="h", y=-0.2))
-    fig_trend.update_yaxes(title_text="Annonces")
-    recent = df.nlargest(12,"price").to_dict("records")
-    for r in recent:
-        r["price_fmt"] = _fmt(r.get("price",0))
-        r["src_color"] = C["src"].get(r.get("source",""), C["muted"])
-        r["txn_color"] = C["green"] if r.get("transaction")=="Vente" else C["blue"]
-        r["title_sh"]  = str(r.get("title","") or r.get("city",""))[:48]
-        r["city"]      = str(r.get("city","") or "—")
-        r["prop_type"] = str(r.get("property_type","") or "—")
-    ctx = _ctx(request)
-    # ── Analytics fusionnées dans le dashboard ──────────────────
-    type_f  = request.GET.get("type", "all")
-    city_f  = request.GET.get("city", "")
-    types   = sorted(df_full["property_type"].dropna().unique().tolist())
-    cities  = sorted(df_full["city"].dropna().unique().tolist())
-    dfa = df.copy()
-    if type_f != "all": dfa = dfa[dfa["property_type"] == type_f]
-    if city_f:          dfa = dfa[dfa["city"] == city_f]
-    # Box plot prix par type
-    top5 = dfa["property_type"].value_counts().head(5).index.tolist()
-    fig_box = go.Figure()
-    for i, t in enumerate(top5):
-        sub = dfa[dfa["property_type"] == t]["price"]
-        if len(sub) >= 3:
-            fig_box.add_trace(go.Box(y=sub/1e6, name=t,
-                marker_color=PAL[i % len(PAL)], boxmean=True, boxpoints=False))
-    if not fig_box.data: fig_box = _empty("Pas assez de données")
-    else: fig_box.update_layout(showlegend=False); fig_box.update_yaxes(title_text="Prix (M FCFA)")
-    # Scatter prix vs surface
-    dfs2 = dfa[dfa["surface_area"].between(15, 3000) & dfa["price"].notna()].copy()
-    if len(dfs2) > 5:
-        dfs2["prix_M"] = dfs2["price"] / 1e6
-        fig_sc = px.scatter(dfs2.head(600), x="surface_area", y="prix_M",
-            color="property_type", color_discrete_sequence=PAL, opacity=0.55,
-            labels={"surface_area": "Superficie (m²)", "prix_M": "Prix (M FCFA)"})
-        fig_sc.update_traces(marker_size=4)
-    else:
-        fig_sc = _empty("Surface non renseignée")
-    # Prix médian par source
-    ss = dfa.groupby("source")["price"].agg(["median","mean","count"]).reset_index()
-    ss = ss[ss["count"] >= 3]
-    if len(ss) > 0:
-        lbl = ss["source"].str.replace("_", " ").str.title()
-        fig_src = go.Figure()
-        fig_src.add_trace(go.Bar(name="Médiane", x=lbl, y=ss["median"]/1e6,
-            marker_color=C["blue_p"], text=[f"{v:.0f}M" for v in ss["median"]/1e6], textposition="outside"))
-        fig_src.add_trace(go.Bar(name="Moyenne", x=lbl, y=ss["mean"]/1e6,
-            marker_color=C["blue"], text=[f"{v:.0f}M" for v in ss["mean"]/1e6], textposition="outside"))
-        fig_src.update_layout(barmode="group", legend=dict(orientation="h", y=-0.2))
-        fig_src.update_yaxes(title_text="Prix (M FCFA)")
-    else:
-        fig_src = _empty()
-    # Prix médian par nb chambres
-    dbc = dfa[dfa["bedrooms"].between(1, 8) & dfa["price"].notna()]
-    if len(dbc) > 5:
-        bs = dbc.groupby("bedrooms")["price"].agg(["median","count"]).reset_index().query("count>=3")
-        if len(bs) > 0:
-            fig_beds = go.Figure(go.Bar(
-                x=[f"{int(b)} ch." for b in bs["bedrooms"]], y=bs["median"]/1e6,
-                marker_color=PAL[:len(bs)],
-                text=[f"{v:.0f}M" for v in bs["median"]/1e6], textposition="outside"))
-            fig_beds.update_yaxes(title_text="Prix médian (M FCFA)")
-        else: fig_beds = _empty()
-    else: fig_beds = _empty()
-    # Stats descriptives
-    stats_data = []
-    if len(dfa) > 0:
-        s = dfa["price"].describe()
-        stats_data = [
-            ("Annonces",     f"{int(s.get('count',0)):,}"),
-            ("Prix minimum", _fmt(s.get("min",  0))),
-            ("1er quartile", _fmt(s.get("25%",  0))),
-            ("Médiane",      _fmt(s.get("50%",  0))),
-            ("Moyenne",      _fmt(s.get("mean", 0))),
-            ("3e quartile",  _fmt(s.get("75%",  0))),
-            ("Prix maximum", _fmt(s.get("max",  0))),
+
+    # === CHART DATA (raw arrays for JS) ===
+
+    # 1. Price distribution (vente) - histogram bins
+    dist_prices = sorted([r["price"]/1e6 for r in ventes if r["price"] >= 500_000 and r["price"] <= 1e9])
+
+    # 2. Source pie
+    src_counts = Counter(r["source"] for r in all_data)
+    pie_labels = [s.replace("_"," ").title() for s in src_counts.keys()]
+    pie_values = list(src_counts.values())
+    pie_colors = [SRC_COLORS.get(s, "#999") for s in src_counts.keys()]
+
+    # 3. Top cities by median price (vente)
+    city_data = defaultdict(list)
+    for r in ventes:
+        if r["price"] >= 500_000 and r["city"] != "Inconnu":
+            city_data[r["city"]].append(r["price"])
+    top_cities = sorted(
+        [(c, _stats.median(ps), len(ps)) for c, ps in city_data.items() if len(ps) >= 3],
+        key=lambda x: x[1]
+    )[-12:]
+    cities_names = [c[0] for c in top_cities]
+    cities_medians = [round(c[1]/1e6, 1) for c in top_cities]
+    cities_counts = [c[2] for c in top_cities]
+
+    # 4. Types bar
+    type_counts = Counter(r["type"] for r in data if r["type"] != "Autre")
+    types_top = type_counts.most_common(8)
+    types_names = [t[0] for t in types_top]
+    types_values = [t[1] for t in types_top]
+
+    # 5. Vente vs Location by source
+    txn_src = defaultdict(lambda: {"Vente":0,"Location":0})
+    for r in all_data:
+        txn_src[r["source"].replace("_"," ").title()][r["txn"]] += 1
+    trend_labels = list(txn_src.keys())
+    trend_vente = [txn_src[s]["Vente"] for s in trend_labels]
+    trend_loc = [txn_src[s]["Location"] for s in trend_labels]
+
+    # 6. Box plot data by type (top 5 types)
+    box_data = {}
+    for t in [t[0] for t in type_counts.most_common(5)]:
+        ps = [r["price"]/1e6 for r in data if r["type"] == t and r["price"] >= 500_000]
+        if len(ps) >= 3:
+            box_data[t] = ps[:200]
+
+    # 7. Scatter: price vs surface
+    scatter_x = []
+    scatter_y = []
+    scatter_types = []
+    for r in data:
+        if r.get("surface") and 15 <= r["surface"] <= 3000 and r["price"] >= 500_000:
+            scatter_x.append(round(r["surface"], 1))
+            scatter_y.append(round(r["price"]/1e6, 1))
+            scatter_types.append(r["type"])
+
+    # 8. Price by bedrooms
+    bed_data = defaultdict(list)
+    for r in data:
+        if r.get("beds") and 1 <= r["beds"] <= 8 and r["price"] >= 500_000:
+            bed_data[r["beds"]].append(r["price"])
+    bed_labels = []
+    bed_medians = []
+    for b in sorted(bed_data.keys()):
+        if len(bed_data[b]) >= 3:
+            bed_labels.append(f"{b} ch.")
+            bed_medians.append(round(_stats.median(bed_data[b])/1e6, 1))
+
+    # 9. Stats table
+    stats_table = []
+    if prices_all:
+        s_prices = sorted(prices_all)
+        n = len(s_prices)
+        stats_table = [
+            ("Annonces", f"{n:,}"),
+            ("Prix minimum", _fmt(s_prices[0])+" FCFA"),
+            ("1er quartile", _fmt(s_prices[n//4])+" FCFA"),
+            ("Mediane", _fmt(s_prices[n//2])+" FCFA"),
+            ("Moyenne", _fmt(_stats.mean(prices_all))+" FCFA"),
+            ("3e quartile", _fmt(s_prices[3*n//4])+" FCFA"),
+            ("Prix maximum", _fmt(s_prices[-1])+" FCFA"),
         ]
+
+    # 10. Recent / top prices table
+    recent = sorted(data, key=lambda x: x["price"], reverse=True)[:15]
+    recent_rows = []
+    for r in recent:
+        recent_rows.append({
+            "title": r["title"][:45] or r["city"],
+            "price_fmt": _fmt(r["price"])+" FCFA",
+            "city": r["city"],
+            "type": r["type"],
+            "source": r["source"].replace("_"," ").title(),
+            "src_color": SRC_COLORS.get(r["source"], "#999"),
+            "txn": r["txn"],
+            "txn_color": "#1B7A50" if r["txn"] == "Vente" else "#2563EB",
+        })
+
+    # 11. Source median/mean prices
+    src_price = defaultdict(list)
+    for r in data:
+        if r["price"] >= 500_000:
+            src_price[r["source"].replace("_"," ").title()].append(r["price"])
+    src_labels = []
+    src_medians_v = []
+    src_means_v = []
+    for s, ps in sorted(src_price.items()):
+        if len(ps) >= 3:
+            src_labels.append(s)
+            src_medians_v.append(round(_stats.median(ps)/1e6, 1))
+            src_means_v.append(round(_stats.mean(ps)/1e6, 1))
+
     ctx = _ctx(request)
     ctx.update({
         "page_title": "Dashboard",
         "kpis": kpis,
-        # Graphes dashboard
-        "fig_dist":   _fig_json(fig_dist),
-        "fig_pie":    _fig_json(fig_pie),
-        "fig_cities": _fig_json(fig_cities),
-        "fig_types":  _fig_json(fig_types),
-        "fig_trend":  _fig_json(fig_trend),
-        # Graphes analytics (fusionnés)
-        "fig_box":    _fig_json(fig_box),
-        "fig_sc":     _fig_json(fig_sc),
-        "fig_src":    _fig_json(fig_src),
-        "fig_beds":   _fig_json(fig_beds),
-        "stats":      stats_data,
-        # Données
-        "recent":      recent,
-        "sources":     sources,
-        "types":       types,
-        "cities":      cities,
-        "txn_filter":  txn_f,
-        "src_filter":  src_f,
-        "type_filter": type_f,
-        "city_filter": city_f,
+        "recent_rows": recent_rows,
+        "stats_table": stats_table,
+        "sources_list": sources_list,
+        "types_list": types_list,
+        "cities_list": cities_list,
+        "txn_f": txn_f, "src_f": src_f, "type_f": type_f, "city_f": city_f,
         "total": total, "nv": nv, "nl": nl,
-        "headers": ["Bien","Prix","Ville","Type","Source","Transaction"],
+        # Chart data as JSON strings (simple arrays, no Plotly objects)
+        "j_dist": json.dumps(dist_prices[:500]),
+        "j_pie_labels": json.dumps(pie_labels),
+        "j_pie_values": json.dumps(pie_values),
+        "j_pie_colors": json.dumps(pie_colors),
+        "j_cities_names": json.dumps(cities_names),
+        "j_cities_medians": json.dumps(cities_medians),
+        "j_cities_counts": json.dumps(cities_counts),
+        "j_types_names": json.dumps(types_names),
+        "j_types_values": json.dumps(types_values),
+        "j_trend_labels": json.dumps(trend_labels),
+        "j_trend_vente": json.dumps(trend_vente),
+        "j_trend_loc": json.dumps(trend_loc),
+        "j_box": json.dumps(box_data),
+        "j_scatter_x": json.dumps(scatter_x[:400]),
+        "j_scatter_y": json.dumps(scatter_y[:400]),
+        "j_scatter_t": json.dumps(scatter_types[:400]),
+        "j_bed_labels": json.dumps(bed_labels),
+        "j_bed_medians": json.dumps(bed_medians),
+        "j_src_labels": json.dumps(src_labels),
+        "j_src_medians": json.dumps(src_medians_v),
+        "j_src_means": json.dumps(src_means_v),
     })
     return render(request, "immoanalytics/dashboard.html", ctx)
 
 
+# Keep analytics_page as redirect to dashboard
 @login_required(login_url='/immo/login/')
 def analytics_page(request):
-    txn_f = request.GET.get("txn","all"); src_f = request.GET.get("src","all")
-    type_f = request.GET.get("type","all"); city_f = request.GET.get("city","")
-    df_full = _load_data()
-    sources = sorted(df_full["source"].unique().tolist())
-    types   = sorted(df_full["property_type"].dropna().unique().tolist())
-    cities  = sorted(df_full["city"].dropna().unique().tolist())
-    df = df_full.copy()
-    if txn_f != "all": df = df[df["transaction"]==txn_f]
-    if src_f != "all": df = df[df["source"]==src_f]
-    if type_f!= "all": df = df[df["property_type"]==type_f]
-    if city_f:         df = df[df["city"]==city_f]
-    # Box plot
-    top5 = df["property_type"].value_counts().head(5).index.tolist()
-    fig_box = go.Figure()
-    for i,t in enumerate(top5):
-        sub = df[df["property_type"]==t]["price"]
-        if len(sub) >= 3:
-            fig_box.add_trace(go.Box(y=sub/1e6, name=t, marker_color=PAL[i%len(PAL)],
-                                     boxmean=True, boxpoints=False))
-    if not fig_box.data: fig_box = _empty()
-    else:
-        fig_box.update_yaxes(title_text="Prix (M FCFA)")
-        fig_box.update_layout(showlegend=False)
-    # Scatter
-    dfs = df[df["surface_area"].between(15,3000) & df["price"].notna()].copy()
-    if len(dfs) > 5:
-        dfs["prix_M"] = dfs["price"]/1e6
-        fig_sc = px.scatter(dfs.head(800), x="surface_area", y="prix_M",
-                            color="property_type", color_discrete_sequence=PAL,
-                            labels={"surface_area":"Superficie (m²)","prix_M":"Prix (M FCFA)"},
-                            opacity=0.55)
-        fig_sc.update_traces(marker_size=4)
-    else:
-        fig_sc = _empty("Surface non renseignée")
-    # Bar villes
-    cs = (df[df["price"]>=500_000].groupby("city")["price"]
-            .agg(["median","count"]).query("count >= 3")
-            .sort_values("median",ascending=True).tail(15).reset_index())
-    if len(cs) > 0:
-        fig_bar = go.Figure(go.Bar(
-            x=cs["median"]/1e6, y=cs["city"], orientation="h",
-            marker=dict(color=cs["median"]/1e6, colorscale=[[0,"#EEF0F8"],[1,C["blue_p"]]], showscale=False),
-            text=[f"{v:.0f}M" for v in cs["median"]/1e6], textposition="outside",
-            hovertemplate="%{y}<br>Médiane: <b>%{x:.1f}M</b><extra></extra>",
-        ))
-        fig_bar.update_xaxes(title_text="Prix médian (M FCFA)")
-        fig_bar.update_layout(margin=dict(l=10,r=70,t=15,b=30))
-    else:
-        fig_bar = _empty()
-    # Sources
-    ss = df.groupby("source")["price"].agg(["median","mean","count"]).reset_index()
-    ss = ss[ss["count"]>=3]
-    if len(ss) > 0:
-        lbl = ss["source"].str.replace("_"," ").str.title()
-        fig_src = go.Figure()
-        fig_src.add_trace(go.Bar(name="Médiane",x=lbl,y=ss["median"]/1e6,marker_color=C["blue_p"],
-                                  text=[f"{v:.0f}M" for v in ss["median"]/1e6],textposition="outside"))
-        fig_src.add_trace(go.Bar(name="Moyenne",x=lbl,y=ss["mean"]/1e6,marker_color=C["blue"],
-                                  text=[f"{v:.0f}M" for v in ss["mean"]/1e6],textposition="outside"))
-        fig_src.update_layout(barmode="group",legend=dict(orientation="h",y=-0.2))
-        fig_src.update_yaxes(title_text="Prix (M FCFA)")
-    else:
-        fig_src = _empty()
-    # Prix/m²
-    dm2 = df[df["prix_m2"].notna() & df["prix_m2"].between(10_000,5_000_000)].copy() if "prix_m2" in df.columns else pd.DataFrame()
-    if len(dm2) > 5:
-        fig_m2 = go.Figure(go.Histogram(x=dm2["prix_m2"]/1e3, nbinsx=40,
-                                         marker_color=C["green"],marker_line_width=0))
-        fig_m2.update_xaxes(title_text="Prix au m² (K FCFA)")
-        fig_m2.update_yaxes(title_text="Annonces")
-    else:
-        fig_m2 = _empty("Surface non renseignée")
-    # Chambres
-    dbc = df[df["bedrooms"].between(1,8) & df["price"].notna()].copy()
-    if len(dbc) > 5:
-        bs = dbc.groupby("bedrooms")["price"].agg(["median","count"]).reset_index().query("count>=3")
-        if len(bs) > 0:
-            fig_beds = go.Figure(go.Bar(
-                x=[f"{int(b)} ch." for b in bs["bedrooms"]], y=bs["median"]/1e6,
-                marker_color=PAL[:len(bs)],
-                text=[f"{v:.0f}M" for v in bs["median"]/1e6], textposition="outside",
-            ))
-            fig_beds.update_yaxes(title_text="Prix médian (M FCFA)")
-        else: fig_beds = _empty()
-    else: fig_beds = _empty()
-    stats_data = []
-    if len(df) > 0:
-        s = df["price"].describe()
-        stats_data = [("Annonces",f"{int(s.get('count',0)):,}"),
-                      ("Prix minimum",_fmt(s.get("min",0))),("1er quartile",_fmt(s.get("25%",0))),
-                      ("Médiane",_fmt(s.get("50%",0))),("Moyenne",_fmt(s.get("mean",0))),
-                      ("3e quartile",_fmt(s.get("75%",0))),("Prix maximum",_fmt(s.get("max",0))),
-                      ("Écart-type",_fmt(s.get("std",0)))]
-    ctx = _ctx(request)
-    ctx.update({"page_title":"Analytics","fig_box":_fig_json(fig_box),"fig_sc":_fig_json(fig_sc),
-                "fig_bar":_fig_json(fig_bar),"fig_src":_fig_json(fig_src),
-                "fig_m2":_fig_json(fig_m2),"fig_beds":_fig_json(fig_beds),
-                "stats":stats_data,"sources":sources,"types":types,"cities":cities,
-                "txn_filter":txn_f,"src_filter":src_f,"type_filter":type_f,"city_filter":city_f})
-    return render(request, "immoanalytics/analytics.html", ctx)
+    from django.shortcuts import redirect
+    return redirect('dashboard')
 
 
 def api_stats_real(request):
     try:
         from properties.models import (CoinAfriqueProperty, ExpatDakarProperty,
             LogerDakarProperty, DakarVenteProperty)
-        import statistics as _stats
         models_map = {"coinafrique":CoinAfriqueProperty,"expat_dakar":ExpatDakarProperty,
                       "loger_dakar":LogerDakarProperty,"dakarvente":DakarVenteProperty}
-        total=0; all_prices=[]; cities_set=set()
+        total=0; all_prices=[]
         for src,model in models_map.items():
             try:
                 total += model.objects.count()
                 for p in model.objects.filter(price__isnull=False,price__gt=0).values_list("price",flat=True)[:1000]:
                     if p: all_prices.append(float(p))
-                for c in model.objects.values_list("city",flat=True).distinct()[:20]:
-                    if c and c.strip(): cities_set.add(c.strip().split(",")[0].strip().title())
             except: pass
         p_med = _stats.median(all_prices) if all_prices else 0
-        p_moy = _stats.mean(all_prices)   if all_prices else 0
-        return _JsonResponse({"total":total,"sources":len(models_map),"cities":len(cities_set),
-                               "price_med":round(p_med),"price_avg":round(p_moy),
+        p_moy = _stats.mean(all_prices) if all_prices else 0
+        return _JsonResponse({"total":total,"price_med":round(p_med),"price_avg":round(p_moy),
                                "price_med_fmt":_fmt(p_med),"price_avg_fmt":_fmt(p_moy)})
-    except Exception as e:
-        return _JsonResponse({"total":0,"sources":4,"cities":0,"price_med":0,"price_avg":0,
-                               "price_med_fmt":"—","price_avg_fmt":"—"})
+    except:
+        return _JsonResponse({"total":0,"price_med":0,"price_avg":0})
 
 
 def api_debug_db(request):
     if not request.user.is_authenticated or not request.user.is_superuser:
-        return _JsonResponse({"error":"Admin seulement"},status=403)
+        return _JsonResponse({"error":"Admin only"},status=403)
     from properties.models import (CoinAfriqueProperty,ExpatDakarProperty,
         LogerDakarProperty,DakarVenteProperty)
-    result={"sources":{},"tables_manquantes":[],"_load_data_count":0}
+    result={"sources":{}}
     for name,model in [("coinafrique",CoinAfriqueProperty),("expat_dakar",ExpatDakarProperty),
                         ("loger_dakar",LogerDakarProperty),("dakarvente",DakarVenteProperty)]:
         try:
             total=model.objects.count()
-            with_price=model.objects.filter(price__isnull=False).count()
-            sample=list(model.objects.filter(price__isnull=False).values_list("price",flat=True)[:5])
-            result["sources"][name]={"status":"OK","total":total,"with_price":with_price,
-                                      "sample_prices":[float(p) for p in sample if p]}
+            result["sources"][name]={"total":total,"with_price":model.objects.filter(price__isnull=False).count()}
         except Exception as e:
-            result["sources"][name]={"status":"TABLE MANQUANTE","detail":str(e).split("\n")[0]}
-            result["tables_manquantes"].append(name)
+            result["sources"][name]={"error":str(e)[:80]}
     try:
-        df=_load_data()
-        result["_load_data_count"]=len(df)
-        if len(df)>0: result["_load_data_sources"]=df["source"].value_counts().to_dict()
-    except Exception as e:
-        result["_load_data_error"]=str(e)
+        data=_load_data()
+        result["loaded"]=len(data)
+    except: pass
     return _JsonResponse(result,json_dumps_params={"indent":2})
