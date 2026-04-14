@@ -90,6 +90,7 @@
     <div class="db-tab" onclick="showTab('prices',this)"><i class="fas fa-chart-bar"></i>Analyse des prix</div>
     <div class="db-tab" onclick="showTab('sources',this)"><i class="fas fa-layer-group"></i>Sources & Types</div>
     <div class="db-tab" onclick="showTab('table',this)"><i class="fas fa-table"></i>Donnees</div>
+    <div class="db-tab" onclick="showTab('predict',this)"><i class="fas fa-magic"></i>Predictions</div>
   </div>
 
   <!-- TAB 1: Vue d'ensemble -->
@@ -130,6 +131,58 @@
     </div>
     <div class="row-1">
       <div class="cbox"><div class="cbox-h"><i class="fas fa-balance-scale"></i>Comparaison prix median/moyen par source</div><div id="ch-srccomp" style="height:260px"></div></div>
+    </div>
+  </div>
+
+
+  <!-- TAB 5: Predictions -->
+  <div id="tab-predict" class="tab-content">
+    <div class="row-eq">
+      <div class="cbox" style="padding:1.5rem">
+        <div class="cbox-h" style="border-bottom:none;margin-bottom:1rem"><i class="fas fa-magic"></i>Estimer le prix d'un bien</div>
+        <p style="font-size:.82rem;color:#7A8599;margin-bottom:1.5rem">Renseignez les caracteristiques du bien pour obtenir une estimation basee sur nos donnees de marche.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem">
+          <div><label style="font-size:.78rem;font-weight:600;color:#374151;display:block;margin-bottom:.3rem"><i class="fas fa-map-pin" style="color:#1A8ED8;margin-right:.3rem"></i>Quartier / Ville</label>
+          <select id="pred-city" style="width:100%;padding:.45rem .75rem;border:1.5px solid #D6E3F0;border-radius:8px;font-size:.82rem;font-family:inherit;outline:none;color:#0C2D4D"><option value="">-- Choisir --</option>{% for c in cities_list %}<option value="{{ c }}">{{ c }}</option>{% endfor %}</select></div>
+          <div><label style="font-size:.78rem;font-weight:600;color:#374151;display:block;margin-bottom:.3rem"><i class="fas fa-home" style="color:#1A8ED8;margin-right:.3rem"></i>Type de bien</label>
+          <select id="pred-type" style="width:100%;padding:.45rem .75rem;border:1.5px solid #D6E3F0;border-radius:8px;font-size:.82rem;font-family:inherit;outline:none;color:#0C2D4D"><option value="villa">Villa</option><option value="appartement" selected>Appartement</option><option value="maison">Maison</option><option value="terrain">Terrain</option><option value="studio">Studio</option><option value="duplex">Duplex</option><option value="chambre">Chambre</option><option value="immeuble">Immeuble</option></select></div>
+          <div><label style="font-size:.78rem;font-weight:600;color:#374151;display:block;margin-bottom:.3rem"><i class="fas fa-exchange-alt" style="color:#1A8ED8;margin-right:.3rem"></i>Transaction</label>
+          <select id="pred-txn" style="width:100%;padding:.45rem .75rem;border:1.5px solid #D6E3F0;border-radius:8px;font-size:.82rem;font-family:inherit;outline:none;color:#0C2D4D"><option value="vente">Vente</option><option value="location">Location</option></select></div>
+          <div><label style="font-size:.78rem;font-weight:600;color:#374151;display:block;margin-bottom:.3rem"><i class="fas fa-expand" style="color:#1A8ED8;margin-right:.3rem"></i>Superficie (m2)</label>
+          <input type="number" id="pred-surface" placeholder="Ex: 120" min="0" max="10000" style="width:100%;padding:.45rem .75rem;border:1.5px solid #D6E3F0;border-radius:8px;font-size:.82rem;font-family:inherit;outline:none;color:#0C2D4D"></div>
+          <div><label style="font-size:.78rem;font-weight:600;color:#374151;display:block;margin-bottom:.3rem"><i class="fas fa-bed" style="color:#1A8ED8;margin-right:.3rem"></i>Chambres</label>
+          <input type="number" id="pred-beds" placeholder="Ex: 3" min="0" max="20" style="width:100%;padding:.45rem .75rem;border:1.5px solid #D6E3F0;border-radius:8px;font-size:.82rem;font-family:inherit;outline:none;color:#0C2D4D"></div>
+          <div style="display:flex;align-items:flex-end">
+          <button onclick="doPrediction()" style="width:100%;padding:.55rem 1rem;background:linear-gradient(135deg,#1A8ED8,#3BA7E2);color:#fff;border:none;border-radius:8px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:.4rem;transition:all .2s;box-shadow:0 2px 8px rgba(26,142,216,.3)"><i class="fas fa-calculator"></i>Estimer</button></div>
+        </div>
+        <div id="pred-result" style="margin-top:1.5rem;display:none">
+          <div style="background:linear-gradient(135deg,#0C2D4D,#143D68);border-radius:12px;padding:1.5rem;color:#fff;position:relative;overflow:hidden">
+            <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(26,142,216,.15),transparent 70%)"></div>
+            <div style="position:relative;z-index:2">
+              <div style="font-size:.7rem;color:#5BBCE8;text-transform:uppercase;letter-spacing:.1em;font-family:'JetBrains Mono',monospace;margin-bottom:.5rem"><i class="fas fa-chart-line" style="margin-right:.3rem"></i>Estimation ImmoPredict</div>
+              <div id="pred-price" style="font-family:'Playfair Display',Georgia,serif;font-size:2.2rem;font-weight:700;color:#5BBCE8;line-height:1;margin-bottom:.3rem"></div>
+              <div id="pred-range" style="font-size:.78rem;color:rgba(255,255,255,.45);margin-bottom:1rem"></div>
+              <div style="height:1px;background:rgba(255,255,255,.1);margin-bottom:1rem"></div>
+              <div id="pred-details" style="font-size:.78rem;color:rgba(255,255,255,.5)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cbox" style="padding:1.5rem">
+        <div class="cbox-h" style="border-bottom:none;margin-bottom:.8rem"><i class="fas fa-info-circle"></i>Guide des prix - Dakar</div>
+        <div style="margin-bottom:1.5rem">
+          <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&q=80" alt="Immobilier Senegal" style="width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:1rem">
+        </div>
+        <div style="font-size:.8rem">
+          <div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid #EEF4FB"><span style="color:#7A8599">Villa Almadies</span><span style="font-weight:700;color:#0C2D4D">150-500M FCFA</span></div>
+          <div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid #EEF4FB"><span style="color:#7A8599">Appt Mermoz</span><span style="font-weight:700;color:#0C2D4D">40-120M FCFA</span></div>
+          <div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid #EEF4FB"><span style="color:#7A8599">Studio Plateau</span><span style="font-weight:700;color:#0C2D4D">10-35M FCFA</span></div>
+          <div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid #EEF4FB"><span style="color:#7A8599">Terrain Pikine</span><span style="font-weight:700;color:#0C2D4D">3-25M FCFA</span></div>
+          <div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid #EEF4FB"><span style="color:#7A8599">Chambre (loyer)</span><span style="font-weight:700;color:#0C2D4D">30-150K/mois</span></div>
+          <div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid #EEF4FB"><span style="color:#7A8599">Appt (loyer)</span><span style="font-weight:700;color:#0C2D4D">150K-1.5M/mois</span></div>
+          <div style="display:flex;justify-content:space-between;padding:.4rem 0"><span style="color:#7A8599">Villa (loyer)</span><span style="font-weight:700;color:#0C2D4D">500K-5M/mois</span></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -320,5 +373,38 @@ document.addEventListener('DOMContentLoaded', function(){
     ], Object.assign({},LY,{barmode:'group',legend:{orientation:'h',y:1.1},yaxis:{title:'Prix (M FCFA)',gridcolor:'#EEF4FB'}}), PC);
   } else { noData('ch-srccomp'); }
 });
+
+// === Prediction ===
+async function doPrediction(){
+  var city = document.getElementById('pred-city').value;
+  var type = document.getElementById('pred-type').value;
+  var txn = document.getElementById('pred-txn').value;
+  var surface = document.getElementById('pred-surface').value;
+  var beds = document.getElementById('pred-beds').value;
+  var result = document.getElementById('pred-result');
+  try{
+    var csrf='';var ce=document.querySelector('[name=csrfmiddlewaretoken]');if(ce)csrf=ce.value;
+    var r = await fetch('/api/predict/', {
+      method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':csrf},
+      body:JSON.stringify({city:city,type:type,transaction:txn,surface:surface,bedrooms:beds}),
+      credentials:'same-origin'
+    });
+    var d = await r.json();
+    if(d.error){alert(d.error);return}
+    document.getElementById('pred-price').textContent = d.price_fmt;
+    document.getElementById('pred-range').textContent = 'Fourchette : ' + d.price_min + ' - ' + d.price_max;
+    var details = '';
+    if(city) details += 'Localite : ' + city + '<br>';
+    details += 'Type : ' + type + ' | Transaction : ' + txn + '<br>';
+    if(surface) details += 'Surface : ' + surface + ' m2 | ';
+    if(beds) details += 'Chambres : ' + beds;
+    details += '<br>Modele : ' + d.model + ' | Confiance : ' + d.confidence;
+    document.getElementById('pred-details').innerHTML = details;
+    result.style.display = 'block';
+    result.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }catch(e){
+    alert('Erreur: ' + e.message);
+  }
+}
 </script>
 {% endblock %}

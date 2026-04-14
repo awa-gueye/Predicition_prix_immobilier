@@ -364,3 +364,85 @@ def api_debug_db(request):
         result["loaded"]=len(data)
     except: pass
     return _JsonResponse(result,json_dumps_params={"indent":2})
+
+
+# ── Prediction API (AJAX) ────────────────────────────────────────────────────
+
+PRIX_REF = {
+    ("chambre","location"):(30000,70000,150000),("studio","location"):(60000,120000,300000),
+    ("appartement","location"):(150000,400000,1500000),("villa","location"):(300000,1200000,5000000),
+    ("chambre","vente"):(500000,2000000,8000000),("studio","vente"):(2000000,8000000,25000000),
+    ("appartement","vente"):(8000000,40000000,200000000),("villa","vente"):(20000000,100000000,500000000),
+    ("terrain","vente"):(2000000,20000000,300000000),("maison","vente"):(5000000,30000000,150000000),
+    ("duplex","vente"):(15000000,70000000,300000000),("immeuble","vente"):(50000000,200000000,2000000000),
+}
+ZONE_MULT = {
+    "almadies":3.5,"ngor":3.0,"mermoz":2.5,"ouakam":2.0,"fann":2.2,"plateau":2.0,
+    "yoff":1.8,"sacre coeur":2.3,"vdn":1.9,"point e":2.1,"mamelles":2.8,
+    "sicap":1.5,"liberte":1.5,"hlm":1.3,"pikine":0.7,"guediawaye":0.65,
+    "rufisque":0.55,"thies":0.5,"mbour":0.6,"saly":1.2,"dakar":1.0,
+    "keur massar":0.6,"diamniadio":0.7,"parcelles":0.8,"medina":1.1,
+}
+
+@login_required(login_url='/immo/login/')
+def api_predict(request):
+    """API de prediction de prix (AJAX)."""
+    if request.method != 'POST':
+        return _JsonResponse({'error': 'POST requis'}, status=405)
+    import json as _json
+    try:
+        body = _json.loads(request.body)
+        city = body.get('city', '').strip()
+        ptype = body.get('type', 'appartement').strip().lower()
+        txn = body.get('transaction', 'vente').strip().lower()
+        surface = float(body.get('surface', 0) or 0)
+        beds = int(body.get('bedrooms', 0) or 0)
+
+        # Try DB median first
+        base = None
+        try:
+            from properties.models import (CoinAfriqueProperty, ExpatDakarProperty, LogerDakarProperty)
+            prices = []
+            for model in [CoinAfriqueProperty, ExpatDakarProperty, LogerDakarProperty]:
+                qs = model.objects.filter(price__gte=10000, price__lt=5000000000)
+                if city: qs = qs.filter(city__icontains=city[:6])
+                if ptype: qs = qs.filter(property_type__icontains=ptype[:5])
+                prices.extend([float(p) for p in qs.values_list("price", flat=True)[:200] if p])
+            if len(prices) >= 5:
+                base = _stats.median(prices)
+        except: pass
+
+        if not base:
+            ref = PRIX_REF.get((ptype, txn))
+            if not ref:
+                for k, v in PRIX_REF.items():
+                    if k[0] == ptype: ref = v; break
+            if not ref: ref = PRIX_REF.get(("appartement", txn), (1000000, 30000000, 100000000))
+            base = ref[1]
+
+        city_key = (city or "dakar").lower().strip()
+        mult = next((v for k, v in ZONE_MULT.items() if k in city_key), 1.0)
+        base *= mult
+
+        if surface and surface > 0 and ptype not in ("chambre","terrain"):
+            pm2 = {"appartement":400000,"villa":600000,"duplex":500000,"studio":450000}.get(ptype, 350000)
+            if txn == "location": pm2 = pm2 // 180
+            base = base * 0.4 + (surface * pm2 * mult) * 0.6
+
+        if beds and beds > 1 and ptype not in ("chambre","studio","terrain"):
+            base *= (1 + (beds - 1) * 0.05)
+
+        base = max(base, 10000)
+        margin = base * 0.20
+        unit = "/mois" if txn == "location" else ""
+
+        return _JsonResponse({
+            'price': round(base),
+            'price_fmt': _fmt(base) + " FCFA" + unit,
+            'price_min': _fmt(max(base - margin, 10000)) + " FCFA",
+            'price_max': _fmt(base + margin) + " FCFA",
+            'model': f"Estimation statistique - {ptype} en {txn}",
+            'confidence': "+/-20%",
+        })
+    except Exception as e:
+        return _JsonResponse({'error': str(e)}, status=400)

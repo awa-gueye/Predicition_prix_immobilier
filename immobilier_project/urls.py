@@ -32,7 +32,7 @@ urlpatterns = [
     path('api/properties/', include('properties.urls')),
     path('api/stats/', chart_views.api_stats_real, name='api_stats'),
     path('api/debug-db/', chart_views.api_debug_db, name='api_debug_db'),
-    path('api/notifications/', auth_views.api_notifications, name='api_notifications'),
+    path('api/predict/', chart_views.api_predict, name='api_predict'),
 ]
 if api_chatbot:
     urlpatterns += [path('immo/api/chatbot/', api_chatbot, name='immo_api_chatbot')]
