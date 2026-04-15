@@ -41,15 +41,16 @@ def _fmt(p):
     return f"{p:,.0f} FCFA"
 
 
-# Type normalization for consistent filtering
-_TYPE_MAP = {'villa':'Villa','appartement':'Appartement','terrain':'Terrain','duplex':'Duplex',
-    'studio':'Studio','maison':'Maison','bureau':'Bureau','local':'Bureau','chambre':'Chambre','immeuble':'Immeuble'}
-def _normalize_ptype(raw):
-    if not raw: return 'Autre'
-    v = raw.lower().strip()
-    for k, label in _TYPE_MAP.items():
-        if k in v: return label
-    return raw.strip().title()[:25] if raw.strip() and len(raw.strip()) < 30 else 'Autre'
+import re as _re
+
+def _clean_scraped_title(title):
+    """Nettoie les titres expat-dakar."""
+    if not title:
+        return "Annonce"
+    t = str(title).strip()
+    t = _re.sub(r'^[{"\\s]+', '', t)
+    t = _re.sub(r'[}"\\s]+$', '', t)
+    return t.strip() or "Annonce"
 
 
 def _scraped_listings(transaction):
@@ -105,7 +106,7 @@ def _scraped_listings(transaction):
                         'bedrooms':      row.get('bedrooms'),
                         'bathrooms':     row.get('bathrooms'),
                         'city':          str(row.get('city') or '').split(',')[0].strip().title() or 'Dakar',
-                        'property_type': _normalize_ptype(str(row.get('property_type') or '')),
+                        'property_type': str(row.get('property_type') or 'Bien').split(',')[0][:40],
                         'description':   str(row.get('description') or '')[:200],
                         'latitude':      row.get('latitude'),
                         'longitude':     row.get('longitude'),
@@ -131,14 +132,6 @@ def vente_page(request):
     type_f   = request.GET.get('type', '')
     city_f   = request.GET.get('city', '')
     sort_f   = request.GET.get('sort', 'recent')
-    price_range = request.GET.get('price_range', '')
-    pr_min = pr_max = None
-    if price_range:
-        try:
-            parts = price_range.split('-')
-            pr_min = int(parts[0]) * 1_000_000 if parts[0] != '0' else None
-            pr_max = int(parts[1]) * 1_000_000 if parts[1] != '0' else None
-        except: pass
 
     # Annonces vendeurs en vente
     seller_qs = Listing.objects.filter(
@@ -157,8 +150,6 @@ def vente_page(request):
         seller_qs = seller_qs.filter(property_type__icontains=type_f)
     if city_f:
         seller_qs = seller_qs.filter(Q(city__icontains=city_f) | Q(neighborhood__icontains=city_f))
-    if pr_min: seller_qs = seller_qs.filter(price__gte=pr_min)
-    if pr_max: seller_qs = seller_qs.filter(price__lte=pr_max)
 
     # Tri vendeurs
     if sort_f == 'price_asc':  seller_qs = seller_qs.order_by('price')
@@ -169,19 +160,15 @@ def vente_page(request):
     if q:
         scraped = [s for s in scraped if (s.get('title') and q.lower() in s['title'].lower()) or (s.get('city') and q.lower() in s['city'].lower())]
     if type_f:
-        tf_low = type_f.lower()
-        scraped = [s for s in scraped if s.get('property_type') and (tf_low in s['property_type'].lower() or s['property_type'].lower().startswith(tf_low[:4]))]
+        scraped = [s for s in scraped if s.get('property_type') and type_f.lower() in s['property_type'].lower()]
     if city_f:
-        cf_low = city_f.lower()
-        scraped = [s for s in scraped if s.get('city') and cf_low in s['city'].lower()]
-    if pr_min: scraped = [s for s in scraped if s.get('price', 0) >= pr_min]
-    if pr_max: scraped = [s for s in scraped if s.get('price', 0) <= pr_max]
+        scraped = [s for s in scraped if s.get('city') and city_f.lower() in s['city'].lower()]
 
-    # Tri annonces scrapees
+    # Tri annonces scraées
     if sort_f == 'price_asc':  scraped.sort(key=lambda x: x['price'])
     elif sort_f == 'price_desc': scraped.sort(key=lambda x: x['price'], reverse=True)
 
-    # Pagination annonces scrapees
+    # Pagination annonces scraées
     paginator = Paginator(scraped, 12)
     page_obj  = paginator.get_page(request.GET.get('page_sc', 1))
 
@@ -199,10 +186,9 @@ def vente_page(request):
         'scraped_total': len(scraped),
         'seller_total':  seller_qs.count(),
         'q': q, 'type_f': type_f, 'city_f': city_f, 'sort_f': sort_f,
-        'price_range': price_range,
         'cities':    cities[:80],
         'types':     Listing.TYPE_CHOICES,
-        'sort_opts': [('recent','Plus recents'),('price_asc','Prix croissant'),('price_desc','Prix decroissant')],
+        'sort_opts': [('recent','Plus récents'),('price_asc','Prix ↑'),('price_desc','Prix ↓')],
     }))
 
 
@@ -216,17 +202,9 @@ def location_page(request):
     type_f = request.GET.get('type', '')
     city_f = request.GET.get('city', '')
     sort_f = request.GET.get('sort', 'recent')
-    price_range = request.GET.get('price_range', '')
-    pr_min = pr_max = None
-    if price_range:
-        try:
-            parts = price_range.split('-')
-            pr_min = int(parts[0]) * 1_000 if parts[0] != '0' else None
-            pr_max = int(parts[1]) * 1_000 if parts[1] != '0' else None
-        except: pass
 
     seller_qs = Listing.objects.filter(
-        transaction='location', status='active' 
+        transaction='location', status='active'
     ).prefetch_related('images', 'seller__profile')
 
     scraped = _scraped_listings('location')
@@ -262,10 +240,9 @@ def location_page(request):
         'scraped_total': len(scraped),
         'seller_total':  seller_qs.count(),
         'q': q, 'type_f': type_f, 'city_f': city_f, 'sort_f': sort_f,
-        'price_range': price_range,
         'cities':    cities[:80],
         'types':     Listing.TYPE_CHOICES,
-        'sort_opts': [('recent','Plus recents'),('price_asc','Prix croissant'),('price_desc','Prix decroissant')],
+        'sort_opts': [('recent','Plus récents'),('price_asc','Prix ↑'),('price_desc','Prix ↓')],
     }))
 
 
@@ -316,7 +293,7 @@ def add_listing(request):
                     order    = i,
                 )
 
-            messages.success(request, "Votre annonce a été publiée !")
+            messages.success(request, "✅ Votre annonce a été publiée !")
             if listing.transaction == 'vente':
                 return redirect('vente')
             return redirect('location')
@@ -351,7 +328,7 @@ def edit_listing(request, pk):
                     order   = listing.images.count() + i,
                 )
 
-            messages.success(request, "Annonce mise à jour.")
+            messages.success(request, "✅ Annonce mise à jour.")
             return redirect('my_listings')
     else:
         form = ListingForm(instance=listing)
@@ -418,7 +395,7 @@ def edit_profile(request):
             u.email      = form.cleaned_data.get('email',      u.email)
             u.save()
             form.save()
-            messages.success(request, "Profil mis à jour.")
+            messages.success(request, "✅ Profil mis à jour.")
             return redirect('profile')
     else:
         form = ProfileForm(instance=profile, initial={

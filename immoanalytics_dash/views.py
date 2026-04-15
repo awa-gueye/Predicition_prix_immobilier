@@ -13,34 +13,18 @@ from django.http import JsonResponse
 logger = logging.getLogger(__name__)
 
 
-
-def _clean_title(title):
-    """Nettoie les titres (enlève {\", \"} des titres expat-dakar)."""
-    if not title: return ""
-    import re
-    t = str(title).strip()
-    t = re.sub(r'^[{"\\s]+', '', t)
-    t = re.sub(r'[}"\\s]+$', '', t)
-    t = t.strip('" {}')
-    return t
-
-# -- Welcome --
+# ── Rôles ─────────────────────────────────────────────────────────────────────
 def welcome_or_dashboard(request):
     if request.user.is_authenticated:
-        from django.shortcuts import redirect
         return redirect('vente')
     return render(request, 'immoanalytics/welcome.html')
 
 def welcome_view(request):
     return render(request, 'immoanalytics/welcome.html')
 
-# ── Rôles ─────────────────────────────────────────────────────────────────────
 def get_user_role(user):
     if user.is_superuser: return 'admin'
-    try:
-        return user.profile.role or 'user'
-    except Exception:
-        return 'user'
+    return 'viewer'
 
 def get_user_redirect(user):
     return '/vente/'
@@ -89,7 +73,7 @@ def register_view(request):
                 pass
             login(request, u)
             messages.success(request, f"Bienvenue {fname or uname} !")
-            return redirect('vente')
+            return redirect('dashboard')
     return render(request, 'immoanalytics/register.html', {'error': error})
 
 
@@ -629,3 +613,40 @@ def api_check_auth(request):
     if request.user.is_authenticated:
         return JsonResponse({'authenticated':True,'role':get_user_role(request.user)})
     return JsonResponse({'authenticated':False}, status=401)
+
+
+@login_required(login_url='/immo/login/')
+def api_notifications(request):
+    """Retourne les biens recommandés selon le profil utilisateur."""
+    try:
+        profile = request.user.profile
+        user_city = (profile.city or '').strip()
+    except Exception:
+        user_city = ''
+    results = []
+    try:
+        from properties.models import (CoinAfriqueProperty, ExpatDakarProperty,
+            LogerDakarProperty, DakarVenteProperty)
+        for model in [CoinAfriqueProperty, ExpatDakarProperty, LogerDakarProperty, DakarVenteProperty]:
+            try:
+                qs = model.objects.filter(price__gte=500000)
+                if user_city:
+                    qs = qs.filter(city__icontains=user_city[:6])
+                for p in qs.order_by('-id').values('title', 'price', 'city', 'property_type')[:3]:
+                    pr = float(p.get('price', 0))
+                    fmt = ""
+                    if pr >= 1e6: fmt = f"{pr/1e6:.1f}M FCFA"
+                    elif pr >= 1e3: fmt = f"{pr/1e3:.0f}K FCFA"
+                    else: fmt = f"{pr:,.0f} FCFA"
+                    results.append({
+                        'title': str(p.get('title', ''))[:50] or 'Nouveau bien',
+                        'price': fmt,
+                        'city': str(p.get('city', '')).split(',')[0].strip().title(),
+                        'type': str(p.get('property_type', ''))[:20],
+                        'alert_type': 'proximity' if user_city else 'new_listing',
+                    })
+            except Exception:
+                continue
+    except Exception:
+        pass
+    return JsonResponse({'notifications': results[:8], 'count': min(len(results), 8)})
