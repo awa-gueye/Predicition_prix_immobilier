@@ -13,6 +13,17 @@ from django.http import JsonResponse
 logger = logging.getLogger(__name__)
 
 
+
+def _clean_title(title):
+    """Nettoie les titres (enlève {\", \"} des titres expat-dakar)."""
+    if not title: return ""
+    import re
+    t = str(title).strip()
+    t = re.sub(r'^[{"\\s]+', '', t)
+    t = re.sub(r'[}"\\s]+$', '', t)
+    t = t.strip('" {}')
+    return t
+
 # -- Welcome --
 def welcome_or_dashboard(request):
     if request.user.is_authenticated:

@@ -117,4 +117,5 @@ xgboost==3.2.0
 zope.interface==8.2
 groq==0.7.0
 gdown>=4.7.3
+google-generativeai
 

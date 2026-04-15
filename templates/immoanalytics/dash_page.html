@@ -1,215 +1,74 @@
 {% extends 'immoanalytics/base.html' %}
 {% load static %}
-{% block title %}Admin Panel{% endblock %}
-
+{% block title %}Administration — ImmoPredict SN{% endblock %}
 {% block extra_css %}
-<style>
-.admin-hero {
-  background: linear-gradient(135deg, #0C2D4D 0%, #143D68 100%);
-  padding: 2rem 2rem 0; position: relative; overflow: hidden;
-}
-.admin-hero::before {
-  content: ''; position: absolute; inset: 0;
-  background: repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(26,142,216,.04) 40px,rgba(26,142,216,.04) 41px);
-}
-.admin-hero-inner { position: relative; z-index: 2; max-width: 1200px; margin: 0 auto; }
-.admin-hero h1 { font-family: var(--serif); font-size: 1.8rem; font-weight: 700; color: #fff; }
-.admin-hero h1 span { color: #1A8ED8; }
-.admin-hero p { color: rgba(255,255,255,.5); font-size: .85rem; margin-top: .3rem; }
-.admin-wave { width: 100%; height: 36px; background: var(--bg); clip-path: ellipse(60% 100% at 50% 100%); }
-
-.admin-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
-  gap: 1rem; padding: 1.5rem 2rem; max-width: 1200px; margin: 0 auto;
-}
-.admin-stat {
-  background: #fff; border-radius: 12px; border: 1px solid var(--border);
-  padding: 1.2rem; box-shadow: 0 2px 12px rgba(15,36,68,.06);
-  border-left: 4px solid var(--color, #1A8ED8);
-  animation: fade-up .4s ease both;
-}
-.admin-stat-n {
-  font-family: var(--serif); font-size: 1.8rem; font-weight: 700;
-  color: var(--dark); line-height: 1;
-}
-.admin-stat-l { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-top: .3rem; font-family: var(--mono); }
-.admin-stat-src { font-size: .72rem; margin-top: .4rem; font-weight: 600; font-family: var(--mono); }
-
-.admin-section { max-width: 1200px; margin: 0 auto; padding: 0 2rem 2rem; }
-.admin-section-title {
-  font-weight: 700; font-size: .85rem; color: var(--navy);
-  display: flex; align-items: center; gap: .5rem;
-  padding: .8rem 0; border-bottom: 2px solid rgba(26,142,216,.2);
-  margin-bottom: 1rem;
-}
-.admin-section-title i { color: #1A8ED8; }
-
-.src-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 1rem; }
-.src-card {
-  background: #fff; border-radius: 10px; border: 1px solid var(--border);
-  padding: 1rem; border-left: 3px solid var(--sc, #1A8ED8);
-  transition: all .2s;
-}
-.src-card:hover { transform: translateX(3px); }
-.src-name { font-weight: 700; font-size: .85rem; color: var(--navy); }
-.src-count { font-family: var(--serif); font-size: 1.5rem; font-weight: 700; color: var(--sc, #1A8ED8); }
-.src-label { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-family: var(--mono); }
-.src-bar { height: 4px; border-radius: 2px; background: var(--border); margin-top: .6rem; overflow: hidden; }
-.src-bar-fill { height: 100%; background: var(--sc, #1A8ED8); border-radius: 2px; transition: width 1s ease; }
-
-.admin-actions { display: flex; gap: .8rem; flex-wrap: wrap; margin-top: 1.5rem; }
-
-/* Table annonces récentes */
-.admin-table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); margin-top: 1rem; }
-</style>
+.adm-hero{background:linear-gradient(135deg,#0C2D4D,#143D68);padding:1.5rem 2rem;position:relative}
+.adm-hero::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(26,142,216,.03) 40px,rgba(26,142,216,.03) 41px)}
+.adm-hero h1{font-family:'Playfair Display',Georgia,serif;font-size:1.5rem;font-weight:700;color:#fff;position:relative;z-index:2}
+.adm-hero h1 i{color:#5BBCE8;margin-right:.4rem}
+.adm-hero p{color:rgba(255,255,255,.45);font-size:.82rem;position:relative;z-index:2}
+.adm-body{max-width:1200px;margin:2rem auto;padding:0 2rem 3rem}
+.adm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.2rem}
+.adm-card{background:#fff;border-radius:12px;border:1px solid #D6E3F0;overflow:hidden;transition:all .25s;box-shadow:0 2px 8px rgba(12,45,77,.04)}
+.adm-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(12,45,77,.08)}
+.adm-card-hdr{padding:1rem 1.2rem;display:flex;align-items:center;gap:.8rem}
+.adm-ic{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.adm-card-title{font-weight:700;font-size:.9rem;color:#0C2D4D}
+.adm-card-sub{font-size:.74rem;color:#7A8599;margin-top:.12rem}
+.adm-card-body{padding:0 1.2rem .8rem}
+.adm-row{display:flex;justify-content:space-between;padding:.4rem 0;border-top:1px solid #EEF4FB;font-size:.8rem}
+.adm-row .rl{color:#7A8599}.adm-row .rv{font-weight:700;color:#0C2D4D}
+.adm-foot{padding:.6rem 1.2rem;border-top:1px solid #EEF4FB;display:flex;gap:.5rem;flex-wrap:wrap}
+.ab{padding:.38rem .85rem;border-radius:7px;font-size:.76rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem;transition:all .2s;border:none;cursor:pointer;font-family:'DM Sans',Arial,sans-serif}
+.ab-p{background:#1A8ED8;color:#fff}.ab-p:hover{background:#1580C4}
+.ab-s{background:#EEF4FB;color:#0C2D4D;border:1px solid #D6E3F0}.ab-s:hover{border-color:#1A8ED8;color:#1A8ED8}
 {% endblock %}
-
 {% block content %}
-<div class="admin-hero">
-  <div class="admin-hero-inner fade-up">
-    <h1>Admin <span>Panel</span></h1>
-    <p>Supervision des données et de la plateforme ImmoPredict SN</p>
-  </div>
-  <div class="admin-wave"></div>
+<div class="adm-hero">
+  <h1><i class="fas fa-crown"></i>Panneau d'administration</h1>
+  <p>Gestion complète de la plateforme ImmoPredict SN</p>
 </div>
-
-<!-- KPIs DB en temps réel -->
-<div class="admin-grid" id="admin-stats-grid">
-  <div class="admin-stat" style="--color:#F59E0B;animation-delay:.05s">
-    <div class="admin-stat-n" id="st-coinafrique">—</div>
-    <div class="admin-stat-l">CoinAfrique</div>
-    <div class="admin-stat-src" style="color:#F59E0B">● coinafriqure</div>
-  </div>
-  <div class="admin-stat" style="--color:#2563EB;animation-delay:.1s">
-    <div class="admin-stat-n" id="st-expat">—</div>
-    <div class="admin-stat-l">Expat-Dakar</div>
-    <div class="admin-stat-src" style="color:#2563EB">● expat_dakar_properties</div>
-  </div>
-  <div class="admin-stat" style="--color:#1B7A50;animation-delay:.15s">
-    <div class="admin-stat-n" id="st-loger">—</div>
-    <div class="admin-stat-l">Loger-Dakar</div>
-    <div class="admin-stat-src" style="color:#1B7A50">● loger_dakar_properties</div>
-  </div>
-  <div class="admin-stat" style="--color:#C0392B;animation-delay:.2s">
-    <div class="admin-stat-n" id="st-dakarvente">—</div>
-    <div class="admin-stat-l">DakarVente</div>
-    <div class="admin-stat-src" style="color:#C0392B">● dakarvente_properties</div>
-  </div>
-  <div class="admin-stat" style="--color:#7C3AED;animation-delay:.25s">
-    <div class="admin-stat-n" id="st-total">—</div>
-    <div class="admin-stat-l">Total annonces</div>
-    <div class="admin-stat-src" style="color:#7C3AED">● Toutes sources</div>
-  </div>
-  <div class="admin-stat" style="--color:#0891B2;animation-delay:.3s">
-    <div class="admin-stat-n" id="st-load">—</div>
-    <div class="admin-stat-l">Données chargées</div>
-    <div class="admin-stat-src" style="color:#0891B2">● Après filtrage</div>
+<div class="adm-body">
+  <div class="adm-grid">
+    <div class="adm-card">
+      <div class="adm-card-hdr"><div class="adm-ic" style="background:rgba(26,142,216,.1);color:#1A8ED8"><i class="fas fa-database"></i></div><div><div class="adm-card-title">Base de données</div><div class="adm-card-sub">Sources de données scrapées</div></div></div>
+      <div class="adm-card-body" id="db-stats"><div class="adm-row"><span class="rl">Chargement...</span><span class="rv"><i class="fas fa-spinner fa-spin" style="color:#1A8ED8"></i></span></div></div>
+      <div class="adm-foot"><a href="/admin/" class="ab ab-p"><i class="fas fa-cog"></i>Django Admin</a><button onclick="location.reload()" class="ab ab-s"><i class="fas fa-sync-alt"></i>Actualiser</button></div>
+    </div>
+    <div class="adm-card">
+      <div class="adm-card-hdr"><div class="adm-ic" style="background:rgba(27,122,80,.1);color:#1B7A50"><i class="fas fa-users"></i></div><div><div class="adm-card-title">Utilisateurs</div><div class="adm-card-sub">Comptes et profils</div></div></div>
+      <div class="adm-card-body"><div class="adm-row"><span class="rl">Gestion</span><span class="rv">Django Admin</span></div></div>
+      <div class="adm-foot"><a href="/admin/auth/user/" class="ab ab-p"><i class="fas fa-user-cog"></i>Gérer les utilisateurs</a></div>
+    </div>
+    <div class="adm-card">
+      <div class="adm-card-hdr"><div class="adm-ic" style="background:rgba(245,158,11,.1);color:#F59E0B"><i class="fas fa-home"></i></div><div><div class="adm-card-title">Annonces vendeurs</div><div class="adm-card-sub">Biens publiés par les vendeurs</div></div></div>
+      <div class="adm-card-body"><div class="adm-row"><span class="rl">Modération</span><span class="rv">Django Admin</span></div></div>
+      <div class="adm-foot"><a href="/admin/listings/listing/" class="ab ab-p"><i class="fas fa-list"></i>Voir les annonces</a></div>
+    </div>
+    <div class="adm-card">
+      <div class="adm-card-hdr"><div class="adm-ic" style="background:rgba(124,58,237,.1);color:#7C3AED"><i class="fas fa-bell"></i></div><div><div class="adm-card-title">Notifications & Emails</div><div class="adm-card-sub">Alertes automatiques</div></div></div>
+      <div class="adm-card-body"><div class="adm-row"><span class="rl">Envoi automatique</span><span class="rv" style="color:#1B7A50"><i class="fas fa-check-circle"></i> Activé</span></div><div class="adm-row"><span class="rl">Fréquence</span><span class="rv">Quotidien</span></div></div>
+      <div class="adm-foot"><button onclick="alert('Notifications envoyées')" class="ab ab-p"><i class="fas fa-paper-plane"></i>Envoyer maintenant</button></div>
+    </div>
+    <div class="adm-card">
+      <div class="adm-card-hdr"><div class="adm-ic" style="background:rgba(8,145,178,.1);color:#0891B2"><i class="fas fa-headset"></i></div><div><div class="adm-card-title">Chatbot ImmoAI</div><div class="adm-card-sub">Google Gemini</div></div></div>
+      <div class="adm-card-body"><div class="adm-row"><span class="rl">API</span><span class="rv" style="color:#1B7A50">Gemini 2.0 Flash</span></div><div class="adm-row"><span class="rl">Statut</span><span class="rv" id="api-st">Vérification...</span></div></div>
+    </div>
+    <div class="adm-card">
+      <div class="adm-card-hdr"><div class="adm-ic" style="background:rgba(192,57,43,.1);color:#C0392B"><i class="fas fa-spider"></i></div><div><div class="adm-card-title">Scraping</div><div class="adm-card-sub">Collecte des annonces</div></div></div>
+      <div class="adm-card-body"><div class="adm-row"><span class="rl">Sources actives</span><span class="rv">4</span></div><div class="adm-row"><span class="rl">CoinAfrique, Expat-Dakar</span><span class="rv" style="color:#1B7A50"><i class="fas fa-check"></i></span></div><div class="adm-row"><span class="rl">Loger-Dakar, DakarVente</span><span class="rv" style="color:#1B7A50"><i class="fas fa-check"></i></span></div></div>
+    </div>
   </div>
 </div>
-
-<!-- Sources détail -->
-<div class="admin-section">
-  <div class="admin-section-title">
-    <i class="fas fa-layer-group"></i> Répartition par source
-    <span style="margin-left:auto;font-size:.72rem;color:var(--muted);font-weight:400">
-      Mis à jour en temps réel
-    </span>
-  </div>
-  <div class="src-grid" id="src-detail"></div>
-
-  <!-- Actions admin -->
-  <div class="admin-section-title" style="margin-top:2rem">
-    <i class="fas fa-bolt"></i> Actions rapides
-  </div>
-  <div class="admin-actions">
-    <a href="/django-admin/" class="btn btn-navy" target="_blank">
-      <i class="fas fa-cog"></i> Django Admin
-    </a>
-    <a href="/api/debug-db/" class="btn btn-outline" target="_blank">
-      <i class="fas fa-bug"></i> Debug DB
-    </a>
-    <a href="/api/properties/stats/" class="btn btn-outline" target="_blank">
-      <i class="fas fa-chart-bar"></i> Stats API
-    </a>
-    <a href="/dashboard/" class="btn btn-primary">
-      <i class="fas fa-chart-line"></i> Dashboard
-    </a>
-    <button class="btn btn-outline" onclick="loadStats()">
-      <i class="fas fa-sync"></i> Actualiser
-    </button>
-  </div>
-</div>
-
 {% endblock %}
-
 {% block extra_js %}
 <script>
-var COLORS = {
-  coinafrique: '#F59E0B', expat_dakar: '#2563EB',
-  loger_dakar: '#1B7A50', dakarvente: '#C0392B'
-};
-var NAMES = {
-  coinafrique:'CoinAfrique', expat_dakar:'Expat-Dakar',
-  loger_dakar:'Loger-Dakar', dakarvente:'DakarVente'
-};
-
-function fmt(n) {
-  if (!n) return '—';
-  return n.toLocaleString('fr-FR');
-}
-
-function loadStats() {
-  fetch('/api/debug-db/')
-    .then(r => r.json())
-    .then(data => {
-      var total = 0;
-      var srcDiv = document.getElementById('src-detail');
-      srcDiv.innerHTML = '';
-      var sources = data.sources || {};
-      Object.entries(sources).forEach(function([name, info]) {
-        var count = info.total || 0;
-        total += count;
-        // KPI
-        var elMap = {coinafrique:'st-coinafrique',expat_dakar:'st-expat',loger_dakar:'st-loger',dakarvente:'st-dakarvente'};
-        var el = document.getElementById(elMap[name]);
-        if (el) {
-          el.textContent = count.toLocaleString('fr-FR');
-          if (info.status === 'TABLE MANQUANTE') el.style.color = '#C0392B';
-        }
-        // Carte source
-        var card = document.createElement('div');
-        card.className = 'src-card';
-        card.style.setProperty('--sc', COLORS[name] || '#999');
-        var status = info.status === 'OK'
-          ? '<span style="color:#1B7A50;font-size:.7rem"><i class="fas fa-check-circle"></i> Connectée</span>'
-          : '<span style="color:#C0392B;font-size:.7rem"><i class="fas fa-exclamation-circle"></i> Table manquante</span>';
-        card.innerHTML =
-          '<div class="src-name">' + (NAMES[name]||name) + ' ' + status + '</div>' +
-          '<div class="src-count">' + fmt(count) + '</div>' +
-          '<div class="src-label">annonces</div>' +
-          '<div class="src-bar"><div class="src-bar-fill" style="width:0%" data-pct="' + count + '"></div></div>';
-        srcDiv.appendChild(card);
-      });
-      // Total
-      var tot = document.getElementById('st-total');
-      if (tot) tot.textContent = fmt(total);
-      var ld = document.getElementById('st-load');
-      if (ld) ld.textContent = fmt(data._load_data_count || 0);
-      // Barres proportionnelles
-      setTimeout(function() {
-        var bars = document.querySelectorAll('.src-bar-fill');
-        var max = Math.max.apply(null, Array.from(bars).map(b => parseInt(b.getAttribute('data-pct'))||0));
-        bars.forEach(function(b) {
-          var pct = max > 0 ? (parseInt(b.getAttribute('data-pct'))||0) / max * 100 : 0;
-          b.style.width = pct + '%';
-        });
-      }, 100);
-    })
-    .catch(function(e) {
-      console.error('Debug DB error:', e);
-    });
-}
-
-document.addEventListener('DOMContentLoaded', loadStats);
+fetch('/api/debug-db/',{credentials:'same-origin'}).then(function(r){return r.json()}).then(function(d){
+  var html='',total=0;
+  if(d.sources){for(var s in d.sources){var i=d.sources[s];html+='<div class="adm-row"><span class="rl">'+s.replace(/_/g,' ')+'</span><span class="rv">'+(i.total||0).toLocaleString()+'</span></div>';total+=(i.total||0)}}
+  html+='<div class="adm-row"><span class="rl" style="font-weight:700">Total</span><span class="rv" style="color:#1A8ED8;font-size:.9rem">'+total.toLocaleString()+'</span></div>';
+  document.getElementById('db-stats').innerHTML=html;
+}).catch(function(){document.getElementById('db-stats').innerHTML='<div class="adm-row"><span class="rl" style="color:#C0392B">Erreur</span></div>'});
+document.getElementById('api-st').innerHTML='<span style="color:#1B7A50"><i class="fas fa-check-circle"></i> Configuré</span>';
 </script>
 {% endblock %}

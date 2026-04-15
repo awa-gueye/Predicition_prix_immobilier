@@ -82,8 +82,8 @@ nav.scrolled .nl a{color:#374151}nav.scrolled .nav-logo-text{color:var(--dark)}
 </head>
 <body>
 <nav id="mainNav">
-  <a href="/" class="nav-logo"><div class="nav-logo-icon"><i class="fas fa-building"></i></div><span class="nav-logo-text">Immo<span>Predict</span> SN</span></a>
-  <div class="nl"><a href="#features">Fonctionnalites</a><a href="#how">Comment ca marche</a><a href="{% url 'about' %}">A propos</a><a href="{% url 'contact' %}">Contact</a></div>
+  <a href="/" class="nav-logo"><div class="nav-logo-icon" style="background:#fff;padding:3px;border:1px solid rgba(26,142,216,.15)"><img src="{% static 'immoanalytics/img/logo.png' %}" alt="Logo" style="width:100%;height:100%;object-fit:contain;border-radius:7px" onerror="this.outerHTML='<i class=fas\ fa-building\ style=color:#1A8ED8;font-size:.95rem></i>'"></div><span class="nav-logo-text">Immo<span>Predict</span> SN</span></a>
+  <div class="nl"><a href="#features">Fonctionnalités</a><a href="#how">Comment ça marche</a><a href="{% url 'about' %}">A propos</a><a href="{% url 'contact' %}">Contact</a></div>
   <div class="nav-cta"><a href="{% url 'login' %}" class="btn-o"><i class="fas fa-sign-in-alt"></i>Connexion</a><a href="{% url 'register' %}" class="btn-s"><i class="fas fa-user-plus"></i>S'inscrire</a></div>
   <button class="mob-tog" onclick="document.querySelector('.nl').classList.toggle('show')"><i class="fas fa-bars"></i></button>
 </nav>
@@ -95,9 +95,9 @@ nav.scrolled .nl a{color:#374151}nav.scrolled .nav-logo-text{color:var(--dark)}
   </div>
   <div class="hero-overlay"></div><div class="hero-dots"></div>
   <div class="hero-content">
-    <div class="hero-chip fu"><i class="fas fa-circle" style="font-size:.35rem"></i> Plateforme IA - Immobilier Senegal</div>
-    <h1 class="hero-title fu d1">L'intelligence artificielle au service de <em>l'immobilier senegalais</em></h1>
-    <p class="hero-desc fu d2">Analysez le marche en temps reel, estimez la valeur de tout bien immobilier et recevez des recommandations personnalisees.</p>
+    <div class="hero-chip fu"><i class="fas fa-circle" style="font-size:.35rem"></i> Plateforme IA - Immobilier Sénégal</div>
+    <h1 class="hero-title fu d1">L'intelligence artificielle au service de <em>l'immobilier sénégalais</em></h1>
+    <p class="hero-desc fu d2">Analysez le marché en temps réel, estimez la valeur de tout bien immobilier et recevez des recommandations personnalisées.</p>
     <div class="hero-btns fu d3">
       <a href="{% url 'register' %}" class="btn-hp"><i class="fas fa-rocket"></i>Commencer gratuitement</a>
       <a href="#features" class="btn-hs"><i class="fas fa-play-circle"></i>Decouvrir</a>
@@ -115,24 +115,24 @@ nav.scrolled .nl a{color:#374151}nav.scrolled .nav-logo-text{color:var(--dark)}
     <img class="cslide" src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&q=80" alt="">
     <img class="cslide" src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80" alt="">
     <img class="cslide" src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800&q=80" alt="">
-    <div class="ccap"><strong>Explorez le marche immobilier</strong><small>Villas, appartements, terrains au Senegal</small></div>
+    <div class="ccap"><strong>Explorez le marché immobilier</strong><small>Villas, appartements, terrains au Sénégal</small></div>
     <div class="cdots"><span class="active" onclick="gs(0)"></span><span onclick="gs(1)"></span><span onclick="gs(2)"></span><span onclick="gs(3)"></span><span onclick="gs(4)"></span></div>
   </div></div>
 </section>
 <section class="section section-alt" id="features">
-  <div class="stag">Fonctionnalites</div><h2 class="sh">Tout ce dont vous avez besoin</h2>
-  <p class="sdesc">Des outils professionnels pour analyser, estimer et investir dans l'immobilier senegalais.</p>
+  <div class="stag">Fonctionnalités</div><h2 class="sh">Tout ce dont vous avez besoin</h2>
+  <p class="sdesc">Des outils professionnels pour analyser, estimer et investir dans l'immobilier sénégalais.</p>
   <div class="fg">
-    <div class="fc"><div class="fci"><i class="fas fa-chart-line"></i></div><div class="fct">Dashboard analytique</div><div class="fcd">Visualisez les tendances du marche en temps reel avec des graphiques interactifs et des KPI.</div></div>
-    <div class="fc"><div class="fci"><i class="fas fa-brain"></i></div><div class="fct">Estimation par IA</div><div class="fcd">Notre modele XGBoost entraine sur des milliers d'annonces estime le prix de tout bien.</div></div>
+    <div class="fc"><div class="fci"><i class="fas fa-chart-line"></i></div><div class="fct">Dashboard analytique</div><div class="fcd">Visualisez les tendances du marche en temps réel avec des graphiques interactifs et des KPI.</div></div>
+    <div class="fc"><div class="fci"><i class="fas fa-brain"></i></div><div class="fct">Estimation par IA</div><div class="fcd">Notre modèle XGBoost entraîné sur des milliers d'annonces estime le prix de tout bien.</div></div>
     <div class="fc"><div class="fci"><i class="fas fa-map-marked-alt"></i></div><div class="fct">Carte interactive</div><div class="fcd">Explorez les annonces sur une carte avec filtres par type, quartier et prix.</div></div>
     <div class="fc"><div class="fci"><i class="fas fa-headset"></i></div><div class="fct">Assistant ImmoAI</div><div class="fcd">Posez vos questions a notre chatbot IA propulse par Groq (LLaMA 3.3 70B).</div></div>
-    <div class="fc"><div class="fci"><i class="fas fa-bell"></i></div><div class="fct">Alertes proximite</div><div class="fcd">Recevez des notifications quand un bien est publie pres de chez vous.</div></div>
+    <div class="fc"><div class="fci"><i class="fas fa-bell"></i></div><div class="fct">Alertes proximite</div><div class="fcd">Recevez des notifications quand un bien est publié pres de chez vous.</div></div>
     <div class="fc"><div class="fci"><i class="fas fa-lightbulb"></i></div><div class="fct">Recommandations</div><div class="fcd">Systeme intelligent qui apprend de vos recherches pour proposer les meilleurs biens.</div></div>
   </div>
 </section>
 <section class="section">
-  <div class="stag">Immobilier Senegal</div><h2 class="sh">Decouvrez des biens d'exception</h2>
+  <div class="stag">Immobilier Sénégal</div><h2 class="sh">Découvrez des biens d'exception</h2>
   <div class="imgs">
     <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=500&q=80" alt="" loading="lazy">
     <img src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=500&q=80" alt="" loading="lazy">
@@ -141,22 +141,22 @@ nav.scrolled .nl a{color:#374151}nav.scrolled .nav-logo-text{color:var(--dark)}
   </div>
 </section>
 <section class="section section-alt" id="how">
-  <div class="stag">Processus</div><h2 class="sh">Comment ca marche</h2>
-  <p class="sdesc">En 3 etapes simples, accedez a toute la puissance de l'analyse immobiliere.</p>
+  <div class="stag">Processus</div><h2 class="sh">Comment ça marche</h2>
+  <p class="sdesc">En 3 etapes simples, accedez a toute la puissance de l'analyse immobilière.</p>
   <div class="steps">
     <div class="step"><div class="sn">1</div><div class="stt">Inscrivez-vous</div><div class="std">Creez votre compte gratuit. Choisissez votre profil : acheteur ou vendeur.</div></div>
-    <div class="step"><div class="sn">2</div><div class="stt">Explorez le marche</div><div class="std">Parcourez les annonces, analysez les prix et utilisez notre estimateur IA.</div></div>
-    <div class="step"><div class="sn">3</div><div class="stt">Decidez avec confiance</div><div class="std">Alertes, recommandations et decisions eclairees.</div></div>
+    <div class="step"><div class="sn">2</div><div class="stt">Explorez le marché</div><div class="std">Parcourez les annonces, analysez les prix et utilisez notre estimateur IA.</div></div>
+    <div class="step"><div class="sn">3</div><div class="stt">Décidez avec confiance</div><div class="std">Alertes, recommandations et decisions éclairées.</div></div>
   </div>
 </section>
 <section class="cta">
-  <h2>Pret a explorer le marche <span>immobilier</span> ?</h2>
+  <h2>Prêt à explorer le marche <span>immobilier</span> ?</h2>
   <p>Rejoignez des milliers d'utilisateurs qui font confiance a ImmoPredict SN.</p>
-  <div class="cta-btns"><a href="{% url 'register' %}" class="btn-hp"><i class="fas fa-rocket"></i>Creer un compte gratuit</a><a href="{% url 'login' %}" class="btn-hs"><i class="fas fa-sign-in-alt"></i>Se connecter</a></div>
+  <div class="cta-btns"><a href="{% url 'register' %}" class="btn-hp"><i class="fas fa-rocket"></i>Créer un compte gratuit</a><a href="{% url 'login' %}" class="btn-hs"><i class="fas fa-sign-in-alt"></i>Se connecter</a></div>
 </section>
 <footer class="wf">
   <div class="wfm">
-    <div class="wfb"><h3>Immo<span>Predict</span> SN</h3><p>Premiere plateforme IA dediee au marche immobilier senegalais.</p></div>
+    <div class="wfb"><h3>Immo<span>Predict</span> SN</h3><p>Première plateforme IA dédiée au marché immobilier sénégalais.</p></div>
     <div class="wfc"><h4>Navigation</h4><a href="{% url 'login' %}">Vente</a><a href="{% url 'login' %}">Location</a><a href="{% url 'login' %}">Dashboard</a><a href="{% url 'login' %}">Estimation</a></div>
     <div class="wfc"><h4>Informations</h4><a href="{% url 'about' %}">A propos</a><a href="{% url 'contact' %}">Contact</a><a href="{% url 'register' %}">S'inscrire</a></div>
     <div class="wfc"><h4>Technologies</h4><a href="#">Django / Python</a><a href="#">XGBoost / LightGBM</a><a href="#">PostgreSQL / Neon</a></div>

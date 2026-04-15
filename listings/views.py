@@ -97,7 +97,7 @@ def _scraped_listings(transaction):
                 if (transaction == 'location' and loc) or (transaction == 'vente' and not loc):
                     results.append({
                         'id':            str(row.get('id','')),
-                        'title':         row.get('title') or 'Annonce',
+                        'title':         _clean_scraped_title(row.get('title') or 'Annonce'),
                         'price':         row.get('price') or 0,
                         'price_fmt':     _fmt(row.get('price') or 0),
                         'price_unit':    '/mois' if loc else '',

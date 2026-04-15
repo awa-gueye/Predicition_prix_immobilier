@@ -89,19 +89,19 @@
     <div class="db-tab active" onclick="showTab('overview',this)"><i class="fas fa-th-large"></i>Vue d'ensemble</div>
     <div class="db-tab" onclick="showTab('prices',this)"><i class="fas fa-chart-bar"></i>Analyse des prix</div>
     <div class="db-tab" onclick="showTab('sources',this)"><i class="fas fa-layer-group"></i>Sources & Types</div>
-    <div class="db-tab" onclick="showTab('table',this)"><i class="fas fa-table"></i>Donnees</div>
-    <div class="db-tab" onclick="showTab('predict',this)"><i class="fas fa-magic"></i>Predictions</div>
+    <div class="db-tab" onclick="showTab('table',this)"><i class="fas fa-table"></i>Données</div>
+    <div class="db-tab" onclick="showTab('predict',this)"><i class="fas fa-chart-area"></i>Projections</div>
   </div>
 
   <!-- TAB 1: Vue d'ensemble -->
   <div id="tab-overview" class="tab-content active">
     <div class="row-2">
       <div class="cbox"><div class="cbox-h"><i class="fas fa-chart-area"></i>Distribution des prix (Vente)</div><div id="ch-dist" style="height:280px"></div></div>
-      <div class="cbox"><div class="cbox-h"><i class="fas fa-chart-pie"></i>Repartition par source</div><div id="ch-pie" style="height:280px"></div></div>
+      <div class="cbox"><div class="cbox-h"><i class="fas fa-chart-pie"></i>Répartition par source</div><div id="ch-pie" style="height:280px"></div></div>
     </div>
     <div class="row-eq">
-      <div class="cbox"><div class="cbox-h"><i class="fas fa-map-pin"></i>Top quartiers — Prix median vente</div><div id="ch-cities" style="height:310px"></div></div>
-      <div class="cbox"><div class="cbox-h"><i class="fas fa-building"></i>Repartition par type de bien</div><div id="ch-types" style="height:310px"></div></div>
+      <div class="cbox"><div class="cbox-h"><i class="fas fa-map-pin"></i>Top quartiers — Prix médian vente</div><div id="ch-cities" style="height:310px"></div></div>
+      <div class="cbox"><div class="cbox-h"><i class="fas fa-building"></i>Répartition par type de bien</div><div id="ch-types" style="height:310px"></div></div>
     </div>
     <div class="row-1">
       <div class="cbox"><div class="cbox-h"><i class="fas fa-exchange-alt"></i>Vente vs Location par source</div><div id="ch-trend" style="height:240px"></div></div>
@@ -115,8 +115,8 @@
       <div class="cbox"><div class="cbox-h"><i class="fas fa-braille"></i>Prix vs Superficie</div><div id="ch-scatter" style="height:300px"></div></div>
     </div>
     <div class="row-3">
-      <div class="cbox"><div class="cbox-h"><i class="fas fa-bed"></i>Prix median par chambres</div><div id="ch-beds" style="height:270px"></div></div>
-      <div class="cbox"><div class="cbox-h"><i class="fas fa-database"></i>Prix median par source</div><div id="ch-srcprice" style="height:270px"></div></div>
+      <div class="cbox"><div class="cbox-h"><i class="fas fa-bed"></i>Prix médian par chambres</div><div id="ch-beds" style="height:270px"></div></div>
+      <div class="cbox"><div class="cbox-h"><i class="fas fa-database"></i>Prix médian par source</div><div id="ch-srcprice" style="height:270px"></div></div>
       <div class="cbox"><div class="cbox-h"><i class="fas fa-list-ol"></i>Statistiques descriptives</div>
         <div>{% for label,val in stats_table %}<div class="stat-row"><span class="sl">{{ label }}</span><span class="sv">{{ val }}</span></div>{% endfor %}</div>
       </div>
@@ -126,21 +126,21 @@
   <!-- TAB 3: Sources & Types -->
   <div id="tab-sources" class="tab-content">
     <div class="row-eq">
-      <div class="cbox"><div class="cbox-h"><i class="fas fa-chart-pie"></i>Repartition par source</div><div id="ch-pie2" style="height:300px"></div></div>
+      <div class="cbox"><div class="cbox-h"><i class="fas fa-chart-pie"></i>Répartition par source</div><div id="ch-pie2" style="height:300px"></div></div>
       <div class="cbox"><div class="cbox-h"><i class="fas fa-chart-bar"></i>Types de biens</div><div id="ch-types2" style="height:300px"></div></div>
     </div>
     <div class="row-1">
-      <div class="cbox"><div class="cbox-h"><i class="fas fa-balance-scale"></i>Comparaison prix median/moyen par source</div><div id="ch-srccomp" style="height:260px"></div></div>
+      <div class="cbox"><div class="cbox-h"><i class="fas fa-balance-scale"></i>Comparaison prix médian/moyen par source</div><div id="ch-srccomp" style="height:260px"></div></div>
     </div>
   </div>
 
 
-  <!-- TAB 5: Predictions -->
+  <!-- TAB 5: Projections -->
   <div id="tab-predict" class="tab-content">
     <div class="row-eq">
       <div class="cbox" style="padding:1.5rem">
-        <div class="cbox-h" style="border-bottom:none;margin-bottom:1rem"><i class="fas fa-magic"></i>Estimer le prix d'un bien</div>
-        <p style="font-size:.82rem;color:#7A8599;margin-bottom:1.5rem">Renseignez les caracteristiques du bien pour obtenir une estimation basee sur nos donnees de marche.</p>
+        <div class="cbox-h" style="border-bottom:none;margin-bottom:1rem"><i class="fas fa-chart-area"></i>Projection des tendances immobilières</div>
+        <p style="font-size:.82rem;color:#7A8599;margin-bottom:1.5rem">Renseignez les caractéristiques du bien pour obtenir une estimation basée sur nos données de marche.</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem">
           <div><label style="font-size:.78rem;font-weight:600;color:#374151;display:block;margin-bottom:.3rem"><i class="fas fa-map-pin" style="color:#1A8ED8;margin-right:.3rem"></i>Quartier / Ville</label>
           <select id="pred-city" style="width:100%;padding:.45rem .75rem;border:1.5px solid #D6E3F0;border-radius:8px;font-size:.82rem;font-family:inherit;outline:none;color:#0C2D4D"><option value="">-- Choisir --</option>{% for c in cities_list %}<option value="{{ c }}">{{ c }}</option>{% endfor %}</select></div>
@@ -171,7 +171,7 @@
       <div class="cbox" style="padding:1.5rem">
         <div class="cbox-h" style="border-bottom:none;margin-bottom:.8rem"><i class="fas fa-info-circle"></i>Guide des prix - Dakar</div>
         <div style="margin-bottom:1.5rem">
-          <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&q=80" alt="Immobilier Senegal" style="width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:1rem">
+          <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&q=80" alt="Immobilier Sénégal" style="width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:1rem">
         </div>
         <div style="font-size:.8rem">
           <div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid #EEF4FB"><span style="color:#7A8599">Villa Almadies</span><span style="font-weight:700;color:#0C2D4D">150-500M FCFA</span></div>
@@ -186,7 +186,7 @@
     </div>
   </div>
 
-  <!-- TAB 4: Donnees -->
+  <!-- TAB 4: Données -->
   <div id="tab-table" class="tab-content">
     <div class="cbox">
       <div class="cbox-h"><i class="fas fa-list"></i>Top annonces par prix</div>
@@ -232,7 +232,7 @@ var LY = {paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)',
 var PAL = ['#1A8ED8','#2563EB','#1B7A50','#C0392B','#7C3AED','#0891B2','#F59E0B','#16A085'];
 
 function noData(id){
-  document.getElementById(id).innerHTML='<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:.82rem;flex-direction:column;gap:.3rem"><i class="fas fa-info-circle" style="color:#D6E3F0;font-size:1.2rem"></i><span>Pas assez de donnees</span></div>';
+  document.getElementById(id).innerHTML='<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:.82rem;flex-direction:column;gap:.3rem"><i class="fas fa-info-circle" style="color:#D6E3F0;font-size:1.2rem"></i><span>Pas assez de données</span></div>';
 }
 
 // === RAW DATA from Django ===
@@ -241,7 +241,7 @@ var pieLabels = {{ j_pie_labels|safe }};
 var pieValues = {{ j_pie_values|safe }};
 var pieColors = {{ j_pie_colors|safe }};
 var citiesNames = {{ j_cities_names|safe }};
-var citiesMedians = {{ j_cities_medians|safe }};
+var citiesMedians = {{ j_cities_médians|safe }};
 var citiesCounts = {{ j_cities_counts|safe }};
 var typesNames = {{ j_types_names|safe }};
 var typesValues = {{ j_types_values|safe }};
@@ -253,9 +253,9 @@ var scatterX = {{ j_scatter_x|safe }};
 var scatterY = {{ j_scatter_y|safe }};
 var scatterT = {{ j_scatter_t|safe }};
 var bedLabels = {{ j_bed_labels|safe }};
-var bedMedians = {{ j_bed_medians|safe }};
+var bedMedians = {{ j_bed_médians|safe }};
 var srcLabels = {{ j_src_labels|safe }};
-var srcMedians = {{ j_src_medians|safe }};
+var srcMedians = {{ j_src_médians|safe }};
 var srcMeans = {{ j_src_means|safe }};
 
 // === BUILD CHARTS ===
@@ -288,7 +288,7 @@ document.addEventListener('DOMContentLoaded', function(){
       text:citiesMedians.map(function(v){return v+'M'}), textposition:'outside',
       customdata:citiesCounts,
       hovertemplate:'%{y}<br><b>%{x:.1f}M FCFA</b> (%{customdata} ann.)<extra></extra>'
-    }], Object.assign({}, LY, {margin:{l:5,r:60,t:10,b:30},xaxis:{title:'Prix median (M FCFA)',gridcolor:'#EEF4FB'}}), PC);
+    }], Object.assign({}, LY, {margin:{l:5,r:60,t:10,b:30},xaxis:{title:'Prix médian (M FCFA)',gridcolor:'#EEF4FB'}}), PC);
   } else { noData('ch-cities'); }
 
   // 4. Types bar
@@ -346,13 +346,13 @@ document.addEventListener('DOMContentLoaded', function(){
       x:bedLabels, y:bedMedians, type:'bar',
       marker:{color:PAL.slice(0,bedLabels.length)},
       text:bedMedians.map(function(v){return v+'M'}), textposition:'outside'
-    }], Object.assign({}, LY, {yaxis:{title:'Prix median (M FCFA)',gridcolor:'#EEF4FB'}}), PC);
+    }], Object.assign({}, LY, {yaxis:{title:'Prix médian (M FCFA)',gridcolor:'#EEF4FB'}}), PC);
   } else { noData('ch-beds'); }
 
-  // 9. Source median/mean
+  // 9. Source médian/mean
   if(srcLabels.length > 0){
     Plotly.newPlot('ch-srcprice', [
-      {name:'Mediane', x:srcLabels, y:srcMedians, type:'bar', marker:{color:'#1A8ED8'}, text:srcMedians.map(function(v){return v+'M'}), textposition:'outside'},
+      {name:'Médiane', x:srcLabels, y:srcMedians, type:'bar', marker:{color:'#1A8ED8'}, text:srcMedians.map(function(v){return v+'M'}), textposition:'outside'},
       {name:'Moyenne', x:srcLabels, y:srcMeans, type:'bar', marker:{color:'#5BBCE8'}, text:srcMeans.map(function(v){return v+'M'}), textposition:'outside'}
     ], Object.assign({}, LY, {barmode:'group',legend:{orientation:'h',y:1.1},yaxis:{title:'Prix (M FCFA)',gridcolor:'#EEF4FB'}}), PC);
   } else { noData('ch-srcprice'); }
@@ -368,7 +368,7 @@ document.addEventListener('DOMContentLoaded', function(){
   } else { noData('ch-types2'); }
   if(srcLabels.length > 0){
     Plotly.newPlot('ch-srccomp', [
-      {name:'Mediane',x:srcLabels,y:srcMedians,type:'bar',marker:{color:'#1A8ED8'},text:srcMedians.map(function(v){return v+'M'}),textposition:'outside'},
+      {name:'Médiane',x:srcLabels,y:srcMedians,type:'bar',marker:{color:'#1A8ED8'},text:srcMedians.map(function(v){return v+'M'}),textposition:'outside'},
       {name:'Moyenne',x:srcLabels,y:srcMeans,type:'bar',marker:{color:'#5BBCE8'},text:srcMeans.map(function(v){return v+'M'}),textposition:'outside'}
     ], Object.assign({},LY,{barmode:'group',legend:{orientation:'h',y:1.1},yaxis:{title:'Prix (M FCFA)',gridcolor:'#EEF4FB'}}), PC);
   } else { noData('ch-srccomp'); }
@@ -398,7 +398,7 @@ async function doPrediction(){
     details += 'Type : ' + type + ' | Transaction : ' + txn + '<br>';
     if(surface) details += 'Surface : ' + surface + ' m2 | ';
     if(beds) details += 'Chambres : ' + beds;
-    details += '<br>Modele : ' + d.model + ' | Confiance : ' + d.confidence;
+    details += '<br>Modèle : ' + d.model + ' | Confiance : ' + d.confidence;
     document.getElementById('pred-details').innerHTML = details;
     result.style.display = 'block';
     result.scrollIntoView({behavior:'smooth',block:'nearest'});

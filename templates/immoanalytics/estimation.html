@@ -66,7 +66,7 @@ footer,.site-footer{display:none !important}
 <div class="est-hero">
   <div class="est-inner">
     <h1><i class="fas fa-calculator" style="color:#5BBCE8;margin-right:.4rem"></i>Estimer un <span>bien immobilier</span></h1>
-    <p>Estimation basee sur les donnees reelles du marche senegalais et notre modele d'IA.</p>
+    <p>Estimation basée sur les données réelles du marche sénégalais et notre modèle d'IA.</p>
   </div>
   <div class="est-wave"></div>
 </div>
@@ -77,7 +77,7 @@ footer,.site-footer{display:none !important}
     <form method="POST" action="/estimation/">
       {% csrf_token %}
       <div class="fcard">
-        <div class="fcard-hdr"><i class="fas fa-sliders-h"></i>Caracteristiques du bien</div>
+        <div class="fcard-hdr"><i class="fas fa-sliders-h"></i>Caractéristiques du bien</div>
         <div class="fcard-body">
           {% if error %}<div class="alert-err"><i class="fas fa-exclamation-circle"></i>{{ error }}</div>{% endif %}
 
@@ -89,14 +89,14 @@ footer,.site-footer{display:none !important}
           <div class="fg">
             <label><i class="fas fa-map-pin"></i>Quartier / Ville *</label>
             <select name="city" required>
-              <option value="">-- Selectionner un quartier --</option>
+              <option value="">-- Sélectionner un quartier --</option>
               {% for c in cities %}<option value="{{ c }}" {% if form.city == c %}selected{% endif %}>{{ c }}</option>{% endfor %}
             </select>
           </div>
           <div class="fg">
             <label><i class="fas fa-home"></i>Type de bien *</label>
             <select name="property_type" required>
-              <option value="">-- Selectionner --</option>
+              <option value="">-- Sélectionner --</option>
               {% for t in types %}<option value="{{ t }}" {% if form.property_type == t %}selected{% endif %}>{{ t }}</option>{% endfor %}
             </select>
           </div>
@@ -126,11 +126,11 @@ footer,.site-footer{display:none !important}
     </form>
     <div style="margin-top:.8rem">
       <div class="tip"><i class="fas fa-lightbulb"></i>Plus vous renseignez de champs, plus l'estimation sera precise.</div>
-      <div class="tip"><i class="fas fa-database"></i>Modele entraine sur les annonces reelles de 4 sources senegalaises.</div>
+      <div class="tip"><i class="fas fa-database"></i>Modèle entraîné sur les annonces réelles de 4 sources sénégalaises.</div>
     </div>
   </div>
 
-  <!-- Resultat -->
+  <!-- Résultat -->
   <div>
     <div class="rpanel">
       <div class="rpanel-inner">
@@ -151,7 +151,7 @@ footer,.site-footer{display:none !important}
         {% if form.surface_area %}<div class="rpanel-row"><span class="rl">Surface</span><span class="rv">{{ form.surface_area }} m2</span></div>{% endif %}
         {% if form.bedrooms %}<div class="rpanel-row"><span class="rl">Chambres</span><span class="rv">{{ form.bedrooms }}</span></div>{% endif %}
         <div class="rpanel-divider"></div>
-        <div class="rpanel-row"><span class="rl">Modele</span><span class="rv" style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#5BBCE8">{{ result.model_used }}</span></div>
+        <div class="rpanel-row"><span class="rl">Modèle</span><span class="rv" style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#5BBCE8">{{ result.model_used }}</span></div>
         <div class="rpanel-row"><span class="rl">Confiance</span><span class="rv">{{ result.confidence }}</span></div>
         {% else %}
         <div class="rpanel-placeholder">

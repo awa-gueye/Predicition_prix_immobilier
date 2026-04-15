@@ -42,8 +42,8 @@
 {% endblock %}
 {% block content %}
 <div class="fhero">
-  <h1><i class="fas fa-{% if edit %}edit{% else %}plus-circle{% endif %}" style="color:#5BBCE8;margin-right:.4rem"></i>{% if edit %}Modifier l'annonce{% else %}Publier un bien{% endif %}</h1>
-  <p>{% if edit %}Mettez à jour les informations{% else %}Remplissez le formulaire pour publier votre bien{% endif %}</p>
+  <h1><i class="fas fa-{% if edit %}edit{% else %}plus-circle{% endif %}" style="color:#5BBCE8;margin-right:.4rem"></i>{% if edit %}Modifier l'annonce{% else %}Publiér un bien{% endif %}</h1>
+  <p>{% if edit %}Mettez à jour les informations{% else %}Remplissez le formulaire pour publiér votre bien{% endif %}</p>
 </div>
 <div class="fc">
   <form method="POST" enctype="multipart/form-data">
@@ -146,7 +146,7 @@
         <div class="ipg" id="previewGrid"></div>
       </div>
       <div class="factions">
-        <button type="submit" class="bs"><i class="fas fa-check" style="margin-right:.4rem"></i>{% if edit %}Enregistrer{% else %}Publier l'annonce{% endif %}</button>
+        <button type="submit" class="bs"><i class="fas fa-check" style="margin-right:.4rem"></i>{% if edit %}Enregistrer{% else %}Publiér l'annonce{% endif %}</button>
         <a href="{% url 'my_listings' %}" class="bc">Annuler</a>
       </div>
     </div>

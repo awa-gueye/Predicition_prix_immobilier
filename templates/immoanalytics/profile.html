@@ -46,9 +46,9 @@
   <div class="pcard">
     <div class="pcard-hdr"><i class="fas fa-id-card"></i>Informations</div>
     <div class="pcard-body">
-      <div class="info-row"><i class="fas fa-envelope"></i><div><span class="info-lbl">Email</span>{{ user.email|default:"Non renseigne" }}</div></div>
-      <div class="info-row"><i class="fas fa-phone"></i><div><span class="info-lbl">Telephone</span>{{ profile.phone|default:"Non renseigne" }}</div></div>
-      <div class="info-row"><i class="fas fa-city"></i><div><span class="info-lbl">Ville</span>{{ profile.city|default:"Non renseigne" }}</div></div>
+      <div class="info-row"><i class="fas fa-envelope"></i><div><span class="info-lbl">Email</span>{{ user.email|default:"Non renseigné" }}</div></div>
+      <div class="info-row"><i class="fas fa-phone"></i><div><span class="info-lbl">Telephone</span>{{ profile.phone|default:"Non renseigné" }}</div></div>
+      <div class="info-row"><i class="fas fa-city"></i><div><span class="info-lbl">Ville</span>{{ profile.city|default:"Non renseigné" }}</div></div>
       {% if profile.bio %}<div class="info-row"><i class="fas fa-align-left"></i><div><span class="info-lbl">Bio</span>{{ profile.bio }}</div></div>{% endif %}
     </div>
   </div>
@@ -69,10 +69,10 @@
       <div style="text-align:center;padding:2rem 1rem">
         <i class="fas fa-home" style="font-size:2.2rem;color:#D6E3F0;display:block;margin-bottom:.7rem"></i>
         {% if profile.role == 'seller' %}
-        <p style="margin:0 0 1rem;font-size:.85rem;color:#7A8599">Vous n'avez pas encore publie d'annonce.</p>
-        <a href="{% url 'add_listing' %}" style="display:inline-flex;align-items:center;gap:.4rem;padding:.65rem 1.5rem;background:linear-gradient(135deg,#1A8ED8,#5BBCE8);color:#fff;border-radius:9px;text-decoration:none;font-size:.85rem;font-weight:700"><i class="fas fa-plus"></i>Publier un bien</a>
+        <p style="margin:0 0 1rem;font-size:.85rem;color:#7A8599">Vous n'avez pas encore publié d'annonce.</p>
+        <a href="{% url 'add_listing' %}" style="display:inline-flex;align-items:center;gap:.4rem;padding:.65rem 1.5rem;background:linear-gradient(135deg,#1A8ED8,#5BBCE8);color:#fff;border-radius:9px;text-decoration:none;font-size:.85rem;font-weight:700"><i class="fas fa-plus"></i>Publiér un bien</a>
         {% else %}
-        <p style="margin:0 0 1rem;font-size:.85rem;color:#7A8599">Passez en mode vendeur pour publier des annonces.</p>
+        <p style="margin:0 0 1rem;font-size:.85rem;color:#7A8599">Passez en mode vendeur pour publiér des annonces.</p>
         <a href="{% url 'edit_profile' %}" style="display:inline-flex;align-items:center;gap:.4rem;padding:.65rem 1.5rem;background:linear-gradient(135deg,#1A8ED8,#5BBCE8);color:#fff;border-radius:9px;text-decoration:none;font-size:.85rem;font-weight:700"><i class="fas fa-store"></i>Devenir vendeur</a>
         {% endif %}
       </div>

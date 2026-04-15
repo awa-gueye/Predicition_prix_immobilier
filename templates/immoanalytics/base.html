@@ -157,7 +157,7 @@ footer a{font-size:.72rem;color:var(--blue-p)}
     </a>
     <div class="nav-divider"></div>
     <a href="{% url 'about' %}" class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">
-      <i class="fas fa-info-circle"></i>A propos
+      <i class="fas fa-info-circle"></i>À propos
     </a>
     <a href="{% url 'contact' %}" class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}">
       <i class="fas fa-envelope"></i>Contact
@@ -175,7 +175,7 @@ footer a{font-size:.72rem;color:var(--blue-p)}
       {% with profile=user.profile %}
       {% if profile.role == 'seller' %}
       <a href="{% url 'add_listing' %}" class="add-btn">
-        <i class="fas fa-plus"></i>Publier
+        <i class="fas fa-plus"></i>Publiér
       </a>
       {% endif %}
       <!-- Notifications -->
@@ -208,7 +208,7 @@ footer a{font-size:.72rem;color:var(--blue-p)}
           {% if profile.role == 'seller' %}
           <div class="sep"></div>
           <a href="{% url 'my_listings' %}"><i class="fas fa-list" style="color:var(--green)"></i>Mes annonces</a>
-          <a href="{% url 'add_listing' %}"><i class="fas fa-plus-circle" style="color:var(--blue-p)"></i>Publier un bien</a>
+          <a href="{% url 'add_listing' %}"><i class="fas fa-plus-circle" style="color:var(--blue-p)"></i>Publiér un bien</a>
           {% endif %}
           <div class="sep"></div>
           <form method="POST" action="{% url 'logout' %}">
@@ -238,9 +238,9 @@ footer a{font-size:.72rem;color:var(--blue-p)}
 
 <footer style="background:linear-gradient(135deg,#0C2D4D,#143D68);border-top:2px solid #1A8ED8;color:rgba(255,255,255,.4);font-size:.82rem">
   <div style="max-width:1300px;margin:0 auto;padding:2.5rem 2rem 1.5rem;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2.5rem">
-    <div><h3 style="font-family:'Playfair Display',Georgia,serif;font-size:1.1rem;color:#fff;margin-bottom:.5rem">Immo<span style="color:#1A8ED8">Predict</span> SN</h3><p style="font-size:.78rem;color:rgba(255,255,255,.3);line-height:1.7;max-width:260px">Premiere plateforme IA dediee au marche immobilier senegalais.</p></div>
+    <div><h3 style="font-family:'Playfair Display',Georgia,serif;font-size:1.1rem;color:#fff;margin-bottom:.5rem">Immo<span style="color:#1A8ED8">Predict</span> SN</h3><p style="font-size:.78rem;color:rgba(255,255,255,.3);line-height:1.7;max-width:260px">Première plateforme IA dédiée au marché immobilier sénégalais.</p></div>
     <div><h4 style="font-size:.72rem;font-weight:700;color:#5BBCE8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.8rem">Navigation</h4><a href="{% url 'vente' %}" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">Vente</a><a href="{% url 'location' %}" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">Location</a><a href="{% url 'dashboard' %}" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">Dashboard</a><a href="{% url 'estimation' %}" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">Estimation</a></div>
-    <div><h4 style="font-size:.72rem;font-weight:700;color:#5BBCE8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.8rem">Informations</h4><a href="{% url 'about' %}" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">A propos</a><a href="{% url 'contact' %}" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">Contact</a><a href="{% url 'register' %}" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">S'inscrire</a></div>
+    <div><h4 style="font-size:.72rem;font-weight:700;color:#5BBCE8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.8rem">Informations</h4><a href="{% url 'about' %}" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">À propos</a><a href="{% url 'contact' %}" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">Contact</a><a href="{% url 'register' %}" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">S'inscrire</a></div>
     <div><h4 style="font-size:.72rem;font-weight:700;color:#5BBCE8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.8rem">Technologies</h4><a href="#" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">Django / Python</a><a href="#" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">XGBoost / LightGBM</a><a href="#" style="display:block;color:rgba(255,255,255,.35);font-size:.8rem;padding:.2rem 0">PostgreSQL / Neon</a></div>
   </div>
   <div style="max-width:1300px;margin:0 auto;padding:1rem 2rem;border-top:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem"><span style="font-size:.7rem;color:rgba(255,255,255,.18)">ImmoPredict SN &copy; 2025 - Tous droits reserves</span><div style="display:flex;gap:.6rem"><a href="#" style="width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.25);font-size:.75rem"><i class="fab fa-linkedin-in"></i></a><a href="#" style="width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.25);font-size:.75rem"><i class="fab fa-github"></i></a></div></div>
