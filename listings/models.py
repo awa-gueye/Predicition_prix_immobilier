@@ -128,3 +128,50 @@ class ListingImage(models.Model):
 
     def __str__(self):
         return f"Image {self.order} — {self.listing.title}"
+
+
+class Alert(models.Model):
+    """Notification envoyée à un utilisateur."""
+    ALERT_TYPES = [
+        ('new_listing', 'Nouvelle annonce'),
+        ('recommendation', 'Recommandation'),
+        ('proximity', 'À proximité'),
+        ('admin_message', 'Message administrateur'),
+    ]
+    user           = models.ForeignKey(User, on_delete=models.CASCADE, related_name='alerts')
+    alert_type     = models.CharField(max_length=20, choices=ALERT_TYPES, default='new_listing')
+    title          = models.CharField(max_length=200)
+    message        = models.TextField(blank=True)
+    property_title = models.CharField(max_length=200, blank=True)
+    property_price = models.BigIntegerField(null=True, blank=True)
+    property_city  = models.CharField(max_length=100, blank=True)
+    is_read        = models.BooleanField(default=False)
+    created_at     = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Alerte"
+
+    def __str__(self):
+        return f"[{self.get_alert_type_display()}] {self.title} → {self.user.username}"
+
+
+class ContactMessage(models.Model):
+    """Messages envoyés via le formulaire de contact."""
+    user       = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    first_name = models.CharField(max_length=100)
+    last_name  = models.CharField(max_length=100, blank=True)
+    email      = models.EmailField()
+    subject    = models.CharField(max_length=200, blank=True)
+    message    = models.TextField()
+    is_read    = models.BooleanField(default=False)
+    admin_reply= models.TextField(blank=True)
+    replied_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Message contact"
+
+    def __str__(self):
+        return f"{self.first_name} — {self.subject or 'Sans objet'}"

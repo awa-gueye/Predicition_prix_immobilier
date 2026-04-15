@@ -594,6 +594,18 @@ def contact_view(request):
         if not (fname or lname) or not msg_txt:
             error = "Veuillez remplir les champs obligatoires."
         else:
+            try:
+                from listings.models import ContactMessage
+                cm = ContactMessage.objects.create(
+                    user=request.user if request.user.is_authenticated else None,
+                    first_name=fname, last_name=lname, email=email,
+                    subject=request.POST.get('subject','').strip(),
+                    message=msg_txt,
+                )
+                from listings.signals import notify_admin_new_contact
+                notify_admin_new_contact(cm)
+            except Exception:
+                pass
             sent = True
 
     template = 'immoanalytics/contact.html'
@@ -616,37 +628,25 @@ def api_check_auth(request):
 
 
 @login_required(login_url='/immo/login/')
-def api_notifications(request):
-    """Retourne les biens recommandés selon le profil utilisateur."""
+def api_alerts(request):
+    """Retourne les alertes/notifications de l'utilisateur."""
     try:
-        profile = request.user.profile
-        user_city = (profile.city or '').strip()
+        from listings.models import Alert
+        alerts = Alert.objects.filter(user=request.user, is_read=False).order_by('-created_at')[:12]
+        data = [{
+            'id': a.id,
+            'title': a.title,
+            'message': a.message[:100],
+            'type': a.alert_type,
+            'city': a.property_city,
+            'price': a.property_price,
+            'date': a.created_at.strftime('%d/%m %H:%M'),
+        } for a in alerts]
+        
+        # Mark as read
+        if request.GET.get('mark_read') == '1':
+            alerts.update(is_read=True)
+        
+        return JsonResponse({'alerts': data, 'count': len(data)})
     except Exception:
-        user_city = ''
-    results = []
-    try:
-        from properties.models import (CoinAfriqueProperty, ExpatDakarProperty,
-            LogerDakarProperty, DakarVenteProperty)
-        for model in [CoinAfriqueProperty, ExpatDakarProperty, LogerDakarProperty, DakarVenteProperty]:
-            try:
-                qs = model.objects.filter(price__gte=500000)
-                if user_city:
-                    qs = qs.filter(city__icontains=user_city[:6])
-                for p in qs.order_by('-id').values('title', 'price', 'city', 'property_type')[:3]:
-                    pr = float(p.get('price', 0))
-                    fmt = ""
-                    if pr >= 1e6: fmt = f"{pr/1e6:.1f}M FCFA"
-                    elif pr >= 1e3: fmt = f"{pr/1e3:.0f}K FCFA"
-                    else: fmt = f"{pr:,.0f} FCFA"
-                    results.append({
-                        'title': str(p.get('title', ''))[:50] or 'Nouveau bien',
-                        'price': fmt,
-                        'city': str(p.get('city', '')).split(',')[0].strip().title(),
-                        'type': str(p.get('property_type', ''))[:20],
-                        'alert_type': 'proximity' if user_city else 'new_listing',
-                    })
-            except Exception:
-                continue
-    except Exception:
-        pass
-    return JsonResponse({'notifications': results[:8], 'count': min(len(results), 8)})
+        return JsonResponse({'alerts': [], 'count': 0})

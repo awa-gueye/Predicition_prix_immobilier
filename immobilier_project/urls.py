@@ -6,17 +6,12 @@ from django.conf.urls.static import static
 from immoanalytics_dash import views as auth_views
 from immoanalytics_dash import chart_views
 
-# Chatbot : essaie Gemini d'abord, puis Groq, puis None
+# Chatbot Gemini uniquement
 api_chatbot = None
 try:
     from immoanalytics_dash.chatbot_gemini import api_chatbot
 except ImportError:
     pass
-if api_chatbot is None:
-    try:
-        from immoanalytics_dash.chatbot_groq import api_chatbot
-    except ImportError:
-        pass
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -35,13 +30,11 @@ urlpatterns = [
     path('api/properties/', include('properties.urls')),
     path('api/stats/', chart_views.api_stats_real, name='api_stats'),
     path('api/debug-db/', chart_views.api_debug_db, name='api_debug_db'),
+    path('api/alerts/', auth_views.api_alerts, name='api_alerts'),
 ]
-if hasattr(auth_views, 'api_notifications'):
-    urlpatterns += [path('api/notifications/', auth_views.api_notifications, name='api_notifications')]
 if hasattr(chart_views, 'api_predict'):
     urlpatterns += [path('api/predict/', chart_views.api_predict, name='api_predict')]
 if api_chatbot:
     urlpatterns += [path('immo/api/chatbot/', api_chatbot, name='immo_api_chatbot')]
-
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
