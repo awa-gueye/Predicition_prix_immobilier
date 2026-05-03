@@ -1,9 +1,9 @@
 """
-ImmoPredict SN — chatbot_gemini.py
-Chatbot propulsé par Google Gemini 2.0 Flash.
-AUCUNE réponse prédéfinie : tout passe par l'IA.
+ImmoPredict SN — chatbot_hf.py (remplace chatbot_gemini.py)
+Chatbot propulsé par Hugging Face Inference API.
+Modèles gratuits avec fallback automatique.
 """
-import re, json, logging, os
+import re, json, logging, os, time
 import statistics as _st
 from collections import defaultdict, Counter
 from django.contrib.auth.decorators import login_required
@@ -11,13 +11,23 @@ from django.http import JsonResponse
 
 logger = logging.getLogger(__name__)
 
+# Modèles Hugging Face gratuits (Inference API) — ordre de priorité
+HF_MODELS = [
+    "mistralai/Mistral-7B-Instruct-v0.3",
+    "mistralai/Mixtral-8x7B-Instruct-v0.1",
+    "meta-llama/Meta-Llama-3-8B-Instruct",
+    "HuggingFaceH4/zephyr-7b-beta",
+    "microsoft/Phi-3-mini-4k-instruct",
+]
+
+HF_API_URL = "https://api-inference.huggingface.co/models/{model}"
+
 
 # ══════════════════════════════════════════════════════════════
-# CONTEXTE MARCHÉ (injecté dans chaque requête Gemini)
+# CONTEXTE MARCHÉ
 # ══════════════════════════════════════════════════════════════
 
 def _build_context():
-    """Résumé du marché immobilier sénégalais pour le prompt."""
     try:
         from properties.models import (
             CoinAfriqueProperty, ExpatDakarProperty,
@@ -28,7 +38,7 @@ def _build_context():
                   LogerDakarProperty, DakarVenteProperty]:
             try:
                 avail = [f.name for f in M._meta.get_fields()]
-                flds = [f for f in ["price","city","property_type"] if f in avail]
+                flds = [f for f in ["price", "city", "property_type"] if f in avail]
                 for p in M.objects.filter(price__gte=500000).values(*flds)[:2000]:
                     data.append(p)
             except Exception:
@@ -41,18 +51,18 @@ def _build_context():
         if not prices:
             return ""
 
-        types = Counter(str(d.get("property_type","") or "").strip() for d in data)
+        types = Counter(str(d.get("property_type", "") or "").strip() for d in data)
         by_city = defaultdict(list)
         for d in data:
-            c = str(d.get("city","") or "").strip().title()
-            if c and c != "Inconnu":
+            c = str(d.get("city", "") or "").strip().title()
+            if c and c not in ("Inconnu", ""):
                 by_city[c].append(float(d["price"]))
 
         top = sorted(
             [(c, _st.median(ps), len(ps))
              for c, ps in by_city.items() if len(ps) >= 5],
             key=lambda x: x[1], reverse=True,
-        )[:10]
+        )[:8]
 
         def fmt(p):
             if p >= 1e9: return f"{p/1e9:.1f} Mds"
@@ -64,15 +74,12 @@ def _build_context():
             f"DONNÉES RÉELLES DU MARCHÉ IMMOBILIER SÉNÉGALAIS :\n"
             f"• {len(data):,} annonces indexées\n"
             f"• Prix médian : {fmt(_st.median(prices))} FCFA\n"
-            f"• Fourchette : {fmt(min(prices))} – {fmt(max(prices))} FCFA\n\n"
-            f"Types : " + ", ".join(f"{t} ({n})" for t, n in types.most_common(5)) + "\n\n"
-            f"Prix médians par quartier :\n"
+            f"• Fourchette : {fmt(min(prices))} – {fmt(max(prices))} FCFA\n"
+            "Types : " + ", ".join(f"{t} ({n})" for t, n in types.most_common(5)) + "\n"
+            "Prix médians par quartier :\n"
             + "\n".join(f"• {c}: {fmt(p)} FCFA ({n} ann.)" for c, p, n in top)
-            + "\n\nRepères :\n"
-            "• Villa Almadies : 150–500M | Loyer 1–5M/mois\n"
-            "• Appt Mermoz : 40–120M | Loyer 200–800K/mois\n"
-            "• Studio Plateau : 10–35M | Loyer 60–200K/mois\n"
-            "• Terrain Pikine : 3–25M FCFA"
+            + "\nRepères : Villa Almadies 150–500M | Appt Mermoz 40–120M | "
+              "Studio Plateau 10–35M | Terrain Pikine 3–25M FCFA"
         )
     except Exception:
         return ""
@@ -82,80 +89,167 @@ def _build_context():
 # PROMPT SYSTÈME
 # ══════════════════════════════════════════════════════════════
 
-SYSTEM = """Tu es ImmoAI, l'assistant intelligent de ImmoPredict SN,
+SYSTEM_PROMPT = """Tu es ImmoAI, l'assistant intelligent de ImmoPredict SN, \
 la première plateforme IA dédiée au marché immobilier sénégalais.
-
-Tu es un assistant polyvalent comme ChatGPT ou Claude.
-Tu réponds à ABSOLUMENT TOUTES les questions : immobilier,
-culture générale, mathématiques, histoire, géographie, sciences,
-actualités, cuisine, sport, programmation, droit, santé, etc.
-
-RÈGLES :
-1. Réponds TOUJOURS en français
-2. Ne dis JAMAIS "je ne comprends pas" ou "je ne peux pas"
-3. Structure tes réponses clairement avec des paragraphes
-4. Utilise du gras **texte** pour les points importants
-5. Pour l'immobilier sénégalais, appuie-toi sur les données réelles
-6. Formate les prix en FCFA (85M FCFA, 300K FCFA)
-7. Si on te demande un calcul, fais-le précisément
-8. Sois chaleureux et professionnel
-9. Tu peux donner des opinions et recommandations argumentées
-10. Adapte la longueur de ta réponse à la question"""
+Tu es un assistant polyvalent. Tu réponds à TOUTES les questions sans exception : \
+immobilier, culture générale, mathématiques, histoire, sciences, cuisine, sport, \
+programmation, droit, santé, etc.
+Règles : réponds toujours en français, sois précis et structuré, \
+formate les prix en FCFA, ne refuse jamais de répondre, \
+utilise les données du marché fournies pour les questions immobilières."""
 
 
-# ══════════════════════════════════════════════════════════════
-# APPEL GEMINI
-# ══════════════════════════════════════════════════════════════
+def _build_prompt(question, history, context):
+    """Construit le prompt au format instruction pour les LLMs."""
+    system = SYSTEM_PROMPT
+    if context:
+        system += f"\n\n{context}"
 
-def _call_gemini(question, history=None):
-    """Envoie la question à Gemini et retourne la réponse."""
-    import google.generativeai as genai
-
-    api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-    if not api_key:
-        raise EnvironmentError("GEMINI_API_KEY manquante")
-
-    genai.configure(api_key=api_key)
-
-    ctx = _build_context()
-    full_prompt = SYSTEM
-    if ctx:
-        full_prompt += "\n\n" + ctx
-
-    model = genai.GenerativeModel(
-        model_name="gemini-2.0-flash",
-        system_instruction=full_prompt,
-    )
-
-    # Historique de conversation
-    chat_history = []
+    # Format conversationnel
+    messages = []
     if history:
-        for msg in history[-10:]:
-            role = "user" if msg.get("role") == "user" else "model"
-            content = msg.get("content", "")
-            if content:
-                chat_history.append({"role": role, "parts": [content]})
+        for msg in history[-6:]:
+            role = msg.get("role", "")
+            content = msg.get("content", "").strip()
+            if role and content:
+                messages.append({"role": role, "content": content})
 
-    chat = model.start_chat(history=chat_history)
-    response = chat.send_message(question)
-    return response.text
+    messages.append({"role": "user", "content": question})
+
+    # Format instruct universel (fonctionne avec Mistral, LLaMA, Zephyr)
+    prompt = f"<s>[INST] <<SYS>>\n{system}\n<</SYS>>\n\n"
+
+    # Ajouter l'historique
+    for i, msg in enumerate(messages[:-1]):
+        if msg["role"] == "user":
+            if i == 0:
+                prompt += f"{msg['content']} [/INST]"
+            else:
+                prompt += f"<s>[INST] {msg['content']} [/INST]"
+        elif msg["role"] == "assistant":
+            prompt += f" {msg['content']} </s>"
+
+    # Question courante
+    if len(messages) == 1:
+        prompt += f"{question} [/INST]"
+    else:
+        prompt += f" <s>[INST] {question} [/INST]"
+
+    return prompt
 
 
-def _md_to_html(text):
-    """Markdown Gemini → HTML."""
+# ══════════════════════════════════════════════════════════════
+# APPEL HUGGING FACE AVEC FALLBACK
+# ══════════════════════════════════════════════════════════════
+
+def _call_hf(question, history=None):
+    """Appelle l'Inference API Hugging Face avec fallback sur plusieurs modèles."""
+    import urllib.request
+    import urllib.error
+
+    api_key = os.environ.get("HUGGINGFACE_API_KEY") or os.environ.get("HF_TOKEN")
+    if not api_key:
+        raise EnvironmentError("HUGGINGFACE_API_KEY non configurée")
+
+    context = _build_context()
+    prompt = _build_prompt(question, history, context)
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+
+    payload = json.dumps({
+        "inputs": prompt,
+        "parameters": {
+            "max_new_tokens": 800,
+            "temperature": 0.7,
+            "top_p": 0.9,
+            "do_sample": True,
+            "return_full_text": False,
+            "stop": ["</s>", "[INST]", "<<SYS>>"],
+        },
+        "options": {
+            "use_cache": False,
+            "wait_for_model": True,   # Attend que le modèle charge (évite 503)
+        },
+    }).encode("utf-8")
+
+    last_error = None
+    for model in HF_MODELS:
+        url = HF_API_URL.format(model=model)
+        try:
+            req = urllib.request.Request(url, data=payload, headers=headers, method="POST")
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                result = json.loads(resp.read().decode("utf-8"))
+
+            # Extraire le texte généré
+            if isinstance(result, list) and result:
+                text = result[0].get("generated_text", "")
+            elif isinstance(result, dict):
+                text = result.get("generated_text", "")
+                if not text and result.get("error"):
+                    raise RuntimeError(result["error"])
+            else:
+                text = str(result)
+
+            text = text.strip()
+            if text:
+                logger.info(f"HF: réponse via {model}")
+                return text
+
+        except urllib.error.HTTPError as e:
+            code = e.code
+            body = e.read().decode("utf-8", errors="ignore")
+            last_error = f"HTTP {code}: {body[:100]}"
+
+            if code == 429:
+                logger.warning(f"Rate limit sur {model}")
+                time.sleep(1)
+                continue
+            elif code in (503, 504):
+                # Modèle en cours de chargement
+                logger.warning(f"Modèle {model} en chargement (503/504)")
+                time.sleep(2)
+                continue
+            elif code == 404:
+                logger.warning(f"Modèle {model} non disponible")
+                continue
+            elif code == 401:
+                raise EnvironmentError("Clé Hugging Face invalide. Vérifiez HUGGINGFACE_API_KEY.")
+            else:
+                logger.warning(f"Erreur {code} sur {model}: {body[:80]}")
+                continue
+
+        except Exception as e:
+            last_error = str(e)
+            logger.warning(f"Erreur sur {model}: {e}")
+            continue
+
+    raise RuntimeError(f"Tous les modèles indisponibles. Dernière erreur : {last_error}")
+
+
+def _clean_response(text):
+    """Nettoie et formate la réponse en HTML."""
     if not text:
         return ""
-    t = text
-    t = re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', t)
-    t = re.sub(r'\*(.+?)\*', r'<em>\1</em>', t)
-    t = re.sub(r'^\s*[-•]\s+', '• ', t, flags=re.MULTILINE)
-    t = t.replace('\n\n', '<br><br>').replace('\n', '<br>')
-    t = re.sub(r'```\w*\n?', '', t)
-    return t
+    # Supprimer les artefacts de prompt qui peuvent rester
+    for tag in ["[INST]", "[/INST]", "<<SYS>>", "<</SYS>>", "<s>", "</s>", "Assistant:", "ImmoAI:"]:
+        text = text.replace(tag, "")
+    text = text.strip()
+    # Markdown → HTML
+    text = re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', text)
+    text = re.sub(r'\*(.+?)\*', r'<em>\1</em>', text)
+    text = re.sub(r'^#{1,3}\s+(.+)$', r'<b>\1</b>', text, flags=re.MULTILINE)
+    text = re.sub(r'^\s*[-•]\s+', '• ', text, flags=re.MULTILINE)
+    text = text.replace('\n\n', '<br><br>').replace('\n', '<br>')
+    text = re.sub(r'```[\w]*<br>', '<br>', text)
+    text = re.sub(r'```', '', text)
+    return text.strip()
 
 
 # ══════════════════════════════════════════════════════════════
-# ENDPOINT
+# ENDPOINT DJANGO
 # ══════════════════════════════════════════════════════════════
 
 @login_required(login_url="/immo/login/")
@@ -171,41 +265,40 @@ def api_chatbot(request):
         if not question:
             return JsonResponse({"error": "Message vide"}, status=400)
 
-        # Tout passe par Gemini — aucune réponse prédéfinie
         try:
-            raw = _call_gemini(question, history)
+            raw = _call_hf(question, history)
             return JsonResponse({
-                "response": _md_to_html(raw),
+                "response": _clean_response(raw),
                 "total": 0,
                 "properties": [],
             })
-        except EnvironmentError:
-            # Clé API non configurée
+
+        except EnvironmentError as e:
             return JsonResponse({
                 "response": (
-                    "Le chatbot IA n'est pas encore activé.<br><br>"
-                    "L'administrateur doit configurer la variable "
-                    "<b>GEMINI_API_KEY</b> dans les paramètres du serveur.<br><br>"
+                    f"Chatbot non configuré : <b>{e}</b><br><br>"
+                    "Ajoutez <b>HUGGINGFACE_API_KEY</b> dans les variables "
+                    "d'environnement Render.<br>"
                     "Clé gratuite sur "
-                    "<a href='https://aistudio.google.com/apikey' "
+                    "<a href='https://huggingface.co/settings/tokens' "
                     "target='_blank' style='color:#1A8ED8'>"
-                    "aistudio.google.com</a>"
+                    "huggingface.co/settings/tokens</a>"
                 ),
-                "total": 0,
-                "properties": [],
+                "total": 0, "properties": [],
             })
-        except Exception as e:
-            logger.error(f"Gemini: {e}")
+
+        except RuntimeError as e:
             return JsonResponse({
-                "response": f"Erreur temporaire du service IA. Réessayez. <br><small style='color:#999'>{str(e)[:80]}</small>",
-                "total": 0,
-                "properties": [],
+                "response": (
+                    "Les serveurs IA sont momentanément surchargés. "
+                    "Réessayez dans quelques secondes."
+                ),
+                "total": 0, "properties": [],
             })
 
     except Exception as e:
         logger.error(f"Chatbot: {e}")
         return JsonResponse({
-            "response": "Erreur. Réessayez.",
-            "total": 0,
-            "properties": [],
+            "response": "Erreur temporaire. Réessayez.",
+            "total": 0, "properties": [],
         })
