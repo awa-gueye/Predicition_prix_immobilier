@@ -118,4 +118,5 @@ zope.interface==8.2
 groq==0.7.0
 gdown>=4.7.3
 google-generativeai
+huggingface-hub>=0.24.0
 
