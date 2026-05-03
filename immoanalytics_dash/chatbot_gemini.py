@@ -1,32 +1,30 @@
 """
-ImmoPredict SN — chatbot_hf.py (remplace chatbot_gemini.py)
-Chatbot propulsé par Hugging Face Inference API.
-Modèles gratuits avec fallback automatique.
+ImmoPredict SN — chatbot (Hugging Face Inference API)
+Utilise l'endpoint /v1/chat/completions (compatible OpenAI) — plus fiable.
 """
-import re, json, logging, os, time
+import json, logging, os, re, time
 import statistics as _st
 from collections import defaultdict, Counter
+import urllib.request, urllib.error
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 
 logger = logging.getLogger(__name__)
 
-# Modèles Hugging Face gratuits (Inference API) — ordre de priorité
+# ── Modèles gratuits testés et fonctionnels ──────────────────
 HF_MODELS = [
     "mistralai/Mistral-7B-Instruct-v0.3",
-    "mistralai/Mixtral-8x7B-Instruct-v0.1",
-    "meta-llama/Meta-Llama-3-8B-Instruct",
     "HuggingFaceH4/zephyr-7b-beta",
     "microsoft/Phi-3-mini-4k-instruct",
+    "mistralai/Mixtral-8x7B-Instruct-v0.1",
+    "meta-llama/Meta-Llama-3-8B-Instruct",
 ]
 
-HF_API_URL = "https://api-inference.huggingface.co/models/{model}"
+# Nouvel endpoint unifié HF (compatible OpenAI chat completions)
+HF_ENDPOINT = "https://api-inference.huggingface.co/v1/chat/completions"
 
 
-# ══════════════════════════════════════════════════════════════
-# CONTEXTE MARCHÉ
-# ══════════════════════════════════════════════════════════════
-
+# ── Contexte marché ───────────────────────────────────────────
 def _build_context():
     try:
         from properties.models import (
@@ -38,8 +36,8 @@ def _build_context():
                   LogerDakarProperty, DakarVenteProperty]:
             try:
                 avail = [f.name for f in M._meta.get_fields()]
-                flds = [f for f in ["price", "city", "property_type"] if f in avail]
-                for p in M.objects.filter(price__gte=500000).values(*flds)[:2000]:
+                flds  = [f for f in ["price","city","property_type"] if f in avail]
+                for p in M.objects.filter(price__gte=500000).values(*flds)[:1500]:
                     data.append(p)
             except Exception:
                 continue
@@ -51,216 +49,141 @@ def _build_context():
         if not prices:
             return ""
 
-        types = Counter(str(d.get("property_type", "") or "").strip() for d in data)
+        types  = Counter(str(d.get("property_type","") or "").strip() for d in data)
         by_city = defaultdict(list)
         for d in data:
-            c = str(d.get("city", "") or "").strip().title()
-            if c and c not in ("Inconnu", ""):
+            c = str(d.get("city","") or "").strip().title()
+            if c and c != "Inconnu":
                 by_city[c].append(float(d["price"]))
 
         top = sorted(
-            [(c, _st.median(ps), len(ps))
-             for c, ps in by_city.items() if len(ps) >= 5],
+            [(c, _st.median(ps), len(ps)) for c,ps in by_city.items() if len(ps)>=5],
             key=lambda x: x[1], reverse=True,
         )[:8]
 
         def fmt(p):
-            if p >= 1e9: return f"{p/1e9:.1f} Mds"
-            if p >= 1e6: return f"{p/1e6:.1f}M"
-            if p >= 1e3: return f"{p/1e3:.0f}K"
+            if p>=1e9: return f"{p/1e9:.1f} Mds"
+            if p>=1e6: return f"{p/1e6:.1f}M"
+            if p>=1e3: return f"{p/1e3:.0f}K"
             return str(int(p))
 
         return (
-            f"DONNÉES RÉELLES DU MARCHÉ IMMOBILIER SÉNÉGALAIS :\n"
-            f"• {len(data):,} annonces indexées\n"
-            f"• Prix médian : {fmt(_st.median(prices))} FCFA\n"
-            f"• Fourchette : {fmt(min(prices))} – {fmt(max(prices))} FCFA\n"
-            "Types : " + ", ".join(f"{t} ({n})" for t, n in types.most_common(5)) + "\n"
-            "Prix médians par quartier :\n"
-            + "\n".join(f"• {c}: {fmt(p)} FCFA ({n} ann.)" for c, p, n in top)
-            + "\nRepères : Villa Almadies 150–500M | Appt Mermoz 40–120M | "
-              "Studio Plateau 10–35M | Terrain Pikine 3–25M FCFA"
+            f"DONNÉES MARCHÉ SÉNÉGALAIS : {len(data):,} annonces | "
+            f"Prix médian {fmt(_st.median(prices))} FCFA | "
+            f"Fourchette {fmt(min(prices))}–{fmt(max(prices))} FCFA\n"
+            "Types : " + ", ".join(f"{t}({n})" for t,n in types.most_common(5)) + "\n"
+            "Quartiers : " + " | ".join(f"{c} {fmt(p)} FCFA" for c,p,n in top)
         )
     except Exception:
         return ""
 
 
-# ══════════════════════════════════════════════════════════════
-# PROMPT SYSTÈME
-# ══════════════════════════════════════════════════════════════
-
-SYSTEM_PROMPT = """Tu es ImmoAI, l'assistant intelligent de ImmoPredict SN, \
-la première plateforme IA dédiée au marché immobilier sénégalais.
-Tu es un assistant polyvalent. Tu réponds à TOUTES les questions sans exception : \
-immobilier, culture générale, mathématiques, histoire, sciences, cuisine, sport, \
-programmation, droit, santé, etc.
-Règles : réponds toujours en français, sois précis et structuré, \
-formate les prix en FCFA, ne refuse jamais de répondre, \
-utilise les données du marché fournies pour les questions immobilières."""
+# ── Prompt système ────────────────────────────────────────────
+SYSTEM = (
+    "Tu es ImmoAI, l'assistant intelligent de ImmoPredict SN, "
+    "la première plateforme IA dédiée au marché immobilier sénégalais. "
+    "Tu es polyvalent comme ChatGPT : tu réponds à TOUTES les questions "
+    "(immobilier, culture générale, maths, histoire, cuisine, sport, code, etc.). "
+    "Règles : réponds toujours en français, sois précis et structuré, "
+    "ne refuse jamais de répondre, formate les prix en FCFA."
+)
 
 
-def _build_prompt(question, history, context):
-    """Construit le prompt au format instruction pour les LLMs."""
-    system = SYSTEM_PROMPT
-    if context:
-        system += f"\n\n{context}"
-
-    # Format conversationnel
-    messages = []
-    if history:
-        for msg in history[-6:]:
-            role = msg.get("role", "")
-            content = msg.get("content", "").strip()
-            if role and content:
-                messages.append({"role": role, "content": content})
-
-    messages.append({"role": "user", "content": question})
-
-    # Format instruct universel (fonctionne avec Mistral, LLaMA, Zephyr)
-    prompt = f"<s>[INST] <<SYS>>\n{system}\n<</SYS>>\n\n"
-
-    # Ajouter l'historique
-    for i, msg in enumerate(messages[:-1]):
-        if msg["role"] == "user":
-            if i == 0:
-                prompt += f"{msg['content']} [/INST]"
-            else:
-                prompt += f"<s>[INST] {msg['content']} [/INST]"
-        elif msg["role"] == "assistant":
-            prompt += f" {msg['content']} </s>"
-
-    # Question courante
-    if len(messages) == 1:
-        prompt += f"{question} [/INST]"
-    else:
-        prompt += f" <s>[INST] {question} [/INST]"
-
-    return prompt
-
-
-# ══════════════════════════════════════════════════════════════
-# APPEL HUGGING FACE AVEC FALLBACK
-# ══════════════════════════════════════════════════════════════
-
+# ── Appel API ─────────────────────────────────────────────────
 def _call_hf(question, history=None):
-    """Appelle l'Inference API Hugging Face avec fallback sur plusieurs modèles."""
-    import urllib.request
-    import urllib.error
-
     api_key = os.environ.get("HUGGINGFACE_API_KEY") or os.environ.get("HF_TOKEN")
     if not api_key:
         raise EnvironmentError("HUGGINGFACE_API_KEY non configurée")
 
-    context = _build_context()
-    prompt = _build_prompt(question, history, context)
+    ctx = _build_context()
+    system_msg = SYSTEM + (f"\n{ctx}" if ctx else "")
+
+    # Construire les messages (format OpenAI)
+    messages = [{"role": "system", "content": system_msg}]
+    if history:
+        for m in history[-8:]:
+            role    = m.get("role","")
+            content = m.get("content","").strip()
+            if role in ("user","assistant") and content:
+                messages.append({"role": role, "content": content})
+    messages.append({"role": "user", "content": question})
 
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
     }
 
-    payload = json.dumps({
-        "inputs": prompt,
-        "parameters": {
-            "max_new_tokens": 800,
-            "temperature": 0.7,
-            "top_p": 0.9,
-            "do_sample": True,
-            "return_full_text": False,
-            "stop": ["</s>", "[INST]", "<<SYS>>"],
-        },
-        "options": {
-            "use_cache": False,
-            "wait_for_model": True,   # Attend que le modèle charge (évite 503)
-        },
-    }).encode("utf-8")
-
-    last_error = None
+    errors = []
     for model in HF_MODELS:
-        url = HF_API_URL.format(model=model)
+        payload = json.dumps({
+            "model":      model,
+            "messages":   messages,
+            "max_tokens": 800,
+            "temperature": 0.7,
+            "stream":     False,
+        }).encode("utf-8")
+
         try:
-            req = urllib.request.Request(url, data=payload, headers=headers, method="POST")
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                result = json.loads(resp.read().decode("utf-8"))
+            req = urllib.request.Request(
+                HF_ENDPOINT, data=payload, headers=headers, method="POST"
+            )
+            with urllib.request.urlopen(req, timeout=45) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
 
-            # Extraire le texte généré
-            if isinstance(result, list) and result:
-                text = result[0].get("generated_text", "")
-            elif isinstance(result, dict):
-                text = result.get("generated_text", "")
-                if not text and result.get("error"):
-                    raise RuntimeError(result["error"])
-            else:
-                text = str(result)
-
-            text = text.strip()
+            text = (data.get("choices") or [{}])[0] \
+                       .get("message", {}) \
+                       .get("content", "").strip()
             if text:
-                logger.info(f"HF: réponse via {model}")
+                logger.info(f"ImmoAI: réponse via {model}")
                 return text
 
         except urllib.error.HTTPError as e:
             code = e.code
             body = e.read().decode("utf-8", errors="ignore")
-            last_error = f"HTTP {code}: {body[:100]}"
+            err  = f"{model} → HTTP {code}: {body[:120]}"
+            errors.append(err)
+            logger.warning(err)
 
+            if code == 401:
+                raise EnvironmentError(
+                    "Clé Hugging Face invalide. Vérifiez HUGGINGFACE_API_KEY."
+                )
             if code == 429:
-                logger.warning(f"Rate limit sur {model}")
-                time.sleep(1)
-                continue
-            elif code in (503, 504):
-                # Modèle en cours de chargement
-                logger.warning(f"Modèle {model} en chargement (503/504)")
-                time.sleep(2)
-                continue
-            elif code == 404:
-                logger.warning(f"Modèle {model} non disponible")
-                continue
-            elif code == 401:
-                raise EnvironmentError("Clé Hugging Face invalide. Vérifiez HUGGINGFACE_API_KEY.")
-            else:
-                logger.warning(f"Erreur {code} sur {model}: {body[:80]}")
-                continue
-
-        except Exception as e:
-            last_error = str(e)
-            logger.warning(f"Erreur sur {model}: {e}")
+                time.sleep(1)       # petit délai avant le modèle suivant
             continue
 
-    raise RuntimeError(f"Tous les modèles indisponibles. Dernière erreur : {last_error}")
+        except Exception as e:
+            err = f"{model} → {e}"
+            errors.append(err)
+            logger.warning(err)
+            continue
+
+    raise RuntimeError("Indisponible:\n" + "\n".join(errors))
 
 
-def _clean_response(text):
-    """Nettoie et formate la réponse en HTML."""
+# ── Nettoyage réponse ─────────────────────────────────────────
+def _to_html(text):
     if not text:
         return ""
-    # Supprimer les artefacts de prompt qui peuvent rester
-    for tag in ["[INST]", "[/INST]", "<<SYS>>", "<</SYS>>", "<s>", "</s>", "Assistant:", "ImmoAI:"]:
-        text = text.replace(tag, "")
-    text = text.strip()
-    # Markdown → HTML
     text = re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', text)
-    text = re.sub(r'\*(.+?)\*', r'<em>\1</em>', text)
+    text = re.sub(r'\*(.+?)\*',     r'<em>\1</em>', text)
     text = re.sub(r'^#{1,3}\s+(.+)$', r'<b>\1</b>', text, flags=re.MULTILINE)
     text = re.sub(r'^\s*[-•]\s+', '• ', text, flags=re.MULTILINE)
     text = text.replace('\n\n', '<br><br>').replace('\n', '<br>')
-    text = re.sub(r'```[\w]*<br>', '<br>', text)
-    text = re.sub(r'```', '', text)
+    text = re.sub(r'```\w*', '', text)
     return text.strip()
 
 
-# ══════════════════════════════════════════════════════════════
-# ENDPOINT DJANGO
-# ══════════════════════════════════════════════════════════════
-
+# ── Endpoint Django ───────────────────────────────────────────
 @login_required(login_url="/immo/login/")
 def api_chatbot(request):
     if request.method != "POST":
         return JsonResponse({"error": "POST requis"}, status=405)
 
     try:
-        body = json.loads(request.body)
+        body     = json.loads(request.body)
         question = body.get("message", "").strip()
-        history = body.get("history", [])
+        history  = body.get("history", [])
 
         if not question:
             return JsonResponse({"error": "Message vide"}, status=400)
@@ -268,18 +191,18 @@ def api_chatbot(request):
         try:
             raw = _call_hf(question, history)
             return JsonResponse({
-                "response": _clean_response(raw),
-                "total": 0,
+                "response":   _to_html(raw),
+                "total":      0,
                 "properties": [],
             })
 
         except EnvironmentError as e:
             return JsonResponse({
                 "response": (
-                    f"Chatbot non configuré : <b>{e}</b><br><br>"
+                    f"⚠️ {e}<br><br>"
                     "Ajoutez <b>HUGGINGFACE_API_KEY</b> dans les variables "
                     "d'environnement Render.<br>"
-                    "Clé gratuite sur "
+                    "Clé gratuite : "
                     "<a href='https://huggingface.co/settings/tokens' "
                     "target='_blank' style='color:#1A8ED8'>"
                     "huggingface.co/settings/tokens</a>"
@@ -288,6 +211,7 @@ def api_chatbot(request):
             })
 
         except RuntimeError as e:
+            logger.error(f"Tous modèles HF échoués: {e}")
             return JsonResponse({
                 "response": (
                     "Les serveurs IA sont momentanément surchargés. "
@@ -299,6 +223,6 @@ def api_chatbot(request):
     except Exception as e:
         logger.error(f"Chatbot: {e}")
         return JsonResponse({
-            "response": "Erreur temporaire. Réessayez.",
+            "response": "Erreur. Réessayez.",
             "total": 0, "properties": [],
         })
